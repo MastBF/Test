@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, ScrollView, Modal, Image, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, Image, Animated, Easing } from 'react-native';
 import { Icon } from 'react-native-elements';
 import imageProfile from '../assets/images/Profile/images.jpg';
 import * as Font from 'expo-font';
-
-const { width, height } = Dimensions.get('window');
 
 import HOC from '../components/HOC';
 
@@ -12,12 +10,31 @@ const ProfileScreen = () => {
   const [selectedPlan, setSelectedPlan] = useState('Starter');
   const [modalVisible, setModalVisible] = useState(false);
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [isCardExpanded, setIsCardExpanded] = useState(false);
+  const animationHeight = useRef(new Animated.Value(0)).current;
 
-  const plans = ['Starter', 'Pro', 'Premium'];
+  const settings = [
+    { name: 'Profile', icon: 'user', type: 'font-awesome' },
+    { name: 'Notifications', icon: 'bell', type: 'font-awesome' },
+    { name: 'Card', icon: 'credit-card', type: 'font-awesome' },
+    { name: 'Security', icon: 'lock', type: 'font-awesome' },
+  ];
 
   const handlePlanChange = (plan) => {
     setSelectedPlan(plan);
     setModalVisible(false);
+  };
+
+  const toggleCardSection = () => {
+    const newHeight = isCardExpanded ? 0 : 150; // Adjust the value based on the content height
+    setIsCardExpanded(!isCardExpanded);
+
+    Animated.timing(animationHeight, {
+      toValue: newHeight,
+      duration: 300,
+      easing: Easing.linear,
+      useNativeDriver: false,
+    }).start();
   };
 
   useEffect(() => {
@@ -40,7 +57,7 @@ const ProfileScreen = () => {
   if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#fff" />
+        <Text>Loading...</Text>
       </View>
     );
   }
@@ -51,56 +68,42 @@ const ProfileScreen = () => {
         <View style={styles.profileImageContainer}>
           <Image source={imageProfile} style={styles.profileImage} />
         </View>
-        <Text style={styles.coinsText}>300</Text>
-        <Text style={styles.coinsAvailableText}>Coins Available</Text>
+        <Text style={styles.username}>James Smith</Text>
 
-        <View style={styles.paymentMethodsContainer}>
-          <Text style={styles.sectionTitle}>Saved Payment Methods</Text>
+        <View style={styles.settingsList}>
+          {settings.map((setting, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.settingItem}
+              onPress={setting.name === 'Card' ? toggleCardSection : null}
+            >
+              <View style={styles.settingPart}>
+                <Icon name={setting.icon} type={setting.type} color="#fff" size={24} />
+                <Text style={styles.settingText}>{setting.name}</Text>
+              </View>
+              {setting.name === 'Card' && (
+                <Icon name={isCardExpanded ? 'up' : 'down'} type="antdesign" color="#fff" size={20} />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+
+
+        {/* <View style={styles.cardSection}>
           <TouchableOpacity style={styles.cardContainer}>
             <Icon name="cc-visa" type="font-awesome" color="#fff" size={24} />
             <Text style={styles.cardText}>card ending with 4964</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.addCardContainer}>
             <View style={styles.cardPart}>
-            <Icon name="credit-card-plus" type="material-community" color="#fff" size={24} />
-            <Text style={styles.addCardText}>Add New Card</Text>
+              <Icon name="credit-card-plus" type="material-community" color="#fff" size={24} />
+              <Text style={styles.addCardText}>Add New Card</Text>
             </View>
-            <Icon name='right' type='antdesign' color='#fff' size={20}/>
+            <Icon name='right' type='antdesign' color='#fff' size={20} />
           </TouchableOpacity>
-        </View>
+        </View> */}
 
-        <Modal
-          visible={modalVisible}
-          transparent={true}
-          animationType="slide"
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              {plans.map((plan) => (
-                <TouchableOpacity
-                  key={plan}
-                  style={styles.modalItem}
-                  onPress={() => handlePlanChange(plan)}
-                >
-                  <Text style={styles.modalItemText}>{plan}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        </Modal>
       </ScrollView>
-      
-      <View style={styles.planContainer}>
-        <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.planPicker}>
-          <Text style={styles.planText}>{selectedPlan}</Text>
-          <Icon name="down" type="antdesign" color="#fff" size={20} />
-        </TouchableOpacity>
-        <View style={styles.progressBar}>
-          <View style={styles.progressFill} />
-        </View>
-        <Text style={styles.progressText}>0.0/19999.0</Text>
-      </View>
     </View>
   );
 };
@@ -125,43 +128,45 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     marginTop: '15%',
-    
   },
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+  username: {
+    color: '#fff',
+    fontSize: 24,
+    fontFamily: 'RobotoBold',
+  },
+  settingsList: {
+    width: '100%',
+    backgroundColor: '#333',
+    height: '50%',
+    borderRadius: 30,
+    padding: 10,
+  },
+  settingItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: '#444',
+    padding: 15,
+    // borderRadius: 10,
+    // marginBottom: 10,
+    // borderRadius: 30,
+    height: 70,
   },
-  cardPart: {
+  settingPart: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  coinsText: {
+  settingText: {
     color: '#fff',
-    fontSize: 48,
-    fontFamily: 'RobotoBold',
-  },
-  coinsAvailableText: {
-    color: '#fff',
-    fontSize: 16,
-    marginBottom: 20,
+    fontSize: 18,
+    marginLeft: 10,
     fontFamily: 'RobotoRegular',
   },
-  paymentMethodsContainer: {
+  cardSection: {
     width: '100%',
-    marginBottom: 20,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    paddingTop: 20,
-    paddingBottom: 10,
-    borderColor: '#2E2E2E',
-  },
-  sectionTitle: {
-    color: '#fff',
-    fontSize: 14,
-    marginBottom: 10,
-    fontFamily: 'RobotoLight',
+    backgroundColor: '#333',
+    borderRadius: 10,
+    padding: 10,
   },
   cardContainer: {
     flexDirection: 'row',
@@ -179,7 +184,6 @@ const styles = StyleSheet.create({
   addCardContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    // backgroundColor: '#333',
     padding: 15,
     borderRadius: 10,
     height: 70,
@@ -188,46 +192,6 @@ const styles = StyleSheet.create({
   addCardText: {
     color: '#fff',
     marginLeft: 10,
-  },
-  planContainer: {
-    position: 'absolute',
-    width: '100%',
-    alignItems: 'center',
-    bottom: 10,
-    borderRadius: 10,
-    backgroundColor: '#333',
-  },
-  planPicker: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#333',
-    padding: 15,
-    borderRadius: 10,
-    width: '100%',
-  },
-  planText: {
-    color: '#fff',
-    fontSize: 16,
-    fontFamily: 'RobotoBold',
-  },
-  progressBar: {
-    width: '90%',
-    height: 10,
-    backgroundColor: '#fff',
-    borderRadius: 5,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    width: '5%',
-    height: '100%',
-    backgroundColor: '#EC6C4F',
-  },
-  progressText: {
-    color: '#fff',
-    fontSize: 14,
-    marginBottom: 5,
-    fontFamily: 'RobotoRegular',
   },
   modalContainer: {
     flex: 1,

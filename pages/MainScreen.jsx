@@ -9,18 +9,45 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import { BASE_URL } from '../utils/requests';
+import { RFPercentage } from 'react-native-responsive-fontsize';
+import HOC from '../components/HOC';
+import OrderProgressPanel from '../components/OrderProgressPanel';
+import image1 from '../assets/images/MainImg/image1.png';
+import image2 from '../assets/images/MainImg/image2.png';
+import image3 from '../assets/images/MainImg/image3.png';
 
 const { width, height } = Dimensions.get('window');
 
 const CoffeeMusicScreen = ({ navigation }) => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const textInputRef = useRef(null);
-  const [shops, setShops] = useState([]);
+  const [shops, setShops] = useState([{
+    id: 1,
+    name: 'Starbucks',
+    nearest: '1.2 km',
+    // // distance: 'away',
+    imagePath: image1,
+  },
+  {
+    id: 2,
+    name: 'Starbucks',
+    nearest: '1.2 km',
+    // // distance: 'away',
+    imagePath: image2,
+  },
+  {
+    id: 3,
+    name: 'Starbucks',
+    nearest: '1.2 km',
+    // // distance: 'away',
+    imagePath: image3,
+  },
+  ]);
   const [activeShops, setActiveShops] = useState(false);
   const [location, setLocation] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const [order, setOrder] = useState(false);
   const focusTextInput = () => {
     navigation.navigate('Main');
     textInputRef.current?.focus();
@@ -69,16 +96,23 @@ const CoffeeMusicScreen = ({ navigation }) => {
       console.error("No location found");
       return;
     }
-
     try {
       setLoading(true);
       const { latitude, longitude } = location.coords;
-      const response = await axios.get(`${BASE_URL}/api/v1/Company/nearest/${longitude}/${latitude}`, {
+      const response = await axios.get(`${BASE_URL}/api/v1/Company/nearest/${3}/${3}`, {
         headers: {
           TokenString: token,
         },
       });
-      setShops(Array.isArray(response.data.items) ? response.data.items : []);
+
+      console.log(response.data);  // Отладочный вывод для проверки структуры ответа
+
+      if (Array.isArray(response.data)) {
+        setShops(response.data);  // Убедитесь, что это массив
+      } else {
+        console.error("Expected an array but got:", response.data);
+      }
+
     } catch (error) {
       console.error("Error fetching shops:", error);
     } finally {
@@ -101,12 +135,12 @@ const CoffeeMusicScreen = ({ navigation }) => {
     loadFonts();
   }, []);
 
-  useEffect(() => {
-    if (token && location) {
-      fetchShops();
-      setActiveShops(true);
-    }
-  }, [token, location]);
+  // useEffect(() => {
+  //   if (token && location) {
+  //     fetchShops();
+  //     setActiveShops(true);
+  //   }
+  // }, [token, location]);
 
   if (!fontsLoaded || loading) {
     return (
@@ -124,30 +158,34 @@ const CoffeeMusicScreen = ({ navigation }) => {
         <TextInput ref={textInputRef} style={styles.searchInput} placeholder="Search your coffee shop" placeholderTextColor="#1C1C1C" />
         <Ionicons name="menu" size={RFPercentage(2.5)} color="white" />
       </View>
-      <ScrollView contentContainerStyle={styles.shopList}>
-        <View style={styles.lines}>
-          <Text style={styles.shopsTitle}>Shops</Text>
-        </View>
-        {location && (
+      <ScrollView contentContainerStyle={styles.scroll}>
+        {order && <OrderProgressPanel />}
+        <ScrollView contentContainerStyle={styles.shopList}>
+          <View style={styles.lines}>
+            <Text style={styles.shopsTitle}>Shops</Text>
+          </View>
+          {/* {location && (
           <Text style={styles.locationText}>
             Latitude: {location.coords.latitude}, Longitude: {location.coords.longitude}
           </Text>
-        )}
-        {shops && shops.length > 0 ? shops.map((item) => (
-          <TouchableOpacity 
-            key={item.id} 
-            style={styles.shopItem} 
-            onPress={() => navigation.navigate('ProductScreen')}
-          >
-            <Image source={{ uri: item.image }} style={styles.shopImage} />
-            <View style={styles.shopText}>
-              <Text style={styles.shopName}>{item.name}</Text>
-              <Text style={styles.shopDistance}>Nearest <Text style={styles.distance}>{item.distance}</Text></Text>
-            </View>
-          </TouchableOpacity>
-        )) : (
-          <Text style={styles.noShopsText}>No shops found</Text>
-        )}
+        )} */}
+          {/* <Text onPress={fetchShops}>Tap</Text> */}
+          {shops.length > 0 ? shops.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.shopItem}
+              onPress={() => navigation.navigate('ProductScreen')}
+            >
+              <Image source={item.imagePath} style={styles.shopImage} />
+              <View style={styles.shopText}>
+                <Text style={styles.shopName}>{item.name}</Text>
+                <Text style={styles.shopDistance}>Nearest {item.nearest}<Text style={styles.distance}>{item.distance}</Text></Text>
+              </View>
+            </TouchableOpacity>
+          )) : (
+            <Text style={styles.noShopsText}>No shops found</Text>
+          )}
+        </ScrollView>
       </ScrollView>
     </SafeAreaView>
   );
@@ -157,6 +195,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1C1C1C',
+    alignItems: 'center',
   },
   loadingContainer: {
     flex: 1,
@@ -166,6 +205,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: width * 0.05,
@@ -175,7 +215,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: width * 0.05,
     paddingHorizontal: width * 0.04,
-    paddingVertical: height * 0.02,
+    paddingVertical: height * 0.01,
     color: '#1C1C1C',
     width: width * 0.6,
   },
@@ -202,6 +242,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: height * 0.01,
+  },
+  scroll: {
+    alignItems: 'center',
   },
   shopsTitle: {
     color: '#fff',

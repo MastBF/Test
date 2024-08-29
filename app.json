@@ -12,6 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    
     "ios": {
       "supportsTablet": true
     },
@@ -33,5 +34,6 @@
     "experiments": {
       "typedRoutes": true
     }
+    
   }
 }

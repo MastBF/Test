@@ -3,9 +3,12 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, ScrollView
 import { Icon, Button } from 'react-native-elements';
 import { RadioButton } from 'react-native-paper';
 import * as Font from 'expo-font';
-import dram2 from '../assets/images/ProductImg/dram.png';
+import dramOrange from '../assets/images/amdOrange.png';
+import dram2 from '../assets/images/amdWhite.png';
 import { AntDesign } from '@expo/vector-icons';
 import HOC from '../components/HOC';
+import CustomButton from '../components/CustomButton';
+
 // import DramSVG from '../assets/images/SVG/dram.svg'; // Убедитесь, что путь указан правильно
 
 const { width, height } = Dimensions.get('window');
@@ -60,7 +63,6 @@ const ItemScreen = ({ navigation }) => {
       <ScrollView style={styles.scrollContainer}>
         <View style={styles.imageContainer}>
           <Image source={require('../assets/images/ProductImg/cup.png')} style={styles.productImage} />
-          {/* <DramSVG width={100} height={100} /> Убедитесь, что вы используете компонент правильно */}
           <Icon
             name="down"
             type="antdesign"
@@ -71,7 +73,7 @@ const ItemScreen = ({ navigation }) => {
         </View>
         <View style={styles.detailsContainer}>
           <Text style={styles.productTitle}>Nescafe</Text>
-          <Text style={styles.productPrice}>700 <Image source={dram2} /></Text>
+          <Text style={styles.productPrice}>700 <Image source={dram2} style={styles.dramImg} /></Text>
           <Text style={styles.productDescription}>Instant coffee, rich, smooth flavor.</Text>
           <Text style={styles.optionTitle}>Choose Size</Text>
           <View style={styles.optionTextContainer}>
@@ -91,7 +93,10 @@ const ItemScreen = ({ navigation }) => {
               />
             </TouchableOpacity>
             <TouchableOpacity style={styles.sizeBlock} onPress={() => { setSelectedValue('Medium'); setSize('Medium'); }}>
-              <Text style={styles.size}>Medium <Text style={styles.priceAdd}>+100</Text></Text>
+              <View style={styles.priceAddAmd}>
+                <Text style={styles.size}>Medium <Text style={styles.priceAdd}>+100</Text> </Text>
+                <Image source={dramOrange} style={styles.dramImgOrange} />
+              </View>
               <RadioButton.Android
                 value="Medium"
                 status={selectedValue === 'Medium' ? 'checked' : 'unchecked'}
@@ -100,7 +105,10 @@ const ItemScreen = ({ navigation }) => {
               />
             </TouchableOpacity>
             <TouchableOpacity style={styles.sizeBlock} onPress={() => { setSelectedValue('Big'); setSize('Big'); }}>
-              <Text style={styles.size}>Big <Text style={styles.priceAdd}>+150</Text></Text>
+              <View style={styles.priceAddAmd}>
+                <Text style={styles.size}>Big <Text style={styles.priceAdd}>+150 </Text></Text>
+                <Image source={dramOrange} style={styles.dramImgOrange} />
+              </View>
               <RadioButton.Android
                 value="Big"
                 status={selectedValue === 'Big' ? 'checked' : 'unchecked'}
@@ -120,12 +128,16 @@ const ItemScreen = ({ navigation }) => {
           </View>
         </View>
       </ScrollView>
-      <Button
+      {/* <Button
         title={`Order ${quantity} For ${(700 + (size === 'Medium' ? 100 : size === 'Big' ? 150 : 0)) * quantity}`}
         buttonStyle={styles.orderButton}
         titleStyle={styles.orderButtonText}
         onPress={() => { }}
         containerStyle={styles.orderButtonContainer}
+      /> */}
+      <CustomButton
+        quantity={quantity}
+        size={size}
       />
     </View>
   );
@@ -139,6 +151,8 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
+
+
   },
   imageContainer: {
     position: 'relative',
@@ -159,6 +173,18 @@ const styles = StyleSheet.create({
   detailsContainer: {
     padding: 20,
   },
+  dramImg: {
+    width: 15,
+    height: 15,
+    resizeMode: 'contain',
+  },
+  dramImgOrange: {
+    width: 12,
+    height: 12,
+    resizeMode: 'contain',
+    marginLeft: -4,
+    marginTop: 15,
+  },
   productTitle: {
     color: '#fff',
     fontSize: 30,
@@ -176,8 +202,13 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   priceAdd: {
-    color: '#FB9B0D',
-    fontWeight: '200',
+    color: '#EC6C4F',
+    fontWeight: '300',
+  },
+  priceAddAmd: {
+    display: 'flex',
+    flexDirection: 'row',
+
   },
   productDescription: {
     color: '#fff',
@@ -256,4 +287,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HOC(ItemScreen);
+export default ItemScreen;

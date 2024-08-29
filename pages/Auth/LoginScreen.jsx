@@ -12,11 +12,13 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false); // Добавлено состояние для управления кнопкой
 
   useEffect(() => {
     const loadFonts = async () => {
       await Font.loadAsync({
         RobotoRegular: require('../../assets/fonts/Roboto-Regular.ttf'),
+        RobotoBold: require('../../assets/fonts/Roboto-Bold.ttf'),
         LatoLight: require('../../assets/fonts/Lato-Light.ttf'),
         InterThin: require('../../assets/fonts/Inter-Thin.ttf'),
         InterMedium: require('../../assets/fonts/Inter-Medium.ttf'),
@@ -30,6 +32,7 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = async () => {
     setLoading(true);
+    setIsDisabled(true); // Отключаем кнопку
     try {
       const response = await axios.post(`${BASE_URL}/api/v1/Authentication/login`, {
         email,
@@ -37,9 +40,11 @@ const LoginScreen = ({ navigation }) => {
       });
       await AsyncStorage.setItem('token', response.data.token);
       setLoading(false);
+      setIsDisabled(false); // Включаем кнопку после успешного входа
       navigation.navigate('Main');
     } catch (error) {
       setLoading(false);
+      setIsDisabled(false); // Включаем кнопку после ошибки
       Alert.alert('Login failed', 'Invalid email or password');
     }
   };
@@ -78,8 +83,16 @@ const LoginScreen = ({ navigation }) => {
         onChangeText={setPassword}
         autoCapitalize="none"
       />
-      <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-        <Text style={styles.buttonText}>{loading ? 'Loading...' : 'Login'}</Text>
+      <TouchableOpacity
+        style={[styles.button, isDisabled && { opacity: 0.5 }]} // Изменяем прозрачность при отключенной кнопке
+        onPress={handleLogin}
+        disabled={isDisabled} // Делаем кнопку неактивной
+      >
+        {loading ? (
+          <ActivityIndicator size="small" color="#000" />
+        ) : (
+          <Text style={styles.buttonText}>Login</Text>
+        )}
       </TouchableOpacity>
       <View style={styles.orContainer}>
         <View style={styles.line} />
@@ -120,12 +133,12 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: width * 1,
-    height: height * 0.3,
-    marginBottom: -height * 0.05,
+    height: height * 0.4,
+    marginBottom: -height * 0.06,
   },
   title: {
-    fontFamily: 'RobotoRegular',
-    fontSize: width * 0.06,
+    fontFamily: 'RobotoBold',
+    fontSize: width * 0.07,
     fontWeight: 'bold',
     marginBottom: height * 0.03,
     textAlign: 'center',

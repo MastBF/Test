@@ -128,8 +128,16 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           selectionColor={'#fff'}
           placeholderTextColor={'#aaa'}
         />
-        <TouchableOpacity style={styles.button} onPress={handleSignup}>
-          <Text style={styles.buttonText}>{loading ? 'Loading...' : 'Get Started'}</Text>
+        <TouchableOpacity
+          style={[styles.button, loading && { opacity: 0.5 }]} // Изменяем прозрачность при отключенной кнопке
+          onPress={handleSignup}
+          disabled={loading} // Делаем кнопку неактивной
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color="#000" /> // Значок загрузки вместо текста
+          ) : (
+            <Text style={styles.buttonText}>Get Started</Text>
+          )}
         </TouchableOpacity>
         <View style={styles.orContainer}>
           <View style={styles.line} />
@@ -175,8 +183,9 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: width * 0.9,
-    height: height * 0.3,
-    marginBottom: -height * 0.05,
+    height: height * 0.4,
+    marginBottom: -height * 0.09,
+    marginTop: -height * 0.1,
   },
   title: {
     fontFamily: 'RobotoRegular',
