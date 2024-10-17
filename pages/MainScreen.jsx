@@ -11,46 +11,54 @@ import * as Location from 'expo-location';
 import { BASE_URL } from '../utils/requests';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import HOC from '../components/HOC';
-import OrderProgressPanel from '../components/OrderProgressPanel';
 import image1 from '../assets/images/MainImg/image1.png';
 import image2 from '../assets/images/MainImg/image2.png';
 import image3 from '../assets/images/MainImg/image3.png';
+import AlertScreen from '@/components/AlertScreen';
+import ProductScreen from './ProductScreen';
 
 const { width, height } = Dimensions.get('window');
 
 const CoffeeMusicScreen = ({ navigation }) => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const textInputRef = useRef(null);
-  const [shops, setShops] = useState([{
-    id: 1,
-    name: 'Starbucks',
-    nearest: '1.2 km',
-    // // distance: 'away',
-    imagePath: image1,
-  },
-  {
-    id: 2,
-    name: 'Starbucks',
-    nearest: '1.2 km',
-    // // distance: 'away',
-    imagePath: image2,
-  },
-  {
-    id: 3,
-    name: 'Starbucks',
-    nearest: '1.2 km',
-    // // distance: 'away',
-    imagePath: image3,
-  },
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [shops, setShops] = useState([
+    {
+      id: 1,
+      name: 'Starbucks',
+      nearest: '1.2 km',
+      imagePath: '../assets/images/MainImg/image1.png',
+    },
+    {
+      id: 2,
+      name: 'Coffee Bean',
+      nearest: '1.5 km',
+      imagePath: '../assets/images/MainImg/image2.png',
+    },
+    {
+      id: 3,
+      name: 'Costa Coffee',
+      nearest: '2.0 km',
+      imagePath: '../assets/images/MainImg/image3.png',
+    },
   ]);
   const [activeShops, setActiveShops] = useState(false);
   const [location, setLocation] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [order, setOrder] = useState(false);
+  const [openShop, setOpenShop] = useState(false);
+  const [id, setId] = useState(null);
+
+  // Функция фокуса на TextInput
   const focusTextInput = () => {
     navigation.navigate('Main');
     textInputRef.current?.focus();
+  };
+
+  // Функция закрытия AlertScreen
+  const onClose = () => {
+    setAlertVisible(false);
   };
 
   useEffect(() => {
@@ -99,20 +107,19 @@ const CoffeeMusicScreen = ({ navigation }) => {
     try {
       setLoading(true);
       const { latitude, longitude } = location.coords;
-      const response = await axios.get(`${BASE_URL}/api/v1/Company/nearest/${3}/${3}`, {
+      console.log(latitude, longitude);
+      const response = await axios.get(`${BASE_URL}/api/v1/Company/nearest/${latitude}/${longitude}`, {
         headers: {
           TokenString: token,
         },
       });
 
-      console.log(response.data);  // Отладочный вывод для проверки структуры ответа
-
       if (Array.isArray(response.data)) {
-        setShops(response.data);  // Убедитесь, что это массив
+        setShops(response.data);
+        console.log('Shops:', response.data);
       } else {
         console.error("Expected an array but got:", response.data);
       }
-
     } catch (error) {
       console.error("Error fetching shops:", error);
     } finally {
@@ -135,12 +142,12 @@ const CoffeeMusicScreen = ({ navigation }) => {
     loadFonts();
   }, []);
 
-  // useEffect(() => {
-  //   if (token && location) {
-  //     fetchShops();
-  //     setActiveShops(true);
-  //   }
-  // }, [token, location]);
+  useEffect(() => {
+    if (token && location) {
+      fetchShops();
+      setActiveShops(true);
+    }
+  }, [token, location]);
 
   if (!fontsLoaded || loading) {
     return (
@@ -150,36 +157,46 @@ const CoffeeMusicScreen = ({ navigation }) => {
     );
   }
 
+  const onConfirm = () => {
+    setAlertVisible(false);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
+      <AlertScreen
+        isVisible={alertVisible}
+        title={'Default Title'}
+        onConfirm={onConfirm}
+        onClose={onClose}
+        message={'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Soluta, velit repudiandae'}
+      />
       <StatusBar barStyle="light-content" />
       <View style={styles.header}>
-        <Feather name="user" size={RFPercentage(2.5)} color="white" />
-        <TextInput ref={textInputRef} style={styles.searchInput} placeholder="Search your coffee shop" placeholderTextColor="#1C1C1C" />
+        <Feather name="user" size={RFPercentage(2.5)} color="white" onPress={() => navigation.navigate('ProfileScreen')} />
+        <TextInput
+          ref={textInputRef}
+          style={styles.searchInput}
+          placeholder="Search your coffee shop"
+          placeholderTextColor="#1C1C1C"
+        />
         <Ionicons name="menu" size={RFPercentage(2.5)} color="white" />
       </View>
       <ScrollView contentContainerStyle={styles.scroll}>
-        {order && <OrderProgressPanel />}
         <ScrollView contentContainerStyle={styles.shopList}>
           <View style={styles.lines}>
             <Text style={styles.shopsTitle}>Shops</Text>
           </View>
-          {/* {location && (
-          <Text style={styles.locationText}>
-            Latitude: {location.coords.latitude}, Longitude: {location.coords.longitude}
-          </Text>
-        )} */}
-          {/* <Text onPress={fetchShops}>Tap</Text> */}
           {shops.length > 0 ? shops.map((item) => (
             <TouchableOpacity
               key={item.id}
               style={styles.shopItem}
-              onPress={() => navigation.navigate('ProductScreen')}
+              // onPress={() => { navigation.navigate('ProductScreen', { id: item.id }) }}
+              onPress={() => { navigation.navigate('ProductScreen', { id: item.id }) }}
             >
-              <Image source={item.imagePath} style={styles.shopImage} />
+              <Image source={{ uri: item.imagePath }} style={styles.shopImage} />
               <View style={styles.shopText}>
                 <Text style={styles.shopName}>{item.name}</Text>
-                <Text style={styles.shopDistance}>Nearest {item.nearest}<Text style={styles.distance}>{item.distance}</Text></Text>
+                <Text style={styles.shopDistance}>Nearest {item.nearest}m</Text>
               </View>
             </TouchableOpacity>
           )) : (
@@ -231,11 +248,6 @@ const styles = StyleSheet.create({
   shopImage: {
     height: height * 0.25,
     borderRadius: width * 0.05,
-    shadowColor: '#fff',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 1,
-    shadowRadius: 10,
-    elevation: 16,
     width: '100%',
   },
   shopText: {
@@ -263,10 +275,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontFamily: 'InterThin',
     fontSize: RFPercentage(2),
-  },
-  distance: {
-    color: '#FB9B0D',
-    fontWeight: '900',
   },
   noShopsText: {
     color: '#fff',

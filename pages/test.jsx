@@ -1,66 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
-import * as Location from 'expo-location';
-import ErrorMessage from '../components/ErrorMessage';
-import { AntDesign } from '@expo/vector-icons';
-import HOC from '../components/HOC';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Dimensions, Image, FlatList } from 'react-native';
 import * as Font from 'expo-font';
+import { Feather } from '@expo/vector-icons';
+import logo from '../assets/images/logo3.png';
+import image1 from '../assets/images/MainImg/image1.png';
+import image2 from '../assets/images/MainImg/image2.png';
+import image3 from '../assets/images/MainImg/image3.png';
 
-const { width, height } = Dimensions.get('window');
-
-const CoffeeMusicScreen = ({ navigation }) => {
-    const [data, setData] = useState([
-        { id: '1', name: 'Nescafe', price: '700', description: 'Instant coffee, rich, smooth flavor.' },
-        { id: '2', name: 'Nescafe', price: '700', description: 'Instant coffee, rich, smooth flavor.' },
-        { id: '3', name: 'Nescafe', price: '700', description: 'Instant coffee, rich, smooth flavor.' },
-        { id: '4', name: 'Nescafe', price: '700', description: 'Instant coffee, rich, smooth flavor.' },
-    ]);
-    const [location, setLocation] = useState(null);
-    const [errorMsg, setErrorMsg] = useState(null);
+export default function ListOfBranches() {
     const [fontsLoaded, setFontsLoaded] = useState(false);
-    const [counts, setCounts] = useState({}); // Состояние для хранения счётчиков для каждого продукта
 
-    const onPlus = (id) => {
-        setCounts(prevCounts => ({
-            ...prevCounts,
-            [id]: (prevCounts[id] || 0) + 1
-        }));
-    };
+    const branches = [
+        { id: 1, address: '6 Sayat-Nova Ave, Yerevan', distance: '200m' },
+        { id: 2, address: '41 Isahakyan St, Yerevan 0009', distance: '800m' },
+        { id: 3, address: '2, 1 Sasuntsi Davit St, Yerevan 0005', distance: '1.2km' },
+        { id: 4, address: '8, 8 Tsitsernakaberd Hwy, Yerevan 0028', distance: '1.5km' },
+        { id: 5, address: '20 Myasnikyan Ave, Yerevan 0025', distance: '2km' },
+    ];
 
-    const onMinus = (id) => {
-        setCounts(prevCounts => ({
-            ...prevCounts,
-            [id]: Math.max((prevCounts[id] || 0) - 1, 0)
-        }));
-    };
-
-    useEffect(() => {
-        (async () => {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                alert('Permission to access location was denied');
-                return;
-            }
-            let location = await Location.getCurrentPositionAsync({});
-            setLocation(location);
-        })();
-    }, []);
+    const images = [
+        { id: '1', image: image1 },
+        { id: '2', image: image2 },
+        { id: '3', image: image3 },
+    ];
 
     useEffect(() => {
         const loadFonts = async () => {
             await Font.loadAsync({
-                RobotoBold: require('../assets/fonts/Roboto-Bold.ttf'),
-                RobotoLight: require('../assets/fonts/Roboto-Light.ttf'),
                 RobotoRegular: require('../assets/fonts/Roboto-Regular.ttf'),
-                LatoBold: require('../assets/fonts/Lato-Bold.ttf'),
-                LatoLight: require('../assets/fonts/Lato-Light.ttf'),
-                InterThin: require('../assets/fonts/Inter-Thin.ttf'),
-                InterMedium: require('../assets/fonts/Inter-Medium.ttf'),
-                InterBold: require('../assets/fonts/Inter-Bold.ttf'),
+                RobotoBold: require('../assets/fonts/Roboto-Bold.ttf'),
+                RobotoThin: require('../assets/fonts/Roboto-Thin.ttf'),
+                RobotoLight: require('../assets/fonts/Roboto-Light.ttf'),
             });
             setFontsLoaded(true);
         };
-
         loadFonts();
     }, []);
 
@@ -72,194 +45,129 @@ const CoffeeMusicScreen = ({ navigation }) => {
         );
     }
 
-    const renderItem = (item) => (
-        <TouchableOpacity
-            key={item.id}
-            onPress={() => {
-                navigation.navigate('ItemScreen');
-            }}
-        >
-            <View style={styles.itemContainer}>
-                <Image source={require('../assets/images/ProductImg/cup.png')} style={styles.image} />
-                <View style={styles.info}>
-                    <View style={styles.PriveName}>
-                        <Text style={styles.name}>{item.name}</Text>
-                        <View style={styles.priceContainer}>
-                            <Text style={styles.price}>{item.price}</Text>
-                        </View>
-                    </View>
-                    <Text style={styles.description}>{item.description}</Text>
-                    <View style={styles.buttonPlusMinus}>
-                        {counts[item.id] > 0 && (
-                            <TouchableOpacity style={styles.buttonWrapper} onPress={() => onMinus(item.id)}>
-                                <AntDesign name="minuscircle" size={16} color="white" />
-                            </TouchableOpacity>
-                        )}
-                        <Text style={styles.count}>{counts[item.id] > 0 ? `${counts[item.id]}x` : ''}</Text>
-                        <TouchableOpacity style={styles.buttonWrapper} onPress={() => onPlus(item.id)}>
-                            <AntDesign name="pluscircle" size={16} color="white" />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </View>
-        </TouchableOpacity>
+    const renderItem = ({ item }) => (
+        <Image source={item.image} style={styles.image} />
     );
 
     return (
         <View style={styles.container}>
-            {errorMsg && <ErrorMessage errorMsg={errorMsg} />}
-            <View style={styles.header}>
-                <Image source={require('../assets/images/ProductImg/background.png')} style={styles.headerImage} />
-            </View>
-            <ScrollView style={styles.prodList} contentContainerStyle={styles.list}>
-                <Text style={styles.title}>Coffee Music</Text>
-                {data.map(renderItem)}
-            </ScrollView>
-            <TouchableOpacity style={styles.footer}>
-                <View style={styles.footerBlock}>
-                    <Text style={styles.footerTextNone}>A</Text>
-                    <Text style={styles.footerText}>Order</Text>
-                    <Text style={styles.footerTextSecond}>700</Text>
+            <View style={styles.logoBlock}>
+                <View style={styles.blackBackground}>
+                    <Image source={logo} style={styles.logo} />
                 </View>
-            </TouchableOpacity>
+                <Text style={styles.branchTitle}>Ice Lava</Text>
+            </View>
+
+            <FlatList
+                data={images}
+                renderItem={renderItem}
+                keyExtractor={item => item.id}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                pagingEnabled
+                style={styles.carousel}
+            />
+
+            <FlatList
+                data={branches}
+                renderItem={({ item }) => (
+                    <TouchableOpacity key={item.id}>
+                        <View style={styles.branchBlock}>
+                            <Feather name='map-pin' size={24} color='#8F8F8F' style={styles.BranchIcon} />
+                            <View style={styles.block}>
+                                <Text style={styles.streetName}>{item.address}</Text>
+                                <Text style={[styles.streetName, styles.thinStyle]}>{item.distance}</Text>
+                            </View>
+                        </View>
+                    </TouchableOpacity>
+                )}
+                keyExtractor={item => item.id.toString()}
+                style={styles.branchList}
+                contentContainerStyle={styles.scrollViewContent}
+            />
         </View>
     );
-};
+}
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#1C1C1C',
+        backgroundColor: '#E0E0E0',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        paddingTop: 10,
+        paddingHorizontal: 5,
+    },
+    scrollViewContent: {
+        paddingBottom: 20,
+    },
+    branchBlock: {
+        flexDirection: 'row',
+        borderRadius: 20,
+        marginBottom: 10,
+        padding: 10,
+        alignItems: 'center',
+    },
+    logoBlock: {
+        flexDirection: 'row',
+        marginBottom: 10,
+    },
+    blackBackground: {
+        backgroundColor: '#000',
+        borderRadius: 20,
+    },
+    logo: {
+        width: 70,
+        height: 70,
+        alignSelf: 'center',
+        borderRadius: 10,
+    },
+    branchTitle: {
+        color: '#000',
+        fontFamily: 'RobotoRegular',
+        alignSelf: 'center',
+        fontSize: 24,
+        marginLeft: 10,
+        marginBottom: 10,
+    },
+    block: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        borderBottomWidth: 1,
+        borderBottomColor: '#C5C5C5',
+        paddingBottom: 10,
+        flex: 1,
+    },
+    BranchIcon: {
+        backgroundColor: '#C5C5C5',
+        padding: 6,
+        borderRadius: 10,
+        marginRight: 10,
+    },
+    streetName: {
+        color: '#000',
+        marginTop: 5,
+        fontFamily: 'RobotoBold',
+    },
+    thinStyle: {
+        fontFamily: 'RobotoLight',
     },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#1C1C1C',
-    },
-    header: {
-        alignItems: 'center',
-        margin: width * 0.05,
-    },
-    headerImage: {
-        marginTop: -height * 0.05,
-    },
-    PriveName: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: height * 0.01,
-        width: '100%',
-    },
-    title: {
-        color: '#fff',
-        fontSize: width * 0.08,
-        marginTop: height * 0.01,
-        fontFamily: 'RobotoBold',
-    },
-    list: {
-        paddingHorizontal: width * 0.05,
-    },
-    prodList: {
-        backgroundColor: '#1C1C1C',
-        borderTopRightRadius: width * 0.12,
-        marginTop: -height * 0.25,
-        height: '100%',
-        width: '100%',
-    },
-    itemContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderBottomWidth: 1,
-        borderBottomColor: '#333',
-        borderRadius: width * 0.04,
-        width: '100%',
-        marginBottom: height * 0.02,
-        paddingVertical: height * 0.01,
-        paddingRight: width * 0.06,
-    },
-    buttonPlusMinus: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        marginTop: height * 0.05,
-    },
-    buttonWrapper: {
-        padding: width * 0.02,
-    },
-    count: {
-        color: '#fff',
-        fontSize: width * 0.03,
-        marginHorizontal: width * 0.01,
-        fontFamily: 'RobotoLight',
+        backgroundColor: '#000',
     },
     image: {
-        width: width * 0.3,
-        height: width * 0.3,
-        margin: width * 0.06,
-        marginRight: 0,
-        marginLeft: 0,
+        width: Dimensions.get('window').width * 0.9,
+        height: 150,
+        borderRadius: 10,
+        marginHorizontal: Dimensions.get('window').width * 0.05,
     },
-    info: {
+    carousel: {
+        marginBottom: 20,
+    },
+    branchList: {
         flex: 1,
-        width: '100%',
     },
-    name: {
-        color: '#fff',
-        fontSize: width * 0.045,
-        fontFamily: 'RobotoBold',
-    },
-    description: {
-        color: '#aaa',
-        fontSize: width * 0.035,
-        width: '60%',
-        fontFamily: 'RobotoLight',
-    },
-    priceContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    price: {
-        color: '#fff',
-        fontSize: width * 0.05,
-        marginRight: width * 0.01,
-        fontFamily: 'RobotoLight',
-    },
-    footer: {
-        backgroundColor: '#fff',
-        // paddingTop: height * 0.011,
-        alignItems: 'center',
-        borderRadius: width * 0.1,
-        width: '90%',
-        position: 'absolute',
-        bottom: height * 0.02,
-        alignSelf: 'center',
-        height: height * 0.06,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    footerBlock: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '90%',
-    },
-    footerText: {
-        color: '#000',
-        fontSize: width * 0.05,
-        fontWeight: 'thin',
-    },
-    footerTextSecond: {
-        color: '#615F5F',
-        fontSize: width * 0.05,
-        fontWeight: '300',
-    },
-    footerTextNone: {
-        color: '#fff',
-        fontSize: width * 0.05,
-        fontWeight: 'thin',
-        marginRight: width * 0.03,
-    },
-
 });
-
-export default HOC(CoffeeMusicScreen);

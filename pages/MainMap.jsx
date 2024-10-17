@@ -1,13 +1,34 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Callout } from 'react-native-maps';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
-import ListOfBranches from '../components/ListOfBranches';
+import ListOfCompanies from '../components/ListOfCompanies';
 import { Icon } from 'react-native-elements';
-
-export default function MapScreen({ navigation }) {
+import axios from 'axios';
+import { BASE_URL } from '@/utils/requests';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+function MapScreen({ navigation }) {
     const [isListVisible, setIsListVisible] = useState(true);
+    const [branches, setBranches] = useState([]);
+    const [token, setToken] = useState(null);
+
+    useEffect(() => {
+        const getToken = async () => {
+            try {
+                const storedToken = await AsyncStorage.getItem('token');
+                if (storedToken) {
+                    setToken(storedToken);
+                } else {
+                    console.error("Token not found in AsyncStorage");
+                }
+            } catch (error) {
+                console.error("Error getting token from AsyncStorage:", error);
+            }
+        };
+
+        getToken();
+    }, []);
 
     // Animated values
     const heightAnim = useSharedValue(200); // Initial height in pixels
@@ -17,6 +38,10 @@ export default function MapScreen({ navigation }) {
         heightAnim.value = withSpring(isListVisible ? 50 : 350); // Minimize to 50px and expand to 200px
         setIsListVisible(!isListVisible);
     };
+
+    const onMarekerPress = () => {
+
+    }
 
     const animatedStyle = useAnimatedStyle(() => {
         return {
@@ -228,7 +253,24 @@ export default function MapScreen({ navigation }) {
         { id: 7, longitude: 44.5148, latitude: 40.1815, title: 'Marker 7', description: 'Description 7' },
     ];
 
+    const fetchAllBranches = async () => {
+        try {
+            const response = await axios.get(`${BASE_URL}/api/v1/Branch/all-branches`, {
+                headers: {
+                    TokenString: token,
+                },
+            });
+            console.log('Branches response:', response.data);
+            setBranches(response.data);
+        } catch (error) {
+            console.error('Error fetching branches:', error);
+        }
+    }
 
+    useEffect(() => {
+        if (token) fetchAllBranches();
+
+    }, [token]);
     return (
         <View style={styles.container}>
             <Icon
@@ -249,25 +291,33 @@ export default function MapScreen({ navigation }) {
                 customMapStyle={darkTheme}
                 onPress={toggleList} // Toggle list visibility on map press
             >
-                {markers.map(marker => (
+                {branches.map(marker => (
                     <Marker
                         key={marker.id}
                         coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
-                        title={marker.title}
-                        description={marker.description}
-                    />
-                ))}
+                        // title={marker.title}
+                        // description={marker.description}
+                        onPress={onMarekerPress}
+                        pinColor="#3EC4C1"
+                    >
+                        <Callout>
+                            <View style={styles.callout}>
+                                {/* <Text style={styles.title}>{marker.title}</Text>
+                                <Text style={styles.description}>{marker.description}</Text> */}
+                            </View>
+                        </Callout>
+                    </Marker>
+                ))}a
             </MapView>
             <PanGestureHandler onGestureEvent={handleGesture}>
-                <Animated.View style={[styles.listContainer, animatedStyle]} >
+                <Animated.View style={[styles.listContainer, animatedStyle]}>
                     <View style={styles.dragHandle} />
-                    <ListOfBranches navigation={navigation} />
+                    <ListOfCompanies navigation={navigation} />
                 </Animated.View>
             </PanGestureHandler>
         </View >
     );
 }
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -296,11 +346,27 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         marginVertical: 10,
     },
+    title: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#000',
+    },
+    description: {
+        fontSize: 14,
+        color: '#333',
+    },
+    callout: {
+        width: 150,
+        padding: 5,
+    },
     closeIcon: {
         position: 'absolute',
         top: 40,
-        left: 10,
+        left: 0,
         padding: 10,
         zIndex: 1,
     },
 });
+
+
+export default MapScreen;

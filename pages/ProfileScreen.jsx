@@ -1,109 +1,117 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, Image, Animated, Easing } from 'react-native';
-import { Icon } from 'react-native-elements';
-import imageProfile from '../assets/images/Profile/images.jpg';
-import * as Font from 'expo-font';
-
+import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 import HOC from '../components/HOC';
+import { AntDesign } from '@expo/vector-icons';
+import { BASE_URL } from '@/utils/requests';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ScrollView } from 'react-native-gesture-handler';
 
-const ProfileScreen = () => {
-  const [selectedPlan, setSelectedPlan] = useState('Starter');
-  const [modalVisible, setModalVisible] = useState(false);
-  const [fontsLoaded, setFontsLoaded] = useState(false);
-  const [isCardExpanded, setIsCardExpanded] = useState(false);
-  const animationHeight = useRef(new Animated.Value(0)).current;
+const ProfileScreen = ({ navigation }) => {
+  const [card, setCard] = useState(null);
+  const [token, setToken] = useState(null);
+  const [isOpen, setIsOpen] = useState(false); // состояние для управления открытием/закрытием
+  const animation = useRef(new Animated.Value(0)).current; // начальная высота анимации
 
-  const settings = [
-    { name: 'Profile', icon: 'user', type: 'font-awesome' },
-    { name: 'Notifications', icon: 'bell', type: 'font-awesome' },
-    { name: 'Card', icon: 'credit-card', type: 'font-awesome' },
-    { name: 'Security', icon: 'lock', type: 'font-awesome' },
-  ];
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const storedToken = await AsyncStorage.getItem('token');
+        if (storedToken) {
+          setToken(storedToken);
+        } else {
+          console.error("Token not found in AsyncStorage");
+        }
+      } catch (error) {
+        console.error("Error getting token from AsyncStorage:", error);
+      }
+    };
 
-  const handlePlanChange = (plan) => {
-    setSelectedPlan(plan);
-    setModalVisible(false);
-  };
+    getToken();
+  }, []);
 
-  const toggleCardSection = () => {
-    const newHeight = isCardExpanded ? 0 : 150; // Adjust the value based on the content height
-    setIsCardExpanded(!isCardExpanded);
-
-    Animated.timing(animationHeight, {
-      toValue: newHeight,
-      duration: 300,
-      easing: Easing.linear,
-      useNativeDriver: false,
-    }).start();
+  const getCard = async () => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/api/v1/Order/card`,
+        {
+          headers: {
+            'TokenString': token,
+          }
+        }
+      );
+      console.log('Card response:', response.data);
+      setCard(response.data);
+    } catch (error) {
+      console.error('Error getting card:', error);
+    }
   };
 
   useEffect(() => {
-    const loadFonts = async () => {
-      await Font.loadAsync({
-        RobotoRegular: require('../assets/fonts/Roboto-Regular.ttf'),
-        RobotoBold: require('../assets/fonts/Roboto-Bold.ttf'),
-        RobotoLight: require('../assets/fonts/Roboto-Light.ttf'),
-        LatoLight: require('../assets/fonts/Lato-Light.ttf'),
-        InterThin: require('../assets/fonts/Inter-Thin.ttf'),
-        InterMedium: require('../assets/fonts/Inter-Medium.ttf'),
-        InterBold: require('../assets/fonts/Inter-Bold.ttf'),
-      });
-      setFontsLoaded(true);
-    };
+    if (token) {
+      getCard();
+    }
+  }, [token]);
 
-    loadFonts();
-  }, []);
+  // Функция для анимации открытия/закрытия карточки
+  const toggleCard = () => {
+    const finalHeight = isOpen ? 0 : 110; // высота при открытии (например, 150)
+    Animated.timing(animation, {
+      toValue: finalHeight,
+      duration: 400,
+      useNativeDriver: false, // так как изменяем высоту
+    }).start();
 
-  if (!fontsLoaded) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
+    setIsOpen(!isOpen); // смена состояния
+  };
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.profileImageContainer}>
-          <Image source={imageProfile} style={styles.profileImage} />
+      <View style={styles.profileSection}>
+        <View style={styles.profileIconContainer}>
+          <Icon name="person-circle-outline" size={100} color="#bbb" />
         </View>
-        <Text style={styles.username}>James Smith</Text>
+        <Text style={styles.username}>Hayk Minasyan</Text>
+      </View>
 
-        <View style={styles.settingsList}>
-          {settings.map((setting, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.settingItem}
-              onPress={setting.name === 'Card' ? toggleCardSection : null}
-            >
-              <View style={styles.settingPart}>
-                <Icon name={setting.icon} type={setting.type} color="#fff" size={24} />
-                <Text style={styles.settingText}>{setting.name}</Text>
-              </View>
-              {setting.name === 'Card' && (
-                <Icon name={isCardExpanded ? 'up' : 'down'} type="antdesign" color="#fff" size={20} />
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
-
-
-        {/* <View style={styles.cardSection}>
-          <TouchableOpacity style={styles.cardContainer}>
-            <Icon name="cc-visa" type="font-awesome" color="#fff" size={24} />
-            <Text style={styles.cardText}>card ending with 4964</Text>
+      <View style={styles.paymentSection}>
+        <Text style={styles.sectionTitle}>Saved Payment Methods</Text>
+        {card ? (
+          <TouchableOpacity style={styles.paymentCard} onPress={toggleCard}>
+            <Icon name="card-outline" size={25} color="#fff" />
+            <Text style={styles.cardText}>Card ending with {card[0].cardNumberFirstDigits}</Text>
+            {card.length > 1 && <AntDesign name={isOpen ? "up" : "down"} size={16} color="white" style={styles.iconEnd} />}
           </TouchableOpacity>
-          <TouchableOpacity style={styles.addCardContainer}>
-            <View style={styles.cardPart}>
-              <Icon name="credit-card-plus" type="material-community" color="#fff" size={24} />
-              <Text style={styles.addCardText}>Add New Card</Text>
-            </View>
-            <Icon name='right' type='antdesign' color='#fff' size={20} />
+        ) : (
+          <TouchableOpacity style={styles.paymentCard}>
+            <Icon name="card-outline" size={25} color="#fff" />
+            <Text style={styles.cardText}>No active cards</Text>
           </TouchableOpacity>
-        </View> */}
+        )}
 
-      </ScrollView>
+        {/* Анимированный контейнер для списка карт */}
+        <Animated.View style={[styles.cardListContainer, { height: animation }]}>
+          {isOpen && card && card.length > 1 && (
+            <ScrollView>
+              {card.map((item, index) => (
+                <TouchableOpacity key={index}>
+                  <Text key={index} style={styles.cardItem}>
+                    Card ending with {item.cardNumberFirstDigits}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
+        </Animated.View>
+
+        <TouchableOpacity
+          style={styles.addNewCard}
+          onPress={() => navigation.navigate('AddPaymentCardScreen')}
+        >
+          <Text style={styles.addNewCardText}>Add New Card</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -111,108 +119,79 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1C1C1C',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1C1C1C',
-  },
-  scrollContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: '#1E1E1E',
     padding: 20,
   },
-  profileImageContainer: {
+  profileSection: {
     alignItems: 'center',
+    marginTop: 50,
+  },
+  profileIconContainer: {
+    backgroundColor: '#333',
+    borderRadius: 50,
+    padding: 10,
     marginBottom: 20,
-    marginTop: '15%',
   },
   username: {
     color: '#fff',
-    fontSize: 24,
-    fontFamily: 'RobotoBold',
+    fontSize: 25,
+    fontWeight: 'bold',
+    marginTop: 10,
   },
-  settingsList: {
-    width: '100%',
-    backgroundColor: '#333',
-    height: '50%',
-    borderRadius: 30,
-    padding: 10,
+  paymentSection: {
+    marginTop: 40,
+    borderColor: '#2E2E2E',
+    borderBottomWidth: 1,
+    borderTopWidth: 1,
+    paddingVertical: 40,
   },
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#444',
-    padding: 15,
-    // borderRadius: 10,
-    // marginBottom: 10,
-    // borderRadius: 30,
-    height: 70,
-  },
-  settingPart: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  settingText: {
-    color: '#fff',
-    fontSize: 18,
-    marginLeft: 10,
-    fontFamily: 'RobotoRegular',
-  },
-  cardSection: {
-    width: '100%',
-    backgroundColor: '#333',
-    borderRadius: 10,
-    padding: 10,
-  },
-  cardContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#333',
-    padding: 15,
-    borderRadius: 10,
+  sectionTitle: {
+    color: 'white',
     marginBottom: 10,
-    height: 70,
+    fontSize: 13,
+    fontWeight: '200',
+  },
+  paymentCard: {
+    backgroundColor: '#333',
+    padding: 15,
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   cardText: {
     color: '#fff',
     marginLeft: 10,
-  },
-  addCardContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 15,
-    borderRadius: 10,
-    height: 70,
-    justifyContent: 'space-between',
-  },
-  addCardText: {
-    color: '#fff',
-    marginLeft: 10,
-  },
-  modalContainer: {
+    fontSize: 16,
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  modalContent: {
-    width: '80%',
-    backgroundColor: '#333',
-    borderRadius: 10,
-    padding: 20,
+  iconEnd: {
+    marginLeft: 'auto',
   },
-  modalItem: {
+  addNewCard: {
     padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#444',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#555',
+    alignItems: 'center',
   },
-  modalItemText: {
+  addNewCardText: {
+    color: '#999',
+    fontSize: 16,
+  },
+  cardListContainer: {
+    overflow: 'hidden',
+  },
+  cardItem: {
     color: '#fff',
     fontSize: 16,
+    padding: 10,
+    // backgroundColor: '#444',
+    marginBottom: 5,
+    borderRadius: 15,
+    borderBottomWidth: 1,
+    // borderTopWidth: 1,
+    borderColor: '#2E2E2E',
   },
 });
 

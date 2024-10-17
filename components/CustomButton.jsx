@@ -1,11 +1,16 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 
-const CustomButton = ({ quantity, size, onPress }) => {
-  const price = (700 + (size === 'Medium' ? 100 : size === 'Big' ? 150 : 0)) * quantity;
+const CustomButton = ({ quantity, size, itemPrice, onPress }) => {
+  // if (!quantity || !size || !itemPrice) {
+  //   console.log(quantity);
+  //   return null;
+  // }
+  const price = (itemPrice + (size === 'Medium' ? 100 : size === 'Big' ? 150 : 0)) * quantity;
+
 
   return (
-    <TouchableOpacity style={styles.orderButton} >
+    <TouchableOpacity style={styles.orderButton} onPress={() => onPress(price)}>
       <View style={styles.content}>
         <Text style={styles.orderButtonText}>Order {quantity} For {price}</Text>
         <Image source={require('../assets/images/amdBlack.png')} style={styles.icon} />

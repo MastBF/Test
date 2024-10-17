@@ -4,12 +4,12 @@ import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Font from 'expo-font';
 import axios from 'axios'; // Ensure axios is imported
-import HOC from '../components/HOC';
+// import HOC from '../components/HOC';
 import { BASE_URL } from '@/utils/requests';
 
 const { width, height } = Dimensions.get('window');
 
-const AddPaymentCardScreen = () => {
+const AddPaymentCardScreen = ({ navigation }) => {
     const [fontsLoaded, setFontsLoaded] = useState(false);
     const [name, setName] = useState('');
     const [cardNumber, setCardNumber] = useState('');
@@ -29,7 +29,9 @@ const AddPaymentCardScreen = () => {
         const formattedText = handleCardNumber(text);
         setCardNumber(formattedText);
     }
-
+    const onButtonPress = () => {
+        navigation.goBack();
+    }
     const handleExpireDate = (text) => {
         const formattedText = text.replace(/[^0-9]/g, '');
         if (formattedText.length > 3) {
@@ -79,14 +81,22 @@ const AddPaymentCardScreen = () => {
         setLoading(true);
         try {
             // Alert.alert('Month', month);
-            Alert.alert('Year', year);
+            // Alert.alert('Year', year);
+            console.log(name, cardNumber.replace(/\s+/g, ''), month, cvc, year);
             const response = await axios.post(`${BASE_URL}/api/v1/Order/card`, {
                 cardHolderName: name,
-                pan: cardNumber.replace(/\s+/g, ''), // Remove spaces before sending
+                pan: cardNumber.replace(/\s+/g, ''),
                 mm: month,
                 yyyy: year,
                 cvc: cvc,
-            });
+            },
+                {
+                    headers: {
+                        'TokenString': token,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
             Alert.alert('Success', 'Card added successfully');
             setName('');
             setCardNumber('');
@@ -106,9 +116,9 @@ const AddPaymentCardScreen = () => {
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Add a Payment Card</Text>
             </View>
-            <View style={styles.iconBlock}>
+            <TouchableOpacity style={styles.iconBlock} onPress={onButtonPress}>
                 <AntDesign name="left" size={20} color="#fff" style={styles.icon} />
-            </View>
+            </TouchableOpacity>
             <View style={styles.form}>
                 <View style={styles.inputContainer}>
                     <Ionicons name="person-outline" size={24} color="#fff" style={styles.icon} />
@@ -251,8 +261,8 @@ const styles = StyleSheet.create({
         fontFamily: 'RobotoBold',
     },
     buttonDisabled: {
-        backgroundColor: '#d3d3d3', // Grey color for disabled state
+        backgroundColor: '#d3d3d3',
     },
 });
 
-export default HOC(AddPaymentCardScreen);
+export default AddPaymentCardScreen;

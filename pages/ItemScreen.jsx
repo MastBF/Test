@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { Icon, Button } from 'react-native-elements';
 import { RadioButton } from 'react-native-paper';
 import * as Font from 'expo-font';
@@ -9,17 +9,15 @@ import { AntDesign } from '@expo/vector-icons';
 import HOC from '../components/HOC';
 import CustomButton from '../components/CustomButton';
 
-// import DramSVG from '../assets/images/SVG/dram.svg'; // Убедитесь, что путь указан правильно
-
 const { width, height } = Dimensions.get('window');
 
-const ItemScreen = ({ navigation }) => {
+const ItemScreen = ({ navigation, hideItemScreen, itemInfo, handleOrderInfo, }) => {
   const [selectedValue, setSelectedValue] = useState('Small');
   const [quantity, setQuantity] = useState(1);
   const [size, setSize] = useState('Small');
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  const [price, setPrice] = useState(0);
   const increaseQuantity = () => {
     setQuantity(quantity + 1);
   };
@@ -29,7 +27,10 @@ const ItemScreen = ({ navigation }) => {
       setQuantity(quantity - 1);
     }
   };
-
+  const onButtonPress = (price) => {
+    hideItemScreen();
+    handleOrderInfo({ quantity, size, price });
+  }
   useEffect(() => {
     const loadFonts = async () => {
       await Font.loadAsync({
@@ -68,12 +69,12 @@ const ItemScreen = ({ navigation }) => {
             type="antdesign"
             color="#fff"
             containerStyle={styles.closeIcon}
-            onPress={() => navigation.goBack()}
+            onPress={hideItemScreen}
           />
         </View>
         <View style={styles.detailsContainer}>
-          <Text style={styles.productTitle}>Nescafe</Text>
-          <Text style={styles.productPrice}>700 <Image source={dram2} style={styles.dramImg} /></Text>
+          <Text style={styles.productTitle}>{itemInfo.name}</Text>
+          <Text style={styles.productPrice}>{itemInfo.price} <Image source={dram2} style={styles.dramImg} /></Text>
           <Text style={styles.productDescription}>Instant coffee, rich, smooth flavor.</Text>
           <Text style={styles.optionTitle}>Choose Size</Text>
           <View style={styles.optionTextContainer}>
@@ -135,9 +136,13 @@ const ItemScreen = ({ navigation }) => {
         onPress={() => { }}
         containerStyle={styles.orderButtonContainer}
       /> */}
+
       <CustomButton
         quantity={quantity}
         size={size}
+        itemPrice={itemInfo.price}
+        onPress={(price) => onButtonPress(price)}
+      // onPress={(price) => console.log(price)}
       />
     </View>
   );
@@ -151,8 +156,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
-
-
+    marginBottom: 100,
   },
   imageContainer: {
     position: 'relative',

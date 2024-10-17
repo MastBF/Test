@@ -10,9 +10,9 @@ const Footer = ({ focusTextInput, activeShops }) => {
 
   return (
     <View style={styles.footer}>
-      <TouchableOpacity onPress={focusTextInput} style={styles.footerButton}>
-        <AntDesign name="search1" size={24} color="white" />
-        <Text style={styles.footerButtonText}>Search</Text>
+      <TouchableOpacity style={styles.footerButton} onPress={() => { navigation.navigate('MainMap') }}>
+        <Feather name="map-pin" size={24} color="white" />
+        <Text style={styles.footerButtonText}>Map</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => { navigation.navigate('Main') }} style={styles.footerButton}>
         <Feather name="shopping-bag" size={24} color={activeShops ? "#FB9B0D" : "white"} />

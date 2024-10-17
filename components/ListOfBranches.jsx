@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Dimensions, Image, FlatList } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import * as Font from 'expo-font';
 import { Feather } from '@expo/vector-icons';
 import logo from '../assets/images/logo3.png';
+import image1 from '../assets/images/MainImg/image1.png';
+import image2 from '../assets/images/MainImg/image2.png';
+import image3 from '../assets/images/MainImg/image3.png';
 
-export default function ListOfBranches() {
+export default function ListOfBranches({ navigation }) {
     const [fontsLoaded, setFontsLoaded] = useState(false);
 
     const branches = [
@@ -15,7 +18,14 @@ export default function ListOfBranches() {
         { id: 4, address: '8, 8 Tsitsernakaberd Hwy, Yerevan 0028', distance: '1.5km' },
         { id: 5, address: '20 Myasnikyan Ave, Yerevan 0025', distance: '2km' },
     ];
-
+    const onButtonPress = () => {
+        navigation.navigate('PaymentScreen');
+    }
+    const images = [
+        { id: '1', image: image1 },
+        { id: '2', image: image2 },
+        { id: '3', image: image3 },
+    ];
     useEffect(() => {
         const loadFonts = async () => {
             await Font.loadAsync({
@@ -26,7 +36,6 @@ export default function ListOfBranches() {
             });
             setFontsLoaded(true);
         };
-
         loadFonts();
     }, []);
 
@@ -44,12 +53,13 @@ export default function ListOfBranches() {
                 <View style={styles.blackBackground}>
                     <Image source={logo} style={styles.logo} />
                 </View>
-                <Text style={styles.branchTitle}>Ice Lava</Text>
+                <Text style={styles.branchTitle}>Select a Branch</Text>
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollViewContent} showsHorizontalScrollIndicator={true} showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={styles.scrollViewContent} showsHorizontalScrollIndicator={true} showsVerticalScrollIndicator={false} >
+                <Image source={image1} style={styles.image} />
                 {branches.map((branch) => (
-                    <TouchableOpacity key={branch.id}>
+                    <TouchableOpacity key={branch.id} onPress={onButtonPress}>
                         <View style={styles.branchBlock}>
                             <Feather name='map-pin' size={24} color='#8F8F8F' style={styles.BranchIcon} />
                             <View style={styles.block}>
@@ -74,7 +84,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5,
     },
     scrollViewContent: {
-        paddingBottom: 20, // Добавьте отступ снизу, чтобы прокрутка могла пройти до конца списка
+        paddingBottom: 20,
     },
     branchBlock: {
         flexDirection: 'row',
@@ -133,4 +143,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#000',
     },
+    image: {
+        width: '100%',
+        height: 150,
+        borderRadius: 10,
+        marginBottom: 10,
+    },
 });
+
+
