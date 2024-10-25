@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, Dimensions, ActivityIndicator, Animated, Easing, StyleSheet } from 'react-native';
 import * as Location from 'expo-location';
 import ErrorMessage from '../components/ErrorMessage';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Entypo } from '@expo/vector-icons';
 import HOC from '../components/HOC';
 import * as Font from 'expo-font';
 import amdWhite from '../assets/images/amdWhite.png';
@@ -14,6 +14,7 @@ import ItemScreen from './ItemScreen';
 import { useRoute } from '@react-navigation/native';
 import cup from '../assets/images/ProductImg/cup.png';
 import CustomButtonForOrder from '@/components/CustomButtonForOrder';
+import { color } from 'react-native-elements/dist/helpers';
 const { width, height } = Dimensions.get('window');
 
 const CoffeeMusicScreen = ({ navigation }) => {
@@ -27,18 +28,58 @@ const CoffeeMusicScreen = ({ navigation }) => {
   const [opacityAnim] = useState(new Animated.Value(0));
   const [translateYAnim] = useState(new Animated.Value(height));
   const route = useRoute();
-  const { id } = route.params || {};
+  const { id, imageHeader, name } = route.params || {};
   const [itemInfo, setItemInfo] = useState(null);
   const [orderInfo, setOrderInfo] = useState(null);
   const [finalyPrice, setFinalyPrice] = useState(0);
+  const [companyColor, setCompanyColor] = useState(null);
+  const [testShops, setTestShops] = useState([
+    {
+      id: 1,
+      name: 'Capuchino',
+      price: 500,
+      description: 'Lorem ipsum dolor sit amet, consectetur',
+      color: '#EC6C4F',
+      count: 0,
+    },
+    {
+      id: 2,
+      name: 'Mac Coffee',
+      price: 700,
+      description: 'Lorem ipsum dolor sit amet, consectetur',
+      color: '#EC6C4F',
+      count: 0,
+    },
+    {
+      id: 3,
+      name: 'Nescaphe',
+      price: 900,
+      description: 'Lorem ipsum dolor sit amet, consectetur',
+      color: '#EC6C4F',
+      count: 0,
+
+    },
+    {
+      id: 4,
+      name: 'Americano',
+      price: 300,
+      description: 'Lorem ipsum dolor sit amet, consectetur',
+      color: '#EC6C4F',
+      count: 0,
+    },
+  ]);
+
+
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/v1/Product/${id}?page=1&pageSize=10`, {
+      const response = await axios.get(`https://gazansolution-production.up.railway.app/api/v1/Product/${id}?page=1&pageSize=10`, {
         headers: {
           'TokenString': token,
         },
       });
-      setData(response.data.data);
+      console.log('Products:', response.data);
+      setCompanyColor(response.data.companyColour)
+      setData(response.data.products.data);
     } catch (error) {
       console.error('Error fetching products:', error);
       setErrorMsg('Failed to load products');
@@ -46,13 +87,8 @@ const CoffeeMusicScreen = ({ navigation }) => {
   };
   const handleOrderInfo = (quentity, price, type) => {
     setOrderInfo({ quentity, price, type });
-    console.log({ quentity, price, type });
   }
 
-  const navOrderScreen = (price) => {
-    const oneCup = orderInfo.quentity.price / orderInfo.quentity.quantity;
-    navigation.navigate('PaymentScreen', { quentity: orderInfo.quentity.quantity, priceItem: orderInfo.quentity.price, oneCupPrice: oneCup, id: id, cardId: itemInfo.id, token: token, typeId: itemInfo.typeId });
-  };
 
   const showItemScreen = (name, price, type, id, typeId) => {
     setIsOpen(true);
@@ -72,6 +108,19 @@ const CoffeeMusicScreen = ({ navigation }) => {
     ]).start();
     setItemInfo({ name, price, type, id, typeId });
   };
+  const handleCount = (count, id) => {
+    setCounts(prevCounts => ({
+      ...prevCounts,
+      [id]: count,
+    }));
+    console.log(count, id);
+  };
+
+  useEffect(() => {
+    if (orderInfo) {
+      handleCount(orderInfo.quentity.quantity, itemInfo.id);
+    }
+  }, [orderInfo]);
 
   const hideItemScreen = () => {
     Animated.parallel([
@@ -138,6 +187,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
         InterThin: require('../assets/fonts/Inter-Thin.ttf'),
         InterMedium: require('../assets/fonts/Inter-Medium.ttf'),
         InterBold: require('../assets/fonts/Inter-Bold.ttf'),
+        RubikRegular: require('../assets/fonts/Rubik-Regular.ttf'),
       });
       setFontsLoaded(true);
     } catch (error) {
@@ -149,6 +199,21 @@ const CoffeeMusicScreen = ({ navigation }) => {
     loadFonts();
   }, []);
 
+  const calculateTotalQuantityAndPrice = () => {
+    let totalQuantity = 0;
+    let totalPrice = 0;
+
+    data.forEach((item) => {
+      const count = counts[item.id] || 0;
+      totalQuantity += count;
+      totalPrice += count * item.price;
+    });
+    return { totalQuantity, totalPrice };
+  };
+
+
+  const { totalQuantity, totalPrice } = calculateTotalQuantityAndPrice();
+
   if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
@@ -157,12 +222,17 @@ const CoffeeMusicScreen = ({ navigation }) => {
     );
   }
 
+  const navOrderScreen = (price) => {
+    const oneCup = orderInfo.quentity.price / orderInfo.quentity.quantity;
+    navigation.navigate('PaymentScreen', { quentity: totalQuantity, priceItem: totalPrice, oneCupPrice: oneCup, id: id, cardId: itemInfo.id, token: token, typeId: itemInfo.typeId, color: companyColor, coffeeName: itemInfo.name });
+  };
+
   return (
     <View style={styles.container}>
-      {errorMsg && <ErrorMessage errorMsg={errorMsg} />}
+      {/* {errorMsg && <ErrorMessage errorMsg={errorMsg} />} */}
       {isOpen && (
         <Animated.View style={[styles.animatedContainer, { opacity: opacityAnim, transform: [{ translateY: translateYAnim }] }]}>
-          <ItemScreen hideItemScreen={hideItemScreen} itemInfo={itemInfo} handleOrderInfo={handleOrderInfo} navigation={navigation} />
+          <ItemScreen hideItemScreen={hideItemScreen} itemInfo={itemInfo} handleOrderInfo={handleOrderInfo} navigation={navigation} color={companyColor} cupImage={data[1].imageName} />
         </Animated.View>
       )}
       <Icon
@@ -174,40 +244,55 @@ const CoffeeMusicScreen = ({ navigation }) => {
       />
 
       <View style={styles.header}>
-        <Image source={require('../assets/images/ProductsHeader.png')} style={styles.headerImage} />
+        <Image source={{ uri: imageHeader }} style={styles.headerImage} />
       </View>
-      <ScrollView style={styles.prodList} contentContainerStyle={styles.list}>
-        <Text onPress={fetchProducts} style={styles.title}>Coffee Music</Text>
+
+      <ScrollView style={styles.prodList} contentContainerStyle={[styles.list, { paddingBottom: 80 }]}>
+        <Text onPress={fetchProducts} style={styles.title}>{name}</Text>
 
 
-        {Array.isArray(data) && data.length > 0 ? (
+        {Array.isArray(testShops) && testShops.length > 0 ? (
           data.map((item) => (
             <TouchableOpacity
               key={item.id}
               onPress={() => {
-                showItemScreen(item.name, item.price, item.type, item.id, item.productTypes[0].id);
-              }}
+                if (item.productTypes && item.productTypes.length > 0) {
+                  showItemScreen(item.name, item.price, item.type, item.id, item.productTypes[0].id);
+                } else {
+                  console.error('Product types not available for this item');
+                }
+              }
+              }
             >
-              <View style={styles.itemContainer}>
-                <Image source={cup} style={styles.image} />
-                <View style={styles.info}>
-                  <View style={styles.PriveName}>
-                    <Text style={styles.name}>{item.name}</Text>
-                    <View style={styles.priceContainer}>
-                      <Text style={styles.price}>{item.price}</Text>
-                      <Image source={amdWhite} style={styles.amdWhite} />
+              <View style={[styles.itemContainer, { borderColor: companyColor, borderWidth: 1 }]}>
+                <View style={styles.coffeeInfo}>
+                  <Image source={{ uri: item.imageName }} style={styles.image} />
+                  <View style={styles.info}>
+                    <View style={styles.details}>
+                      <View style={styles.PriveName}>
+                        <Text style={styles.name}>{item.name}</Text>
+                      </View>
                     </View>
-                  </View>
-                  <View style={styles.buttonPlusMinus}>
-                    {counts[item.id] > 0 && (
-                      <TouchableOpacity style={styles.buttonWrapper} onPress={() => onMinus(item.id)}>
-                        <AntDesign name="minuscircle" size={16} color="white" />
-                      </TouchableOpacity>
-                    )}
-                    <Text style={styles.count}>{counts[item.id] > 0 ? `${counts[item.id]}x` : ''}</Text>
-                    <TouchableOpacity style={styles.buttonWrapper} onPress={() => onPlus(item.id)}>
-                      <AntDesign name="pluscircle" size={19} color="white" />
-                    </TouchableOpacity>
+                    <View>
+                      <Text style={styles.description}>Lorem, ipsum dolor sit amet consectetur adipisicing elit</Text>
+                    </View>
+                    <View style={styles.itemContainerFooter}>
+                      <View style={[styles.buttonPlusMinus, { backgroundColor: companyColor }]}>
+                        <TouchableOpacity style={styles.buttonWrapper} onPress={() => onMinus(item.id)}>
+                          <Entypo name="minus" size={16} color="black" />
+                        </TouchableOpacity>
+                        <View style={styles.count}>
+                          <Text style={styles.textStyle}>{counts[item.id] > 0 ? `${counts[item.id]}` : 0}</Text>
+                        </View>
+                        <TouchableOpacity style={styles.buttonWrapper} onPress={() => onPlus(item.id)}>
+                          <Entypo name="plus" size={16} color="black" />
+                        </TouchableOpacity>
+                      </View>
+                      <View style={styles.priceContainer}>
+                        <Text style={styles.price}>{item.price}</Text>
+                        <Image source={amdWhite} style={styles.amdWhite} />
+                      </View>
+                    </View>
                   </View>
                 </View>
               </View>
@@ -218,15 +303,17 @@ const CoffeeMusicScreen = ({ navigation }) => {
         )}
 
       </ScrollView>
-      {orderInfo?.quentity.quantity &&
+      {totalQuantity > 0 && (
         <TouchableOpacity style={styles.orderButton} onPress={navOrderScreen}>
           <View style={styles.content}>
-            <Text style={styles.orderButtonText}>Order {orderInfo?.quentity.quantity} For {orderInfo?.quentity.price}</Text>
+            <Text style={styles.orderButtonText}>
+              Order {totalQuantity} Cups for {totalPrice}
+            </Text>
             <Image source={require('../assets/images/amdBlack.png')} style={styles.icon} />
           </View>
         </TouchableOpacity>
-      }
-    </View>
+      )}
+    </View >
   );
 };
 
@@ -235,6 +322,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1C1C1C',
+
   },
   loadingContainer: {
     flex: 1,
@@ -243,8 +331,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#1C1C1C',
   },
   header: {
-    alignItems: 'center',
-    margin: width * 0.05,
+    height: height * 0.3,
+    width: '100%',
   },
   animatedContainer: {
     position: 'absolute',
@@ -258,14 +346,14 @@ const styles = StyleSheet.create({
   },
   headerImage: {
     marginTop: -height * 0.04,
-    height: height * 0.35,
-    resizeMode: 'contain',
+    height: height * 0.33,
   },
   PriveName: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: height * 0.01,
     width: '100%',
+    marginLeft: -width * 0.04,
   },
   title: {
     color: '#fff',
@@ -321,6 +409,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     bottom: 20,
   },
+  coffeeInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+
+  },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -341,23 +435,33 @@ const styles = StyleSheet.create({
     // borderTopLeftRadius: width * 0.1,
     // height: '90%',
     // position: 'absolute',
+
     marginTop: -height * 0.09,
   },
   itemContainer: {
-    flexDirection: 'row',
-    marginVertical: height * 0.015,
+    flexDirection: 'column',
+    marginVertical: height * 0.01,
     justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderBottomColor: '#2E2E2E',
-    paddingBottom: height * 0.015,
+    borderWidth: 1,
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#2E2E2E',
+    // paddingBottom: height * 0.015,
+    // paddingHorizontal: width * 0.0,
+    // height: 10,
+    width: '100%',
+    paddingVertical: width * 0.03,
+    paddingHorizontal: width * 0.015,
+    borderRadius: 10,
   },
   image: {
-    width: width * 0.25,
-    height: width * 0.25,
+    width: width * 0.21,
+    height: width * 0.3,
     resizeMode: 'cover',
     // marginRight: width * 0.1,
-    borderRadius: 10,
+    // borderRadius: 10,
     // marginBottom: 10,
+    alignSelf: 'center',
+
   },
   name: {
     fontSize: width * 0.05,
@@ -368,26 +472,58 @@ const styles = StyleSheet.create({
     fontSize: width * 0.04,
     fontFamily: 'RobotoLight',
     color: '#fff',
-    width: width * 0.4,
+    width: width * 0.38,
+    marginLeft: -width * 0.04,
+
   },
   info: {
     width: width * 0.55,
   },
   buttonWrapper: {
-    // marginHorizontal: width * 0.03,
-    padding: width * 0.025,
+    alignSelf: 'center',
+    // fontSize: width * 0.05,
+    padding: 5,
+    paddingHorizontal: 10,
+    // padding: height * 0.01,
+    // paddingHorizontal: width * 0.025,
   },
 
   count: {
     color: '#fff',
     fontSize: width * 0.035,
-    fontFamily: 'RobotoLight',
+    fontFamily: 'RubikRegular',
+    backgroundColor: '#1C1C1C',
+    width: width * 0.08,
+    // textAlign: 'center',
+    alignSelf: 'center',
+    height: '97%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textStyle: {
+    // alignSelf: 'center',
+    // textAlign: 'center',
+    color: '#fff',
+  },
+  itemContainerFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: height * 0.03,
+    marginLeft: -width * 0.04,
+
+    // marginTop: height * 0.015,
   },
   buttonPlusMinus: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    marginTop: height * 0.015,
+    justifyContent: 'space-between',
+    // alignItems: 'center',
+    // marginTop: height * 0.015,
+    borderRadius: 30,
+    // backgroundColor: '#EC6C4F',
+    height: height * 0.035,
+    width: width * 0.25,
+    // paddingHorizontal: height * 0.013,
   },
   closeIcon: {
     position: 'absolute',
@@ -397,7 +533,7 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: width * 0.045,
-    fontFamily: 'RobotoLight',
+    fontFamily: 'RobotoRegular',
     color: '#fff',
   },
   footer: {

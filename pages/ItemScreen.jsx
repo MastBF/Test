@@ -11,7 +11,7 @@ import CustomButton from '../components/CustomButton';
 
 const { width, height } = Dimensions.get('window');
 
-const ItemScreen = ({ navigation, hideItemScreen, itemInfo, handleOrderInfo, }) => {
+const ItemScreen = ({ navigation, hideItemScreen, itemInfo, handleOrderInfo, color, cupImage }) => {
   const [selectedValue, setSelectedValue] = useState('Small');
   const [quantity, setQuantity] = useState(1);
   const [size, setSize] = useState('Small');
@@ -28,6 +28,7 @@ const ItemScreen = ({ navigation, hideItemScreen, itemInfo, handleOrderInfo, }) 
     }
   };
   const onButtonPress = (price) => {
+    const id = itemInfo.id;
     hideItemScreen();
     handleOrderInfo({ quantity, size, price });
   }
@@ -63,7 +64,12 @@ const ItemScreen = ({ navigation, hideItemScreen, itemInfo, handleOrderInfo, }) 
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
         <View style={styles.imageContainer}>
-          <Image source={require('../assets/images/ProductImg/cup.png')} style={styles.productImage} />
+          <Image
+            source={{ uri: cupImage }}
+            style={[styles.productImage]}
+            onError={() => console.log('Image load error')}
+          />
+
           <Icon
             name="down"
             type="antdesign"
@@ -80,7 +86,7 @@ const ItemScreen = ({ navigation, hideItemScreen, itemInfo, handleOrderInfo, }) 
           <View style={styles.optionTextContainer}>
             <Text style={styles.text}>Select 1 option</Text>
             <View style={styles.borderDiv}>
-              <Text style={styles.borderText}>Necessarily</Text>
+              <Text style={[styles.borderText, { backgroundColor: color }]}>Necessarily</Text>
             </View>
           </View>
           <View style={styles.choosSize}>
@@ -95,8 +101,8 @@ const ItemScreen = ({ navigation, hideItemScreen, itemInfo, handleOrderInfo, }) 
             </TouchableOpacity>
             <TouchableOpacity style={styles.sizeBlock} onPress={() => { setSelectedValue('Medium'); setSize('Medium'); }}>
               <View style={styles.priceAddAmd}>
-                <Text style={styles.size}>Medium <Text style={styles.priceAdd}>+100</Text> </Text>
-                <Image source={dramOrange} style={styles.dramImgOrange} />
+                <Text style={styles.size}>Medium <Text style={[styles.priceAdd, { color: color }]}>+100</Text> </Text>
+                {/* <Image source={dramOrange} style={styles.dramImgOrange} /> */}
               </View>
               <RadioButton.Android
                 value="Medium"
@@ -107,8 +113,8 @@ const ItemScreen = ({ navigation, hideItemScreen, itemInfo, handleOrderInfo, }) 
             </TouchableOpacity>
             <TouchableOpacity style={styles.sizeBlock} onPress={() => { setSelectedValue('Big'); setSize('Big'); }}>
               <View style={styles.priceAddAmd}>
-                <Text style={styles.size}>Big <Text style={styles.priceAdd}>+150 </Text></Text>
-                <Image source={dramOrange} style={styles.dramImgOrange} />
+                <Text style={styles.size}>Big <Text style={[styles.priceAdd, { color: color }]}>+150</Text></Text>
+                {/* <Image source={dramOrange} style={styles.dramImgOrange} /> */}
               </View>
               <RadioButton.Android
                 value="Big"
@@ -128,14 +134,15 @@ const ItemScreen = ({ navigation, hideItemScreen, itemInfo, handleOrderInfo, }) 
             </TouchableOpacity>
           </View>
         </View>
+
       </ScrollView>
       {/* <Button
         title={`Order ${quantity} For ${(700 + (size === 'Medium' ? 100 : size === 'Big' ? 150 : 0)) * quantity}`}
         buttonStyle={styles.orderButton}
         titleStyle={styles.orderButtonText}
         onPress={() => { }}
-        containerStyle={styles.orderButtonContainer}
-      /> */}
+          containerStyle={styles.orderButtonContainer}
+          /> */}
 
       <CustomButton
         quantity={quantity}
@@ -240,6 +247,7 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     paddingHorizontal: 4,
     fontWeight: 'bold',
+    borderRadius: 4,
   },
   borderDiv: {
     backgroundColor: '#EC6C4F',

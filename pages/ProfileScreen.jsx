@@ -77,7 +77,7 @@ const ProfileScreen = ({ navigation }) => {
 
       <View style={styles.paymentSection}>
         <Text style={styles.sectionTitle}>Saved Payment Methods</Text>
-        {card ? (
+        {card && card.length > 0 ? (
           <TouchableOpacity style={styles.paymentCard} onPress={toggleCard}>
             <Icon name="card-outline" size={25} color="#fff" />
             <Text style={styles.cardText}>Card ending with {card[0].cardNumberFirstDigits}</Text>

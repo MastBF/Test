@@ -17,7 +17,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL } from '@/utils/requests';
 
-export default function ListOfBranches({ navigation }) {
+export default function ListOfBranches({ navigation, branches }) {
     const [fontsLoaded, setFontsLoaded] = useState(false);
     const [token, setToken] = useState(null);
     const [shops, setShops] = useState([]);
@@ -72,6 +72,7 @@ export default function ListOfBranches({ navigation }) {
         try {
             setLoading(true);
             const { latitude, longitude } = location.coords;
+            console.log(latitude, longitude);
             const response = await axios.get(`${BASE_URL}/api/v1/Company/nearest/${longitude}/${latitude}`, {
                 headers: {
                     TokenString: token,
@@ -138,10 +139,10 @@ export default function ListOfBranches({ navigation }) {
 
             <ScrollView contentContainerStyle={styles.scrollViewContent} showsHorizontalScrollIndicator={true} showsVerticalScrollIndicator={false}>
                 {shops.map((companies) => (
-                    <TouchableOpacity key={companies.id} onPress={() => { navigation.navigate('ProductScreen', { id: companies.id }) }}
+                    <TouchableOpacity key={companies.id} onPress={() => { navigation.navigate('ProductScreen', { id: companies.id, imageHeader: companies.uiImagePath }) }}
                     >
                         <View style={styles.branchBlock}>
-                            <Image source={{ uri: companies.imagePath }} style={styles.companyImage} />
+                            <Image source={{ uri: companies.logoImagePath }} style={styles.companyImage} />
                             <View style={styles.block}>
                                 <Text style={styles.streetName}>{companies.name}</Text>
                                 {/* <Text style={[styles.streetName, styles.thinStyle]}>{companies.branches} Branches</Text> */}

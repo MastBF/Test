@@ -17,7 +17,7 @@ export default function PaymentScreen({ navigation, route }) {
     const [card, setCard] = useState([]);
     const [creditCardId, setCreditCardId] = useState(null);
     const [selectedCard, setSelectedCard] = useState({ cardNumber: 'Choose Credit Card' });
-    const { quentity, priceItem, oneCupPrice, id, cardId, token, typeId } = route.params;
+    const { quentity, priceItem, oneCupPrice, id, token, typeId, color, coffeeName } = route.params;
     useEffect(() => {
         setTotalPrice(priceItem);
         setCount(quentity);
@@ -147,14 +147,14 @@ export default function PaymentScreen({ navigation, route }) {
                 <View>
                     <View style={styles.productRow}>
                         <Text style={styles.productQuantity}>{count}x</Text>
-                        <Text style={styles.productName}>Nescafe</Text>
+                        <Text style={styles.productName}>{coffeeName}</Text>
                         <Text style={styles.productPrice}>{totalPrice} </Text>
                         <Image source={amdWhite} style={styles.amdIcon} />
                     </View>
                     <View style={styles.optionTextContainer}>
                         <Text style={styles.productQuantityHidden}>2x</Text>
                         <Text style={styles.text}>5%</Text>
-                        <View style={styles.borderDiv}>
+                        <View style={[styles.borderDiv, { backgroundColor: color }]}>
                             <Text style={styles.borderText}>Cashback</Text>
                         </View>
                     </View>
@@ -202,7 +202,7 @@ export default function PaymentScreen({ navigation, route }) {
                 </Animated.View>
             </View>
 
-            <View style={styles.summarySection}>
+            <View style={[styles.summarySection, { borderTopColor: color }]}>
                 <Text style={styles.summeryTitle}>Summary Information</Text>
                 <View style={[styles.summaryRow, styles.bottomMargin]} >
                     <Text style={styles.summaryText}>Products</Text>
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
     },
     summarySection: {
         backgroundColor: '#2E2E2E',
-        borderTopColor: '#EC6C4F',
+        // borderTopColor: '#EC6C4F',
         borderTopWidth: 1,
         borderTopEndRadius: 10,
         borderTopLeftRadius: 10,
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     borderDiv: {
-        backgroundColor: '#EC6C4F',
+        // backgroundColor: '#EC6C4F',
         borderRadius: 6,
         marginLeft: 8,
         marginBottom: 20,

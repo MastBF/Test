@@ -108,7 +108,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
       setLoading(true);
       const { latitude, longitude } = location.coords;
       console.log(latitude, longitude);
-      const response = await axios.get(`${BASE_URL}/api/v1/Company/nearest/${latitude}/${longitude}`, {
+      const response = await axios.get(`${BASE_URL}/api/v1/Company/nearest/${longitude}/${latitude}`, {
         headers: {
           TokenString: token,
         },
@@ -191,9 +191,9 @@ const CoffeeMusicScreen = ({ navigation }) => {
               key={item.id}
               style={styles.shopItem}
               // onPress={() => { navigation.navigate('ProductScreen', { id: item.id }) }}
-              onPress={() => { navigation.navigate('ProductScreen', { id: item.id }) }}
+              onPress={() => { navigation.navigate('ProductScreen', { id: item.id, imageHeader: item.uiImagePath, name: item.name }) }}
             >
-              <Image source={{ uri: item.imagePath }} style={styles.shopImage} />
+              <Image source={{ uri: item.uiImagePath }} style={styles.shopImage} />
               <View style={styles.shopText}>
                 <Text style={styles.shopName}>{item.name}</Text>
                 <Text style={styles.shopDistance}>Nearest {item.nearest}m</Text>

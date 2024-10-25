@@ -21,19 +21,19 @@ const App: React.FC = () => {
   return (
     <NavigationContainer independent={true}>
       <Stack.Navigator initialRouteName="SignupScreen">
-        {/* <Stack.Screen name="SignupScreen" options={{ headerShown: false }} component={SignupScreen} /> */}
         <Stack.Screen name="LoginScreen" options={{ headerShown: false }} component={LoginScreen} />
+        <Stack.Screen name="SignupScreen" options={{ headerShown: false }} component={SignupScreen} />
         <Stack.Screen name="Main" options={{ headerShown: false }} component={MainScreen} />
-        <Stack.Screen name="MainMap" options={{ headerShown: false }} component={MainMap} />
-        <Stack.Screen name="BranchesOnMap" options={{ headerShown: false }} component={BranchesOnMap} />
-        {/* <Stack.Screen name="MapScreen" options={{ headerShown: false }} component={MapScreen} /> */}
         <Stack.Screen
           name="ProductScreen"
           options={{ headerShown: false, ...TransitionPresets.FadeFromBottomAndroid }}
           component={ProductScreen}
         />
+        <Stack.Screen name="MainMap" options={{ headerShown: false }} component={MainMap} />
+        <Stack.Screen name="BranchesOnMap" options={{ headerShown: false }} component={BranchesOnMap} />
+        {/* <Stack.Screen name="MapScreen" options={{ headerShown: false }} component={MapScreen} /> */}
         {/* <Stack.Screen name="AlertScreen" options={{ headerShown: false }} component={AlertScreen} /> */}
-        <Stack.Screen name="test" options={{ headerShown: false }} component={test} />
+        {/* <Stack.Screen name="test" options={{ headerShown: false }} component={test} /> */}
         <Stack.Screen name="PaymentScreen" options={{ headerShown: false }} component={PaymentScreen} />
         <Stack.Screen
           name="AddPaymentCardScreen"
