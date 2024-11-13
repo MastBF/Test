@@ -82,7 +82,7 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
         <Image
-          source={require('../../assets/images/logo3.png')}
+          source={require('../../assets/images/trueLogo.png')}
           style={styles.logo}
           resizeMode="contain"
         />
@@ -182,10 +182,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#1e1e1e',
   },
   logo: {
-    width: width * 0.9,
+    width: width * 0.7,
     height: height * 0.4,
     marginBottom: -height * 0.09,
     marginTop: -height * 0.1,
+    marginLeft: width * 0.02,
   },
   title: {
     fontFamily: 'RobotoRegular',

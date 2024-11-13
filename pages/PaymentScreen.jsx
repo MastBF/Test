@@ -17,11 +17,8 @@ export default function PaymentScreen({ navigation, route }) {
     const [card, setCard] = useState([]);
     const [creditCardId, setCreditCardId] = useState(null);
     const [selectedCard, setSelectedCard] = useState({ cardNumber: 'Choose Credit Card' });
-    const { quentity, priceItem, oneCupPrice, id, token, typeId, color, coffeeName } = route.params;
-    useEffect(() => {
-        setTotalPrice(priceItem);
-        setCount(quentity);
-    }, [quentity]);
+    const { id, token, typeId, color, coffeeName } = route.params;
+
 
     const toggleCard = () => {
         const finalHeight = isOpen ? 0 : 150;
@@ -39,7 +36,7 @@ export default function PaymentScreen({ navigation, route }) {
     const onNewCard = () => {
         navigation.navigate('AddPaymentCardScreen');
     }
-    const onCardButton = (id, cardNumberFirstDigits, cardNumber) => {
+    const onCardButton = (id) => {
         const selectedCard = card.find((item) => item.id === id);
         setSelectedCard(selectedCard);
         setIsOpen(!isOpen);
@@ -65,20 +62,6 @@ export default function PaymentScreen({ navigation, route }) {
         }
     };
 
-    const onPressPlus = () => {
-        setCount(count + 1);
-        setTotalPrice(totalPrice + oneCupPrice);
-    }
-
-    const onPressMinus = () => {
-        if (count > 1) {
-            setCount(count - 1);
-            setTotalPrice(totalPrice - oneCupPrice);
-        } else {
-            setCount(1);
-            setTotalPrice(oneCupPrice);
-        }
-    }
 
     const postOrder = async () => {
         try {
@@ -146,9 +129,9 @@ export default function PaymentScreen({ navigation, route }) {
                 <Text style={styles.productDescription}>1 Product From <Text style={styles.boldText}>Coffee Music</Text></Text>
                 <View>
                     <View style={styles.productRow}>
-                        <Text style={styles.productQuantity}>{count}x</Text>
-                        <Text style={styles.productName}>{coffeeName}</Text>
-                        <Text style={styles.productPrice}>{totalPrice} </Text>
+                        <Text style={styles.productQuantity}>{5}x</Text>
+                        <Text style={styles.productName}>{'Americano'}</Text>
+                        <Text style={styles.productPrice}>{2000} </Text>
                         <Image source={amdWhite} style={styles.amdIcon} />
                     </View>
                     <View style={styles.optionTextContainer}>
@@ -159,10 +142,10 @@ export default function PaymentScreen({ navigation, route }) {
                         </View>
                     </View>
                     <View style={styles.countEdit}>
-                        <TouchableOpacity onPress={onPressMinus} style={styles.minusButton}>
+                        <TouchableOpacity style={styles.minusButton}>
                             <AntDesign name='minuscircle' size={18} color='#fff' />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={onPressPlus} style={styles.minusButton}>
+                        <TouchableOpacity style={styles.minusButton}>
                             <AntDesign name='pluscircle' size={18} color='#fff' />
                         </TouchableOpacity>
                     </View>

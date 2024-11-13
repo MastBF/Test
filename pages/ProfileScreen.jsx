@@ -12,7 +12,26 @@ const ProfileScreen = ({ navigation }) => {
   const [card, setCard] = useState(null);
   const [token, setToken] = useState(null);
   const [isOpen, setIsOpen] = useState(false); // состояние для управления открытием/закрытием
+  const [state, setState] = useState(null);
   const animation = useRef(new Animated.Value(0)).current; // начальная высота анимации
+  const getState = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/v1/Authentication/state`, {
+        headers: {
+          'TokenString': token,
+        },
+      });
+      setState(response.data);
+    } catch (error) {
+      console.error('Error getting state:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      getState();
+    }
+  }, [token]);
 
   useEffect(() => {
     const getToken = async () => {
@@ -41,7 +60,6 @@ const ProfileScreen = ({ navigation }) => {
           }
         }
       );
-      console.log('Card response:', response.data);
       setCard(response.data);
     } catch (error) {
       console.error('Error getting card:', error);
@@ -65,14 +83,13 @@ const ProfileScreen = ({ navigation }) => {
 
     setIsOpen(!isOpen); // смена состояния
   };
-
   return (
     <View style={styles.container}>
       <View style={styles.profileSection}>
         <View style={styles.profileIconContainer}>
           <Icon name="person-circle-outline" size={100} color="#bbb" />
         </View>
-        <Text style={styles.username}>Hayk Minasyan</Text>
+        <Text style={styles.username}>{state?.username}</Text>
       </View>
 
       <View style={styles.paymentSection}>

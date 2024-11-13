@@ -11,11 +11,7 @@ import * as Location from 'expo-location';
 import { BASE_URL } from '../utils/requests';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import HOC from '../components/HOC';
-import image1 from '../assets/images/MainImg/image1.png';
-import image2 from '../assets/images/MainImg/image2.png';
-import image3 from '../assets/images/MainImg/image3.png';
 import AlertScreen from '@/components/AlertScreen';
-import ProductScreen from './ProductScreen';
 
 const { width, height } = Dimensions.get('window');
 
@@ -23,33 +19,11 @@ const CoffeeMusicScreen = ({ navigation }) => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const textInputRef = useRef(null);
   const [alertVisible, setAlertVisible] = useState(false);
-  const [shops, setShops] = useState([
-    {
-      id: 1,
-      name: 'Starbucks',
-      nearest: '1.2 km',
-      imagePath: '../assets/images/MainImg/image1.png',
-    },
-    {
-      id: 2,
-      name: 'Coffee Bean',
-      nearest: '1.5 km',
-      imagePath: '../assets/images/MainImg/image2.png',
-    },
-    {
-      id: 3,
-      name: 'Costa Coffee',
-      nearest: '2.0 km',
-      imagePath: '../assets/images/MainImg/image3.png',
-    },
-  ]);
+  const [shops, setShops] = useState([]);
   const [activeShops, setActiveShops] = useState(false);
   const [location, setLocation] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [openShop, setOpenShop] = useState(false);
-  const [id, setId] = useState(null);
-
   // Функция фокуса на TextInput
   const focusTextInput = () => {
     navigation.navigate('Main');

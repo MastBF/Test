@@ -12,18 +12,25 @@ import MapScreen from '../components/MapScreen';
 import AddPaymentCardScreen from '../pages/AddPaymentCardScreen ';
 import PaymentScreen from '../pages/PaymentScreen';
 import BranchesOnMap from '../pages/BranchesOnMap';
-import test from '../pages/test';
+import MarkerCustom from '../pages/MarkerCustom';
 import MainMap from '../pages/MainMap';
 import AlertScreen from '../components/AlertScreen';
+import Cart from '../components/Cart';
+import ProdInfo from '../components/ProdInfo';
+import CustomMarker from '../components/CustomMarker';
 const Stack = createStackNavigator();
 
 const App: React.FC = () => {
   return (
     <NavigationContainer independent={true}>
       <Stack.Navigator initialRouteName="SignupScreen">
-        <Stack.Screen name="LoginScreen" options={{ headerShown: false }} component={LoginScreen} />
-        <Stack.Screen name="SignupScreen" options={{ headerShown: false }} component={SignupScreen} />
+        {/* <Stack.Screen name="CustomMarker" options={{ headerShown: false }} component={CustomMarker} /> */}
+        {/* <Stack.Screen name="LoginScreen" options={{ headerShown: false }} component={LoginScreen} /> */}
+        {/* <Stack.Screen name="SignupScreen" options={{ headerShown: false }} component={SignupScreen} /> */}
+        {/* <Stack.Screen name="ProdInfo" options={{ headerShown: false }} component={ProdInfo} /> */}
+        {/* <Stack.Screen name="MarkerCustom" options={{ headerShown: false }} component={MarkerCustom} /> */}
         <Stack.Screen name="Main" options={{ headerShown: false }} component={MainScreen} />
+        <Stack.Screen name="Cart" options={{ headerShown: false }} component={Cart} />
         <Stack.Screen
           name="ProductScreen"
           options={{ headerShown: false, ...TransitionPresets.FadeFromBottomAndroid }}
@@ -33,7 +40,6 @@ const App: React.FC = () => {
         <Stack.Screen name="BranchesOnMap" options={{ headerShown: false }} component={BranchesOnMap} />
         {/* <Stack.Screen name="MapScreen" options={{ headerShown: false }} component={MapScreen} /> */}
         {/* <Stack.Screen name="AlertScreen" options={{ headerShown: false }} component={AlertScreen} /> */}
-        {/* <Stack.Screen name="test" options={{ headerShown: false }} component={test} /> */}
         <Stack.Screen name="PaymentScreen" options={{ headerShown: false }} component={PaymentScreen} />
         <Stack.Screen
           name="AddPaymentCardScreen"

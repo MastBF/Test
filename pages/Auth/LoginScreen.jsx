@@ -4,6 +4,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Font from 'expo-font';
 import { BASE_URL } from '../../utils/requests';
+import { AntDesign } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 
@@ -12,7 +13,8 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(false); // Добавлено состояние для управления кнопкой
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false); // New state for password visibility
 
   useEffect(() => {
     const loadFonts = async () => {
@@ -32,7 +34,7 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = async () => {
     setLoading(true);
-    setIsDisabled(true); // Отключаем кнопку
+    setIsDisabled(true);
     try {
       const response = await axios.post(`${BASE_URL}/api/v1/Authentication/login`, {
         email,
@@ -40,11 +42,11 @@ const LoginScreen = ({ navigation }) => {
       });
       await AsyncStorage.setItem('token', response.data.token);
       setLoading(false);
-      setIsDisabled(false); // Включаем кнопку после успешного входа
+      setIsDisabled(false);
       navigation.navigate('Main');
     } catch (error) {
       setLoading(false);
-      setIsDisabled(false); // Включаем кнопку после ошибки
+      setIsDisabled(false);
       Alert.alert('Login failed', 'Invalid email or password');
     }
   };
@@ -60,7 +62,7 @@ const LoginScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Image
-        source={require('../../assets/images/logo3.png')}
+        source={require('../../assets/images/trueLogo.png')}
         style={styles.logo}
         resizeMode="contain"
       />
@@ -74,19 +76,25 @@ const LoginScreen = ({ navigation }) => {
         onChangeText={setEmail}
         autoCapitalize="none"
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#aaa"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        autoCapitalize="none"
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Password"
+          placeholderTextColor="#aaa"
+          secureTextEntry={!passwordVisible} // Toggle secure text entry
+          value={password}
+          onChangeText={setPassword}
+          autoCapitalize="none"
+        />
+        <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
+          <AntDesign name={passwordVisible ? 'eye' : 'eyeo'} color="#ffffff" size={24} />
+        </TouchableOpacity>
+      </View>
+
       <TouchableOpacity
-        style={[styles.button, isDisabled && { opacity: 0.5 }]} // Изменяем прозрачность при отключенной кнопке
+        style={[styles.button, isDisabled && { opacity: 0.5 }]}
         onPress={handleLogin}
-        disabled={isDisabled} // Делаем кнопку неактивной
+        disabled={isDisabled}
       >
         {loading ? (
           <ActivityIndicator size="small" color="#000" />
@@ -132,9 +140,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#1C1C1C',
   },
   logo: {
-    width: width * 1,
-    height: height * 0.4,
-    marginBottom: -height * 0.06,
+    width: width * 0.8,
+    height: height * 0.33,
+    marginBottom: -height * 0.01,
+    marginLeft: width * 0.02,
   },
   title: {
     fontFamily: 'RobotoBold',
@@ -158,6 +167,24 @@ const styles = StyleSheet.create({
     padding: height * 0.02,
     paddingLeft: width * 0.05,
     fontWeight: '200',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: width * 0.8,
+    borderColor: '#ccc',
+    borderWidth: 0.5,
+    borderRadius: width * 0.03,
+    backgroundColor: '#2E2E2E',
+    paddingHorizontal: width * 0.02,
+    marginBottom: height * 0.015,
+  },
+  passwordInput: {
+    flex: 1,
+    height: height * 0.06,
+    color: '#fff',
+    fontWeight: '200',
+    marginLeft: width * 0.02,
   },
   button: {
     backgroundColor: '#fff',

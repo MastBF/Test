@@ -9,24 +9,30 @@ const Footer = ({ focusTextInput, activeShops }) => {
   const [activeSearch, setActiveSearch] = useState(false);
 
   return (
-    <View style={styles.footer}>
-      <TouchableOpacity style={styles.footerButton} onPress={() => { navigation.navigate('MainMap') }}>
-        <Feather name="map-pin" size={24} color="white" />
-        <Text style={styles.footerButtonText}>Map</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => { navigation.navigate('Main') }} style={styles.footerButton}>
-        <Feather name="shopping-bag" size={24} color={activeShops ? "#FB9B0D" : "white"} />
-        <Text style={styles.footerButtonText}>Shops</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => { navigation.navigate('ProfileScreen') }} style={styles.footerButton}>
-        <AntDesign name="user" size={24} color={activeProfile ? "#FB9B0D" : "white"} />
-        <Text style={styles.footerButtonText}>Profile</Text>
-      </TouchableOpacity>
+    // <></>
+    <View style={styles.backgroundColor}>
+      <View style={styles.footer}>
+        <TouchableOpacity style={styles.footerButton} onPress={() => { navigation.navigate('MainMap') }}>
+          <Feather name="map-pin" size={24} color="white" />
+          <Text style={styles.footerButtonText}>Map</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => { navigation.navigate('Main') }} style={styles.footerButton}>
+          <Feather name="shopping-bag" size={24} color={activeShops ? "#FB9B0D" : "white"} />
+          <Text style={styles.footerButtonText}>Shops</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => { navigation.navigate('ProfileScreen') }} style={styles.footerButton}>
+          <AntDesign name="user" size={24} color={activeProfile ? "#FB9B0D" : "white"} />
+          <Text style={styles.footerButtonText}>Profile</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  backgroundColor: {
+    backgroundColor: '#161616',
+  },
   footer: {
     backgroundColor: '#161616',
     padding: 20,
@@ -34,7 +40,6 @@ const styles = StyleSheet.create({
     paddingTop: 17,
     alignItems: 'center',
     width: '90%',
-    // position: 'absolute',
     zIndex: 1,
     bottom: 20,
     alignSelf: 'center',
@@ -42,12 +47,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     width: '105%',
     bottom: 0,
-    // borderTopLeftRadius: 30,
-    // borderTopRightRadius: 30,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     borderWidth: 1,
     borderTopColor: '#ffffff',
-    // borderLeftColor: '#FB9B0D',
-
   },
   footerButton: {
     alignItems: 'center',

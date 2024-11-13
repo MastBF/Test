@@ -12,8 +12,8 @@ const CustomButton = ({ quantity, size, itemPrice, onPress }) => {
   return (
     <TouchableOpacity style={styles.orderButton} onPress={() => onPress(price)}>
       <View style={styles.content}>
-        <Text style={styles.orderButtonText}>Order {quantity} For {price}</Text>
-        <Image source={require('../assets/images/amdBlack.png')} style={styles.icon} />
+        <Text style={styles.orderButtonText}>Add to Cart</Text>
+        {/* <Image source={require('../assets/images/amdBlack.png')} style={styles.icon} /> */}
       </View>
     </TouchableOpacity>
   );

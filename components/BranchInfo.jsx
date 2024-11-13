@@ -7,7 +7,7 @@ import * as Font from 'expo-font';
 export default function BranchInfo({ navigation, image, address, id, logo, companyName, imageHeader }) {
     const [fontsLoaded, setFontsLoaded] = useState(false);
     const [loading, setLoading] = useState(false);
-    console.log('imageHeader:', imageHeader);
+
     useEffect(() => {
         const loadFonts = async () => {
             await Font.loadAsync({
@@ -40,7 +40,7 @@ export default function BranchInfo({ navigation, image, address, id, logo, compa
 
             <ScrollView contentContainerStyle={styles.scrollViewContent} showsHorizontalScrollIndicator={true} showsVerticalScrollIndicator={false}>
                 <Image style={styles.branchImage} source={{ uri: image }} />
-                <TouchableOpacity onPress={() => { navigation.navigate('ProductScreen', { id: id, imageHeader: imageHeader }) }}
+                <TouchableOpacity onPress={() => { navigation.navigate('ProductScreen', { id: id, imageHeader: imageHeader, name: companyName }) }}
                 >
                     <View style={styles.branchBlock}>
 
