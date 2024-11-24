@@ -1,30 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, ScrollView, ActivityIndicator, Alert } from 'react-native';
-import { Icon, Button } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
 import { RadioButton } from 'react-native-paper';
 import * as Font from 'expo-font';
-import dramOrange from '../assets/images/amdOrange.png';
 import dram2 from '../assets/images/amdWhite.png';
 import { AntDesign } from '@expo/vector-icons';
-import HOC from '../components/HOC';
 import CustomButton from '../components/CustomButton';
 
-const { width, height } = Dimensions.get('window');
 
-const ItemScreen = ({ navigation, hideItemScreen, id, color, cupImage, handleCartProducts }) => {
+const ItemScreen = ({ hideItemScreen, id, color, cupImage, handleCartProducts }) => {
   const [selectedValue, setSelectedValue] = useState('Small');
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(0);
   const [size, setSize] = useState('Small');
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [price, setPrice] = useState(0);
   const increaseQuantity = () => {
-    setQuantity(quantity + 1);
+    setQuantity(prev => prev + 1);
   };
 
   const decreaseQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
+    if (quantity > 0) {
+      setQuantity(prev => prev - 1);
     }
   };
   const onButtonPress = () => {
@@ -126,7 +122,7 @@ const ItemScreen = ({ navigation, hideItemScreen, id, color, cupImage, handleCar
           </View>
           <View style={styles.quantityContainer}>
             <TouchableOpacity onPress={decreaseQuantity}>
-              <AntDesign name="minuscircle" type="antdesign" size={24} color="#2E2E2E" />
+              <AntDesign name="minuscircle" type="antdesign" size={24} color={quantity > 0 ? "#D7D6D6" : "#2E2E2E"} />
             </TouchableOpacity>
             <Text style={styles.quantityText}>{quantity}</Text>
             <TouchableOpacity onPress={increaseQuantity}>

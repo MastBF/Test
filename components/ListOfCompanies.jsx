@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Dimensions
 import { ScrollView } from 'react-native-gesture-handler';
 import * as Font from 'expo-font';
 import { Feather } from '@expo/vector-icons';
-import logo from '../assets/images/logo3.png';
+import logo from '../assets/images/trueLogo.png';
 import image1 from '../assets/images/MainImg/image1.png';
 import image2 from '../assets/images/MainImg/image2.png';
 import image3 from '../assets/images/MainImg/image3.png';
@@ -17,13 +17,11 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL } from '@/utils/requests';
 
-export default function ListOfBranches({ navigation, branches }) {
+export default function ListOfBranches({ navigation, company, shops, onPressCompany, companyBranches, showBranches, companyImage, onBranchPress }) {
     const [fontsLoaded, setFontsLoaded] = useState(false);
     const [token, setToken] = useState(null);
-    const [shops, setShops] = useState([]);
+    // const [shops, setShops] = useState([]);
     const [location, setLocation] = useState(null);
-    const [loading, setLoading] = useState(false);
-
 
 
     useEffect(() => {
@@ -60,41 +58,11 @@ export default function ListOfBranches({ navigation, branches }) {
         })();
     }, []);
 
-    const fetchShops = async () => {
-        if (!token) {
-            console.error("No token found");
-            return;
-        }
-        if (!location) {
-            console.error("No location found");
-            return;
-        }
-        try {
-            setLoading(true);
-            const { latitude, longitude } = location.coords;
-            console.log(latitude, longitude);
-            const response = await axios.get(`${BASE_URL}/api/v1/Company/nearest/${longitude}/${latitude}`, {
-                headers: {
-                    TokenString: token,
-                },
-            });
 
-            if (Array.isArray(response.data)) {
-                setShops(response.data);
-                console.log('Shops:', response.data);
-            } else {
-                console.error("Expected an array but got:", response.data);
-            }
-        } catch (error) {
-            console.error("Error fetching shops:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     useEffect(() => {
         if (token && location) {
-            fetchShops();
+            // fetchShops();
             // setActiveShops(true);
         }
     }, [token, location]);
@@ -131,15 +99,33 @@ export default function ListOfBranches({ navigation, branches }) {
     return (
         <View style={styles.container}>
             <View style={styles.logoBlock}>
-                <View style={styles.blackBackground}>
-                    <Image source={logo} style={styles.logo} />
+                <View style={companyImage ? styles.withoutBlack : styles.blackBackground}>
+                    {/* <Image source={logo} style={styles.logo} /> */}
+                    <Image source={companyImage ? { uri: companyImage } : logo} style={styles.logo2} />
                 </View>
-                <Text style={styles.branchTitle}>Coffree</Text>
+                <Text style={styles.branchTitle}>Take&Gofree</Text>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollViewContent} showsHorizontalScrollIndicator={true} showsVerticalScrollIndicator={false}>
-                {shops.map((companies) => (
-                    <TouchableOpacity key={companies.id} onPress={() => { navigation.navigate('ProductScreen', { id: companies.id, imageHeader: companies.uiImagePath }) }}
+                {showBranches ? companyBranches.map((companies) => (
+                    // <TouchableOpacity key={companies.id} onPress={() => { navigation.navigate('ProductScreen', { id: companies.id, imageHeader: companies.uiImagePath }) }}
+                    <TouchableOpacity key={companies.id} onPress={() => onBranchPress(companies.id, companies.imageUrl, companies.address, companies.companyName, companies.companyLogoFileName)}
+                    >
+                        <View style={styles.branchBlock}>
+                            {/* <Image source={{ uri: companies.logoImagePath }} style={styles.companyImage} /> */}
+                            <Feather name='map-pin' size={25} style={styles.companyIcon} />
+
+                            <View style={styles.block}>
+                                <Text style={styles.streetName}>{companies.address}</Text>
+                                {/* <Text style={[styles.streetName, styles.thinStyle]}>{companies.branches} Branches</Text> */}
+                                <Text style={[styles.streetName, styles.thinStyle]}>{companies.nearest}m</Text>
+
+                            </View>
+                        </View>
+                    </TouchableOpacity>
+                )) : shops.map((companies) => (
+                    // <TouchableOpacity key={companies.id} onPress={() => { navigation.navigate('ProductScreen', { id: companies.id, imageHeader: companies.uiImagePath }) }}
+                    <TouchableOpacity key={companies.id} onPress={() => onPressCompany(companies.id)}
                     >
                         <View style={styles.branchBlock}>
                             <Image source={{ uri: companies.logoImagePath }} style={styles.companyImage} />
@@ -185,6 +171,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#000',
         borderRadius: 20,
     },
+    companyIcon: {
+        backgroundColor: '#C5C5C5',
+        padding: 6,
+        borderRadius: 10,
+        marginRight: 10,
+    },
     logo: {
         width: 70,
         height: 70,
@@ -207,6 +199,12 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
         flex: 1,
         // paddingTop: 10,
+    },
+    logo2: {
+        width: 50,
+        height: 50,
+        alignSelf: 'center',
+        // borderRadius: 10,
     },
     companyImage: {
         width: 50,

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, Dimensions, ActivityIndicator, Animated, Easing, StyleSheet } from 'react-native';
 import * as Location from 'expo-location';
 import ErrorMessage from '../components/ErrorMessage';
@@ -12,19 +12,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Icon } from 'react-native-elements';
 import ItemScreen from './ItemScreen';
 import { useRoute } from '@react-navigation/native';
-import cup from '../assets/images/ProductImg/cup.png';
-import CustomButtonForOrder from '@/components/CustomButtonForOrder';
-import { color } from 'react-native-elements/dist/helpers';
 import ProdInfo from '@/components/ProdInfo';
+
 const { width, height } = Dimensions.get('window');
 
 const CoffeeMusicScreen = ({ navigation }) => {
   const [data, setData] = useState([]);
   const [errorMsg, setErrorMsg] = useState(null);
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  const [counts, setCounts] = useState({});
   const [token, setToken] = useState(null);
-  const [quentity, setQuantity] = useState();
   const [isOpen, setIsOpen] = useState(false);
   const [opacityAnim] = useState(new Animated.Value(0));
   const [translateYAnim] = useState(new Animated.Value(height));
@@ -38,6 +34,60 @@ const CoffeeMusicScreen = ({ navigation }) => {
   const [itemInfo, setItemInfo] = useState(null);
   const [oneItem, setOneItem] = useState(null);
   const [cartProdCount, setCartProdCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true)
+  const scrollY = useRef(new Animated.Value(0)).current;
+
+  const HEADER_MAX_HEIGHT = 200;
+  const HEADER_MIN_HEIGHT = 60;
+  const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
+
+  const headerHeight = scrollY.interpolate({
+    inputRange: [0, HEADER_SCROLL_DISTANCE],
+    outputRange: [HEADER_MAX_HEIGHT, HEADER_MIN_HEIGHT],
+    extrapolate: 'clamp',
+  });
+
+  const headerOpacity = scrollY.interpolate({
+    inputRange: [0, HEADER_SCROLL_DISTANCE / 2, HEADER_SCROLL_DISTANCE],
+    outputRange: [1, 0.5, 0],
+    extrapolate: 'clamp',
+  });
+
+  const renderItem = ({ item, index }) => {
+    const scale = scrollY.interpolate({
+      inputRange: [-1, 0, index * 100, (index + 1) * 100],
+      outputRange: [1, 1, 1, 0.9],
+      extrapolate: 'clamp',
+    });
+
+    const opacity = scrollY.interpolate({
+      inputRange: [-1, 0, index * 100, (index + 1) * 100],
+      outputRange: [1, 1, 1, 0],
+      extrapolate: 'clamp',
+    });
+
+    return (
+      <Animated.View
+        style={{
+          transform: [{ scale }],
+          opacity,
+          marginBottom: 20,
+          backgroundColor: '#fff',
+          padding: 10,
+          borderRadius: 10,
+        }}
+      >
+        <Image
+          source={{ uri: item.imageName }}
+          style={{ height: 100, width: 100, borderRadius: 10 }}
+        />
+        <Text style={{ fontSize: 16, fontWeight: 'bold' }}>{item.name}</Text>
+        <Text style={{ fontSize: 14, color: 'gray' }}>{item.price}</Text>
+      </Animated.View>
+    );
+  };
+
+
   const fetchProducts = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/api/v1/Product/${id}?page=1&pageSize=10`, {
@@ -53,6 +103,8 @@ const CoffeeMusicScreen = ({ navigation }) => {
     } catch (error) {
       console.error('Error fetching products:', error);
       setErrorMsg('Failed to load products');
+    } finally {
+      setIsLoading(false); // Завершаем загрузку
     }
   };
   const handleVisibility = () => {
@@ -191,6 +243,15 @@ const CoffeeMusicScreen = ({ navigation }) => {
     navigation.navigate('PaymentScreen', { id: id, token: token, typeId: itemInfo.typeId, color: companyColor, coffeeName: itemInfo.name });
   };
 
+  if (isLoading || !fontsLoaded) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
+
+
   return (
     <View style={styles.container}>
       {/* {errorMsg && <ErrorMessage errorMsg={errorMsg} />} */}
@@ -202,6 +263,10 @@ const CoffeeMusicScreen = ({ navigation }) => {
       {isVisiable && (
         <ProdInfo onClose={onClose} visible={isVisiable} productInfo={oneItem} companyColor={companyColor} onAddToCart={showItemSceenHandle} handleVisibility={handleVisibility} />
       )}
+
+      <View style={styles.header}>
+        <Image source={{ uri: companyImg }} style={styles.headerImage} />
+      </View>
       <Icon
         name="left"
         type="antdesign"
@@ -210,10 +275,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
         onPress={() => navigation.goBack()}
       />
 
-      <View style={styles.header}>
-        <Image source={{ uri: companyImg }} style={styles.headerImage} />
-      </View>
-
+      <Image source={require('../assets/images/iceLavaLogo.png')} style={styles.companyLogo} />
       <ScrollView style={styles.prodList} contentContainerStyle={[styles.list, { paddingBottom: 80 }]}>
         <View style={styles.titlePart}>
           <Text onPress={fetchProducts} style={styles.title}>{name}</Text>
@@ -249,7 +311,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
                     </View>
                     <View>
                       {/* <Text style={styles.description}>{item.description}</Text> */}
-                      <Text style={styles.description}>Lorem, ipsum dolor sit amet consectetur adipisicing elit</Text>
+                      <Text style={styles.description}>Lorem, ipsum dolor sit amet </Text>
                     </View>
                     <View style={styles.itemContainerFooter}>
                       <TouchableOpacity onPress={() => {
@@ -294,7 +356,7 @@ const styles = StyleSheet.create({
   titlePart: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: height * 0.01,
+    marginTop: height * 0.03,
   },
   loadingContainer: {
     flex: 1,
@@ -306,6 +368,17 @@ const styles = StyleSheet.create({
     height: height * 0.3,
     width: '100%',
   },
+  companyLogo: {
+    top: 150,
+    left: 20,
+    width: 50,
+    height: 50,
+    resizeMode: 'contain',
+    // alignSelf: 'start',
+    borderRadius: 15,
+    position: 'absolute',
+    zIndex: 10,
+  },
   animatedContainer: {
     position: 'absolute',
     top: 0,
@@ -314,11 +387,12 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
     backgroundColor: '#fff',
-    zIndex: 10,
+    zIndex: 100,
   },
   cartIcon: {
-    alignSelf: 'center',
+    // alignSelf: 'center',
     // marginRight: width * 0.05,
+
   },
   headerImage: {
     marginTop: -height * 0.04,
@@ -355,15 +429,18 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   cartOpacity: {
-    position: 'relative',
+    // position: 'relative',
     alignSelf: 'center',
+    marginTop: height * 0.01,
+    marginRight: width * 0.015,
+    // alignItems: 'center',
   },
   closeIcon: {
     position: 'absolute',
     top: 40,
     left: 0,
     padding: 10,
-    zIndex: 2,
+    zIndex: 10,
   },
   priceContainer: {
     flexDirection: 'row',
@@ -448,11 +525,13 @@ const styles = StyleSheet.create({
     paddingVertical: width * 0.03,
     paddingHorizontal: width * 0.015,
     borderRadius: 10,
+    height: height * 0.17,
+    maxHeight: height * 0.17,
   },
   image: {
-    width: width * 0.21,
-    height: width * 0.3,
-    resizeMode: 'cover',
+    width: width * 0.2,
+    height: width * 0.25,
+    // resizeMode: 'contain',
     // marginRight: width * 0.1,
     // borderRadius: 10,
     // marginBottom: 10,
@@ -468,12 +547,13 @@ const styles = StyleSheet.create({
     fontSize: width * 0.04,
     fontFamily: 'RobotoLight',
     color: '#fff',
-    width: width * 0.38,
+    width: width * 0.35,
     marginLeft: -width * 0.04,
 
   },
   info: {
     width: width * 0.55,
+    maxHeight: height * 0.15,
   },
   buttonWrapper: {
     alignSelf: 'center',
@@ -505,7 +585,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: height * 0.03,
+    marginTop: height * 0.015,
     marginLeft: -width * 0.04,
 
     // marginTop: height * 0.015,
@@ -566,4 +646,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HOC(CoffeeMusicScreen);
+export default CoffeeMusicScreen;

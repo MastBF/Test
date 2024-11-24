@@ -1,64 +1,117 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import { AntDesign, Feather } from '@expo/vector-icons';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const Footer = ({ focusTextInput, activeShops }) => {
-  const navigation = useNavigation();
-  const [activeProfile, setActiveProfile] = useState(false);
-  const [activeSearch, setActiveSearch] = useState(false);
+import MainMap from '../pages/MainMap'; // Убедитесь, что путь правильный
+import MainScreen from '../pages/MainScreen';
+import ProfileScreen from '../pages/ProfileScreen';
+// import MapScreen from '../pages/MapScreen';
 
+const Tab = createBottomTabNavigator();
+
+const Footer = () => {
   return (
-    // <></>
-    <View style={styles.backgroundColor}>
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerButton} onPress={() => { navigation.navigate('MainMap') }}>
-          <Feather name="map-pin" size={24} color="white" />
-          <Text style={styles.footerButtonText}>Map</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => { navigation.navigate('Main') }} style={styles.footerButton}>
-          <Feather name="shopping-bag" size={24} color={activeShops ? "#FB9B0D" : "white"} />
-          <Text style={styles.footerButtonText}>Shops</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => { navigation.navigate('ProfileScreen') }} style={styles.footerButton}>
-          <AntDesign name="user" size={24} color={activeProfile ? "#FB9B0D" : "white"} />
-          <Text style={styles.footerButtonText}>Profile</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    <Tab.Navigator
+      initialRouteName="Main"
+      screenOptions={{
+        tabBarStyle: {
+          backgroundColor: '#fff',
+          height: 70,
+          borderTopWidth: 0,
+          borderTopRadius: 20,
+          paddingBottom: 10,
+          backgroundColor: '#161616',
+          position: 'absolute',
+          bottom: 0,
+          borderTopWidth: 1,
+          borderLeftWidth: 1,
+          borderRightWidth: 1,
+          borderTopColor: '#fff',
+          borderTopLeftRadius: 35,
+          borderTopRightRadius: 35,
+          borderLeftColor: '#fff',
+          borderRightColor: '#fff',
+          width: '105%',
+          left: '-2.5%',
+          overflow: 'hidden',
+        },
+        headerShown: false,
+        tabBarActiveTintColor: '#fff',
+        tabBarInactiveTintColor: '#aaa',
+        tabBarHideOnKeyboard: true,
+        animationEnabled: true,
+      }}
+    >
+
+      {/* Вкладка "Карта" */}
+      <Tab.Screen
+        name="MainMap"
+        component={MainMap}
+        options={{
+          tabBarIcon: ({ color, size, focused }) => {
+            const scale = focused ? 1.08 : 1;
+            const animatedStyle = {
+              transform: [{ scale: scale }],
+            };
+            return (
+              <Animated.View style={animatedStyle}>
+                <Feather name="map" size={23} color={color} />
+              </Animated.View>
+            );
+          },
+          tabBarLabel: 'Map',
+        }}
+      />
+
+      <Tab.Screen
+        name="Shops"
+        component={MainScreen}
+        options={{
+          tabBarIcon: ({ color, size, focused }) => {
+            const scale = focused ? 1.08 : 1;
+            const animatedStyle = {
+              transform: [{ scale: scale }],
+            };
+            return (
+              <Animated.View style={animatedStyle}>
+                <Feather name="shopping-bag" size={23} color={color} />
+              </Animated.View>
+            );
+          },
+          tabBarLabel: 'Shops',
+        }}
+      />
+
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          tabBarIcon: ({ color, size, focused }) => {
+            const scale = focused ? 1.08 : 1;
+            const animatedStyle = {
+              transform: [{ scale: scale }],
+            };
+            return (
+              <Animated.View style={animatedStyle}>
+                <AntDesign name="user" size={23} color={color} />
+              </Animated.View>
+            );
+          },
+          tabBarLabel: 'Profile',
+        }}
+      />
+    </Tab.Navigator>
   );
 };
 
 const styles = StyleSheet.create({
-  backgroundColor: {
-    backgroundColor: '#161616',
-  },
-  footer: {
-    backgroundColor: '#161616',
-    padding: 20,
-    paddingBottom: 17,
-    paddingTop: 17,
+  screen: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    width: '90%',
-    zIndex: 1,
-    bottom: 20,
-    alignSelf: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '105%',
-    bottom: 0,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    borderWidth: 1,
-    borderTopColor: '#ffffff',
-  },
-  footerButton: {
-    alignItems: 'center',
-  },
-  footerButtonText: {
-    color: '#fff',
-    fontSize: 12,
-    marginTop: 5,
   },
 });
 

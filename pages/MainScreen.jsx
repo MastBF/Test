@@ -12,94 +12,20 @@ import { BASE_URL } from '../utils/requests';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import HOC from '../components/HOC';
 import AlertScreen from '@/components/AlertScreen';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 
 const CoffeeMusicScreen = ({ navigation }) => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  const textInputRef = useRef(null);
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [shops, setShops] = useState([]);
-  const [activeShops, setActiveShops] = useState(false);
-  const [location, setLocation] = useState(null);
   const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(false);
-  // Функция фокуса на TextInput
-  const focusTextInput = () => {
-    navigation.navigate('Main');
-    textInputRef.current?.focus();
-  };
+  const [location, setLocation] = useState(null);
+  const [shops, setShops] = useState([]);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false); // Новый флаг
+  const [loadingShops, setLoadingShops] = useState(false); // Отдельный флаг для загрузки магазинов
 
-  // Функция закрытия AlertScreen
-  const onClose = () => {
-    setAlertVisible(false);
-  };
-
-  useEffect(() => {
-    const getToken = async () => {
-      try {
-        const storedToken = await AsyncStorage.getItem('token');
-        if (storedToken) {
-          setToken(storedToken);
-        } else {
-          console.error("Token not found in AsyncStorage");
-        }
-      } catch (error) {
-        console.error("Error getting token from AsyncStorage:", error);
-      }
-    };
-
-    getToken();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-          console.error('Permission to access location was denied');
-          return;
-        }
-
-        let location = await Location.getCurrentPositionAsync({});
-        setLocation(location);
-      } catch (error) {
-        console.error("Error getting location:", error);
-      }
-    })();
-  }, []);
-
-  const fetchShops = async () => {
-    if (!token) {
-      console.error("No token found");
-      return;
-    }
-    if (!location) {
-      console.error("No location found");
-      return;
-    }
-    try {
-      setLoading(true);
-      const { latitude, longitude } = location.coords;
-      console.log(latitude, longitude);
-      const response = await axios.get(`${BASE_URL}/api/v1/Company/nearest/${longitude}/${latitude}`, {
-        headers: {
-          TokenString: token,
-        },
-      });
-
-      if (Array.isArray(response.data)) {
-        setShops(response.data);
-        console.log('Shops:', response.data);
-      } else {
-        console.error("Expected an array but got:", response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching shops:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const textInputRef = useRef(null);
 
   useEffect(() => {
     const loadFonts = async () => {
@@ -113,27 +39,72 @@ const CoffeeMusicScreen = ({ navigation }) => {
       setFontsLoaded(true);
     };
 
-    loadFonts();
+    const getToken = async () => {
+      try {
+        const storedToken = await AsyncStorage.getItem('token');
+        if (storedToken) {
+          setToken(storedToken);
+        }
+      } catch (error) {
+        console.error("Error getting token from AsyncStorage:", error);
+      }
+    };
+
+    const getLocation = async () => {
+      try {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.error('Permission to access location was denied');
+          return;
+        }
+        const loc = await Location.getCurrentPositionAsync({});
+        setLocation(loc);
+      } catch (error) {
+        console.error("Error getting location:", error);
+      }
+    };
+
+    Promise.all([loadFonts(), getToken(), getLocation()]).then(() => {
+      setIsLoaded(true);
+    });
   }, []);
 
   useEffect(() => {
     if (token && location) {
       fetchShops();
-      setActiveShops(true);
     }
   }, [token, location]);
 
-  if (!fontsLoaded || loading) {
+  const fetchShops = async () => {
+    if (!token || !location) return;
+
+    try {
+      setLoadingShops(true);
+      const { latitude, longitude } = location.coords;
+      const response = await axios.get(`${BASE_URL}/api/v1/Company/nearest/${longitude}/${latitude}`, {
+        headers: { TokenString: token },
+      });
+      if (Array.isArray(response.data)) {
+        setShops(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching shops:", error);
+    } finally {
+      setLoadingShops(false);
+    }
+  };
+
+  const onConfirm = () => setAlertVisible(false);
+
+  const onClose = () => setAlertVisible(false);
+
+  if (!isLoaded || loadingShops) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#fff" />
       </SafeAreaView>
     );
   }
-
-  const onConfirm = () => {
-    setAlertVisible(false);
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -153,18 +124,14 @@ const CoffeeMusicScreen = ({ navigation }) => {
           placeholder="Search your coffee shop"
           placeholderTextColor="#1C1C1C"
         />
-        <Ionicons name="menu" size={RFPercentage(2.5)} color="white" />
+        <FontAwesome5 name="coins" size={RFPercentage(2.5)} color="white" />
       </View>
       <ScrollView contentContainerStyle={styles.scroll}>
         <ScrollView contentContainerStyle={styles.shopList}>
-          <View style={styles.lines}>
-            <Text style={styles.shopsTitle}>Shops</Text>
-          </View>
           {shops.length > 0 ? shops.map((item) => (
             <TouchableOpacity
               key={item.id}
               style={styles.shopItem}
-              // onPress={() => { navigation.navigate('ProductScreen', { id: item.id }) }}
               onPress={() => { navigation.navigate('ProductScreen', { id: item.id, imageHeader: item.uiImagePath, name: item.name }) }}
             >
               <Image source={{ uri: item.uiImagePath }} style={styles.shopImage} />
@@ -264,4 +231,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HOC(CoffeeMusicScreen);
+export default CoffeeMusicScreen;

@@ -212,4 +212,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HOC(ProfileScreen);
+export default ProfileScreen;
