@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "Aora",
-    "slug": "aora",
+    "name": "Take&Go",
+    "slug": "Take&Go",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/trueLogo_with_black_background_and_rounded_corners.png",
     "scheme": "aora",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/trueLogo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

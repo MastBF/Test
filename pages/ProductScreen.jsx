@@ -25,7 +25,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
   const [opacityAnim] = useState(new Animated.Value(0));
   const [translateYAnim] = useState(new Animated.Value(height));
   const route = useRoute();
-  const { id, name } = route.params || {};
+  const { id, name, logo } = route.params || {};
   const [companyColor, setCompanyColor] = useState(null);
   const [companyImg, setCompanyImg] = useState(null);
   const [cartProducts, setCartProducts] = useState([]);
@@ -35,58 +35,9 @@ const CoffeeMusicScreen = ({ navigation }) => {
   const [oneItem, setOneItem] = useState(null);
   const [cartProdCount, setCartProdCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true)
-  const scrollY = useRef(new Animated.Value(0)).current;
 
-  const HEADER_MAX_HEIGHT = 200;
-  const HEADER_MIN_HEIGHT = 60;
-  const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
-
-  const headerHeight = scrollY.interpolate({
-    inputRange: [0, HEADER_SCROLL_DISTANCE],
-    outputRange: [HEADER_MAX_HEIGHT, HEADER_MIN_HEIGHT],
-    extrapolate: 'clamp',
-  });
-
-  const headerOpacity = scrollY.interpolate({
-    inputRange: [0, HEADER_SCROLL_DISTANCE / 2, HEADER_SCROLL_DISTANCE],
-    outputRange: [1, 0.5, 0],
-    extrapolate: 'clamp',
-  });
-
-  const renderItem = ({ item, index }) => {
-    const scale = scrollY.interpolate({
-      inputRange: [-1, 0, index * 100, (index + 1) * 100],
-      outputRange: [1, 1, 1, 0.9],
-      extrapolate: 'clamp',
-    });
-
-    const opacity = scrollY.interpolate({
-      inputRange: [-1, 0, index * 100, (index + 1) * 100],
-      outputRange: [1, 1, 1, 0],
-      extrapolate: 'clamp',
-    });
-
-    return (
-      <Animated.View
-        style={{
-          transform: [{ scale }],
-          opacity,
-          marginBottom: 20,
-          backgroundColor: '#fff',
-          padding: 10,
-          borderRadius: 10,
-        }}
-      >
-        <Image
-          source={{ uri: item.imageName }}
-          style={{ height: 100, width: 100, borderRadius: 10 }}
-        />
-        <Text style={{ fontSize: 16, fontWeight: 'bold' }}>{item.name}</Text>
-        <Text style={{ fontSize: 14, color: 'gray' }}>{item.price}</Text>
-      </Animated.View>
-    );
-  };
-
+  
+ 
 
   const fetchProducts = async () => {
     try {
@@ -98,7 +49,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
       console.log('Products:', response.data);
       setCompanyColor(response.data.companyColour)
       setData(response.data.products.data);
-      setCompanyImg(response.data.companyUiUrl);
+      setCompanyImg(response.data.companyUiFileName);
       // console.log(response.data.companyUiUrl);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -275,7 +226,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
         onPress={() => navigation.goBack()}
       />
 
-      <Image source={require('../assets/images/iceLavaLogo.png')} style={styles.companyLogo} />
+      <Image source={{uri: logo}} style={styles.companyLogo} />
       <ScrollView style={styles.prodList} contentContainerStyle={[styles.list, { paddingBottom: 80 }]}>
         <View style={styles.titlePart}>
           <Text onPress={fetchProducts} style={styles.title}>{name}</Text>
@@ -302,7 +253,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
             >
               <View style={[styles.itemContainer, { borderColor: companyColor, borderWidth: 1 }]}>
                 <View style={styles.coffeeInfo}>
-                  <Image source={{ uri: item.imageName }} style={styles.image} />
+                  <Image source={{ uri: item.fileName }} style={styles.image} />
                   <View style={styles.info}>
                     <View style={styles.details}>
                       <View style={styles.PriveName}>
@@ -592,9 +543,9 @@ const styles = StyleSheet.create({
   },
   closeIcon: {
     position: 'absolute',
-    top: 40,
+    top: 30,
     left: 10,
-    padding: 10,
+    // padding: 10,
   },
   price: {
     fontSize: width * 0.045,

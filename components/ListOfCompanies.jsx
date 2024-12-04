@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Dimensions, Image, FlatList } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import * as Font from 'expo-font';
-import { Feather } from '@expo/vector-icons';
+import { Feather, FontAwesome } from '@expo/vector-icons';
 import logo from '../assets/images/trueLogo.png';
 import image1 from '../assets/images/MainImg/image1.png';
 import image2 from '../assets/images/MainImg/image2.png';
@@ -17,7 +17,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL } from '@/utils/requests';
 
-export default function ListOfBranches({ navigation, company, shops, onPressCompany, companyBranches, showBranches, companyImage, onBranchPress }) {
+export default function ListOfBranches({ navigation, company, shops, onPressCompany, companyBranches, showBranches, companyImage, onBranchPress, companyName }) {
     const [fontsLoaded, setFontsLoaded] = useState(false);
     const [token, setToken] = useState(null);
     // const [shops, setShops] = useState([]);
@@ -103,32 +103,32 @@ export default function ListOfBranches({ navigation, company, shops, onPressComp
                     {/* <Image source={logo} style={styles.logo} /> */}
                     <Image source={companyImage ? { uri: companyImage } : logo} style={styles.logo2} />
                 </View>
-                <Text style={styles.branchTitle}>Take&Gofree</Text>
+                <Text style={styles.branchTitle}>{companyName}</Text>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollViewContent} showsHorizontalScrollIndicator={true} showsVerticalScrollIndicator={false}>
                 {showBranches ? companyBranches.map((companies) => (
                     // <TouchableOpacity key={companies.id} onPress={() => { navigation.navigate('ProductScreen', { id: companies.id, imageHeader: companies.uiImagePath }) }}
-                    <TouchableOpacity key={companies.id} onPress={() => onBranchPress(companies.id, companies.imageUrl, companies.address, companies.companyName, companies.companyLogoFileName)}
+                    <TouchableOpacity key={companies.id} onPress={() => onBranchPress(companies.id, companies.companyUiFileName, companies.address, companies.companyName, companies.companyLogoFileName)}
                     >
                         <View style={styles.branchBlock}>
-                            {/* <Image source={{ uri: companies.logoImagePath }} style={styles.companyImage} /> */}
-                            <Feather name='map-pin' size={25} style={styles.companyIcon} />
-
+                            {/* <Image source={{ uri: companies.logoFileName }} style={styles.companyImage} /> */}
+                            <FontAwesome name='map-pin' size={25} style={styles.companyIcon} />
                             <View style={styles.block}>
                                 <Text style={styles.streetName}>{companies.address}</Text>
                                 {/* <Text style={[styles.streetName, styles.thinStyle]}>{companies.branches} Branches</Text> */}
                                 <Text style={[styles.streetName, styles.thinStyle]}>{companies.nearest}m</Text>
-
                             </View>
                         </View>
                     </TouchableOpacity>
                 )) : shops.map((companies) => (
                     // <TouchableOpacity key={companies.id} onPress={() => { navigation.navigate('ProductScreen', { id: companies.id, imageHeader: companies.uiImagePath }) }}
-                    <TouchableOpacity key={companies.id} onPress={() => onPressCompany(companies.id)}
+                    <TouchableOpacity key={companies.id} onPress={() => onPressCompany(companies.id, companies.name)}
                     >
                         <View style={styles.branchBlock}>
-                            <Image source={{ uri: companies.logoImagePath }} style={styles.companyImage} />
+                            {/* <Image source={{ uri: companies.logoImagePath }} style={styles.companyImage} /> */}
+                            <FontAwesome name='map-pin' size={25} style={styles.companyIcon} />
+
                             <View style={styles.block}>
                                 <Text style={styles.streetName}>{companies.name}</Text>
                                 {/* <Text style={[styles.streetName, styles.thinStyle]}>{companies.branches} Branches</Text> */}

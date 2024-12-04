@@ -24,7 +24,6 @@ const CoffeeMusicScreen = ({ navigation }) => {
   const [alertVisible, setAlertVisible] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false); // Новый флаг
   const [loadingShops, setLoadingShops] = useState(false); // Отдельный флаг для загрузки магазинов
-
   const textInputRef = useRef(null);
 
   useEffect(() => {
@@ -86,6 +85,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
       });
       if (Array.isArray(response.data)) {
         setShops(response.data);
+        console.log(response.data)
       }
     } catch (error) {
       console.error("Error fetching shops:", error);
@@ -132,9 +132,9 @@ const CoffeeMusicScreen = ({ navigation }) => {
             <TouchableOpacity
               key={item.id}
               style={styles.shopItem}
-              onPress={() => { navigation.navigate('ProductScreen', { id: item.id, imageHeader: item.uiImagePath, name: item.name }) }}
+              onPress={() => { navigation.navigate('ProductScreen', { id: item.id, logo: item.logoFileName, name: item.name }) }}
             >
-              <Image source={{ uri: item.uiImagePath }} style={styles.shopImage} />
+              <Image source={{ uri: item.uiFileName }} style={styles.shopImage} />
               <View style={styles.shopText}>
                 <Text style={styles.shopName}>{item.name}</Text>
                 <Text style={styles.shopDistance}>Nearest {item.nearest}m</Text>

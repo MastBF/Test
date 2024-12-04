@@ -15,7 +15,7 @@ const Tab = createBottomTabNavigator();
 const Footer = () => {
   return (
     <Tab.Navigator
-      initialRouteName="Main"
+      initialRouteName="Shops"
       screenOptions={{
         tabBarStyle: {
           backgroundColor: '#fff',
@@ -35,8 +35,8 @@ const Footer = () => {
           borderLeftColor: '#fff',
           borderRightColor: '#fff',
           width: '105%',
-          left: '-2.5%',
           overflow: 'hidden',
+          transform: [{ translateX: '-2.5%' }]
         },
         headerShown: false,
         tabBarActiveTintColor: '#fff',
@@ -46,7 +46,6 @@ const Footer = () => {
       }}
     >
 
-      {/* Вкладка "Карта" */}
       <Tab.Screen
         name="MainMap"
         component={MainMap}
@@ -84,6 +83,10 @@ const Footer = () => {
           tabBarLabel: 'Shops',
         }}
       />
+
+      {/* Вкладка "Карта" */}
+
+
 
       <Tab.Screen
         name="Profile"

@@ -362,6 +362,7 @@ function MapScreen({ navigation }) {
             console.log('Company branches response:', response.data);
             setBranches(response.data);
             setCompanyImage(response.data[0].companyLogoFileName);
+            console.log(response.data[0].companyLogoFileName)
         } catch (error) {
             console.error('Error fetching company branches:', error);
         }
@@ -374,9 +375,10 @@ function MapScreen({ navigation }) {
             fetchShops();
         };
     }, [token, location]);
-    const onPressCompany = (id) => {
+    const onPressCompany = (id, companyName) => {
         companyAllBranches(id);
         setShowBranches(true);
+        setCompanyName(companyName)
     }
 
     return (
@@ -416,7 +418,6 @@ function MapScreen({ navigation }) {
                         onPress={() => onMarekerPress(marker.id, marker.imageUrl, marker.address, marker.companyName, marker.companyLogoFileName)}
                         pinColor={marker.companyColour}
                     >
-                        {/* {alert(Linking.openURL(`https://maps.google.com/?q=${marker.latitude},${marker.longitude}`))} */}
 
                         <Callout>
                             <View style={styles.callout}>
@@ -435,7 +436,7 @@ function MapScreen({ navigation }) {
                     {shopInfoShow ? (
                         <BranchInfo image={image} address={address} id={companyId} companyName={companyName} logo={logo} navigation={navigation} imageHeader={uiImagePath} />
                     ) : (
-                        <ListOfCompanies navigation={navigation} shops={shops} onPressCompany={onPressCompany} companyBranches={companyBranches} showBranches={showBranches} companyImage={companyImage} onBranchPress={onMarekerPress} />
+                        <ListOfCompanies navigation={navigation} shops={shops} onPressCompany={onPressCompany} companyBranches={companyBranches} showBranches={showBranches} companyImage={companyImage} onBranchPress={onMarekerPress} companyName={companyName}/>
                     )}
                 </Animated.View>
             </PanGestureHandler>

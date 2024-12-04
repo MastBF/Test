@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import SignupScreen from '../pages/Auth/SignupScreen';
@@ -20,25 +20,31 @@ import Cart from '../components/Cart';
 import ProdInfo from '../components/ProdInfo';
 import CustomMarker from '../components/CustomMarker';
 import Footer from '../components/Panel';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+// import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
+// const Tab = createBottomTabNavigator();
 
 const App: React.FC = () => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
 
-      <NavigationContainer independent={true}>
-        <Stack.Navigator initialRouteName="LoginScreen">
+      <NavigationIndependentTree >
+
+        <Stack.Navigator initialRouteName="Main">
           {/* Экран для входа */}
-          <Stack.Screen
+          {/* <Stack.Screen
             name="LoginScreen"
             component={LoginScreen}
             options={{ headerShown: false }}
-          />
+          /> */}
 
+          <Stack.Screen
+            name="Main"
+            component={Footer}
+            options={{ headerShown: false }}
+          />
           <Stack.Screen name="SignupScreen" options={{ headerShown: false }} component={SignupScreen} />
           <Stack.Screen
             name="ProductScreen"
@@ -51,11 +57,7 @@ const App: React.FC = () => {
             options={{ headerShown: false, ...TransitionPresets.SlideFromRightIOS }}
             component={ProfileScreen}
           /> */}
-          <Stack.Screen
-            name="Main"
-            component={Footer}
-            options={{ headerShown: false }}
-          />
+          {/* <Stack.Screen name="Main" options={{ headerShown: false }} component={MainScreen} /> */}
         </Stack.Navigator>
         {/* <Tab.Navigator initialRouteName="SignupScreen" screenOptions={{ headerShown: false }}
         > */}
@@ -63,7 +65,6 @@ const App: React.FC = () => {
         {/* <Stack.Screen name="LoginScreen" options={{ headerShown: false }} component={LoginScreen} /> */}
         {/* <Stack.Screen name="ProdInfo" options={{ headerShown: false }} component={ProdInfo} /> */}
         {/* <Stack.Screen name="MarkerCustom" options={{ headerShown: false }} component={MarkerCustom} /> */}
-        {/* <Tab.Screen name="Main" options={{ headerShown: false }} component={MainScreen} /> */}
         {/* <Tab.Screen name="MainMap" options={{ headerShown: false }} component={MainMap} /> */}
         {/* <Stack.Screen name="BranchesOnMap" options={{ headerShown: false }} component={BranchesOnMap} /> */}
         {/* <Stack.Screen name="MapScreen" options={{ headerShown: false }} component={MapScreen} /> */}
@@ -82,7 +83,7 @@ const App: React.FC = () => {
 
         {/* <Footer /> */}
         {/* </Tab.Navigator> */}
-      </NavigationContainer>
+      </NavigationIndependentTree>
     </GestureHandlerRootView>
   );
 };
