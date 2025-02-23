@@ -14,8 +14,21 @@ const LoginScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
-  const [passwordVisible, setPasswordVisible] = useState(false); // New state for password visibility
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
+  // Проверка токена при монтировании компонента
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (token) {
+        navigation.navigate('Main'); // Перенаправление на главную страницу, если токен есть
+      }
+    };
+
+    checkToken();
+  }, [navigation]);
+
+  // Загрузка шрифтов
   useEffect(() => {
     const loadFonts = async () => {
       await Font.loadAsync({
@@ -38,9 +51,12 @@ const LoginScreen = ({ navigation }) => {
     try {
       const response = await axios.post(`${BASE_URL}/api/v1/Authentication/login`, {
         email,
-        password
+        password,
       });
+  
       await AsyncStorage.setItem('token', response.data.token);
+      await AsyncStorage.setItem('refreshToken', response.data.refreshToken);
+  
       setLoading(false);
       setIsDisabled(false);
       navigation.navigate('Main');
@@ -51,6 +67,32 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
+  const refreshAccessToken = async () => {
+    try {
+      const refreshToken = await AsyncStorage.getItem('refreshToken');
+  
+      const response = await axios.post(`${BASE_URL}/api/v1/Authentication/refresh-token`, {
+        refreshToken,
+      });
+  
+      // Сохраняем новый Access Token
+      await AsyncStorage.setItem('accessToken', response.data.token);
+  
+      // Если сервер возвращает новый Refresh Token, сохраняем его
+      if (response.data.refreshToken) {
+        await AsyncStorage.setItem('refreshToken', response.data.refreshToken);
+      }
+  
+      return response.data.accessToken; // Возвращаем новый Access Token
+    } catch (error) {
+      // Если Refresh Token недействителен, перенаправляем на экран входа
+      await AsyncStorage.removeItem('accessToken');
+      await AsyncStorage.removeItem('refreshToken');
+      navigation.navigate('Login');
+      throw error;
+    }
+  };
+  
   if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
@@ -81,7 +123,7 @@ const LoginScreen = ({ navigation }) => {
           style={styles.passwordInput}
           placeholder="Password"
           placeholderTextColor="#aaa"
-          secureTextEntry={!passwordVisible} // Toggle secure text entry
+          secureTextEntry={!passwordVisible}
           value={password}
           onChangeText={setPassword}
           autoCapitalize="none"

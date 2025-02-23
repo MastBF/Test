@@ -1,4 +1,4 @@
-import { AntDesign, FontAwesome } from '@expo/vector-icons';
+import { AntDesign, FontAwesome, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ActivityIndicator, Animated, ScrollView } from 'react-native';
 import amdWhite from '../assets/images/amdWhite.png';
@@ -6,85 +6,137 @@ import amdWhiteBold from '../assets/images/amdWhiteBold.png';
 import * as Font from 'expo-font';
 import { BASE_URL } from '@/utils/requests';
 import axios from 'axios';
+import AlertScreen from '@/components/AlertScreen';
+import { WebView } from 'react-native-webview';
+import { Linking } from "react-native";
 
 export default function PaymentScreen({ navigation, route }) {
     const [fontsLoaded, setFontsLoaded] = useState(false);
-    const [count, setCount] = useState(2);
-    const [price, setPrice] = useState(1600);
-    const [totalPrice, setTotalPrice] = useState(price);
+    const [creditId, setCreditId] = useState(null)
     const [isOpen, setIsOpen] = useState(false);
     const animation = useRef(new Animated.Value(0)).current;
-    const [card, setCard] = useState([]);
+    const [openModal, setOpenModal] = useState(false)
+    const [cards, setCards] = useState([]);
+    const [error, setError] = useState('')
+    const [isVisible, setIsVisible] = useState(false);
+    const [paymentType, setPaymentType] = useState(null)
+    const [message, setMessage] = useState('')
+    const [showWebView, setShowWebView] = useState(false);
+    const [navigateMain,setNavigateMain] = useState(false)
+    const [title,setTitle] = useState()
+    const [methods, setMethods] = useState([
+        { title: 'Payment by card', type: 'card', id: 0 },
+        // { title: 'Payment by points', type: 'coin' },
+        { title: 'Add card and pay', type: 'add', id: 2, },
+    ])
     const [creditCardId, setCreditCardId] = useState(null);
+    const [paymentUrl, setPaymentUrl] = useState('');
     const [selectedCard, setSelectedCard] = useState({ cardNumber: 'Choose Credit Card' });
-    const { id, token, typeId, color, coffeeName } = route.params;
-
-
+    const { id, token, typeId, color, cartProducts, totalPrice, totalQuantity } = route.params;
     const toggleCard = () => {
         const finalHeight = isOpen ? 0 : 150;
-
         Animated.timing(animation, {
             toValue: finalHeight,
             duration: 400,
             useNativeDriver: false,
         }).start();
-
+ 
         setIsOpen(!isOpen);
     };
 
-
-    const onNewCard = () => {
-        navigation.navigate('AddPaymentCardScreen');
+        const onConfirm = (id) => {
+        setCreditId(id)
+        setOpenModal(false)
+        if (id) {
+            console.log('liahsdjn')
+            setPaymentType(0)}
     }
-    const onCardButton = (id) => {
-        const selectedCard = card.find((item) => item.id === id);
-        setSelectedCard(selectedCard);
-        setIsOpen(!isOpen);
-        setCreditCardId(id);
+    const ChooseCreditCard =async () => {
+        await getCard()
+        setTitle('Choose Credit Card')
+        setOpenModal(true)
     }
-    const onButtonPress = () => {
+    const onAddCard = () => {
+        selectedCard === 2 ? setSelectedCard(null) : setPaymentType(2)
+    }
+    const onButtonPress = async () => {
         navigation.goBack();
     }
-    const getCard = async () => {
-        try {
-            const response = await axios.get(
-                `${BASE_URL}/api/v1/Order/card`,
-                {
-                    headers: {
-                        'TokenString': token,
-                    }
-                }
-            );
-            console.log('Card response:', response.data);
-            setCard(response.data);
-        } catch (error) {
-            console.error('Error getting card:', error);
-        }
-    };
-
-
+    useEffect(() => {
+        console.log(creditId)
+    }, [creditId])
     const postOrder = async () => {
         try {
-            const response = await axios.post(
-                `${BASE_URL}/api/v1/Order/${id}?cardId=${creditCardId}`,
-                [
-                    {
-                        "quantity": quentity,
-                        "productTypeId": typeId
-                    }
-                ],
-                {
-                    headers: {
-                        'TokenString': token,
-                        'Content-Type': 'application/json'
-                    }
+            if (paymentType !== 0) {
+                if (!paymentType) {
+                    setIsVisible(true);
+                    setOpenModal(true);
+                    setMessage('Credit card not selected');
+                    return;
                 }
-            );
-            console.log('Order response:', response.data);
+            }
+    
+            const orderItems = cartProducts.map(item => ({
+                productTypeId: item.typeId,
+                quantity: item.quantity
+            }));
+    
+            if (paymentType === 2) {
+                const response = await axios.post(
+                    `${BASE_URL}/api/v1/Order/${id}?paymentType=${paymentType}`,
+                    orderItems,
+                    {
+                        headers: {
+                            'accept': '*/*',
+                            'TokenString': `${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                if (response.data) {
+                    const paymentUrl = response.data;
+                    setPaymentUrl(paymentUrl);
+                    setShowWebView(true);
+                }
+            } else if (paymentType === 0) {
+                const response = await axios.post(
+                    `${BASE_URL}/api/v1/Order/${id}?cardId=${creditId}&paymentType=${paymentType}`,
+                    orderItems, 
+                    {
+                        headers: {
+                            'accept': '*/*',
+                            'TokenString': `${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+            }
+    
         } catch (error) {
-            console.error('Error creating order:', error);
+            // setMessage(error.response?.data?.message || "Unknown error");
+            setTitle('Something went wrong');
+            setMessage('Please try later')
+            setCards([])
+            setOpenModal(true);
+            console.error(error)
         }
     };
+    const handleNavigationStateChange = async (navState) => {
+        const { url } = navState;
+        console.log('Current URL:', url);
+    
+        if (url.includes('https://poxery-qashela')) {
+            setShowWebView(false);
+            setOpenModal(true);
+            setNavigateMain(true);
+            setMessage('Payment was successful');
+        }
+    };
+    const onSuccessOrder = () => {
+        if(navigateMain) navigation.navigate('Main')
+        setOpenModal(false)
+    }
+
 
     useEffect(() => {
         const loadFonts = async () => {
@@ -104,11 +156,17 @@ export default function PaymentScreen({ navigation, route }) {
 
         loadFonts();
     }, []);
+    const getCard = async () => {
+        try {
+            const response = await axios.get(`${BASE_URL}/api/v1/Order/card`, {
+                headers: { TokenString: token },
+            })
+            setCards(response.data)
 
-    useEffect(() => {
-        getCard();
-    }, []);
-
+        } catch (err) {
+            console.error(err)
+        }
+    }
 
     if (!fontsLoaded) {
         return (
@@ -124,33 +182,7 @@ export default function PaymentScreen({ navigation, route }) {
                 <AntDesign name="left" size={20} color="#fff" style={styles.icon} onPress={onButtonPress} />
                 <Text style={styles.headerText}>Payment For The Order</Text>
             </View>
-            <View style={styles.orderSection}>
-                <Text style={styles.sectionTitle}>Your Order</Text>
-                <Text style={styles.productDescription}>1 Product From <Text style={styles.boldText}>Coffee Music</Text></Text>
-                <View>
-                    <View style={styles.productRow}>
-                        <Text style={styles.productQuantity}>{5}x</Text>
-                        <Text style={styles.productName}>{'Americano'}</Text>
-                        <Text style={styles.productPrice}>{2000} </Text>
-                        <Image source={amdWhite} style={styles.amdIcon} />
-                    </View>
-                    <View style={styles.optionTextContainer}>
-                        <Text style={styles.productQuantityHidden}>2x</Text>
-                        <Text style={styles.text}>5%</Text>
-                        <View style={[styles.borderDiv, { backgroundColor: color }]}>
-                            <Text style={styles.borderText}>Cashback</Text>
-                        </View>
-                    </View>
-                    <View style={styles.countEdit}>
-                        <TouchableOpacity style={styles.minusButton}>
-                            <AntDesign name='minuscircle' size={18} color='#fff' />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.minusButton}>
-                            <AntDesign name='pluscircle' size={18} color='#fff' />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </View>
+            {openModal && <AlertScreen isVisible={openModal} list={cards} onConfirm={navigateMain ? onSuccessOrder : onConfirm} message={message} title={title? title:''}/>}
 
             {/* Payment Method Section */}
             <View style={styles.paymentSection}>
@@ -159,8 +191,9 @@ export default function PaymentScreen({ navigation, route }) {
                 <TouchableOpacity onPress={toggleCard}>
                     <View style={styles.cardInfo}>
                         <View style={styles.rowBlock}>
-                            <FontAwesome name='cc-visa' size={20} color='#fff' style={styles.visaIcon} />
-                            <Text style={styles.cardText}>{selectedCard.cardNumber === 'Choose Credit Card' ? '' : 'Card Ending With'} {selectedCard.cardNumber}</Text>
+                            <MaterialIcons name='payment' size={24} color='#fff' style={styles.visaIcon} />
+                            <Text style={styles.cardText}>Choose Payment Method</Text>
+                            {/* <Text style={styles.cardText}>{selectedCard.cardNumber === 'Choose Payment Method' ? '' : 'Card Ending With'} {selectedCard.cardNumber}</Text> */}
                         </View>
                         <AntDesign name="down" size={20} color="#fff" style={styles.iconDown} />
                     </View>
@@ -169,19 +202,33 @@ export default function PaymentScreen({ navigation, route }) {
                 <Animated.View style={[styles.animatedContainer, { height: animation }]}>
 
                     <ScrollView>
-                        {card.map((item, index) => (
-                            <TouchableOpacity style={styles.otherCards} onPress={() => onCardButton(item.id, item.cardNumberFirstDigits, item.cardNumber)}>
-                                <FontAwesome name='cc-visa' size={20} color='#fff' style={styles.visaIcon} />
-                                <Text key={index} style={styles.animatedText}>
-                                    Card Ending With {item.cardNumberFirstDigits}<Text style={styles.boldNumbers}>{item.cardNumber}</Text>
+                        {methods.map((item, index) => (
+                            <TouchableOpacity style={[styles.otherCards, paymentType === item.id && styles.selectedField]} key={index} onPress={item.type === 'card' ? ChooseCreditCard : onAddCard}>
+                                {item.type === 'card' &&
+                                    <FontAwesome name='cc-visa' size={20} color='#fff' style={styles.visaIcon} />
+                                }
+                                {item.type === 'coin' &&
+                                    <FontAwesome5 name='coins' size={20} color='#fff' style={styles.visaIcon} />
+                                }
+                                {item.type === 'add' &&
+                                    <Ionicons name='add-circle' size={20} color='#fff' style={styles.visaIcon} />
+                                }
+                                <Text key={index} style={[styles.animatedText]}>
+                                    {item.title}
                                 </Text>
                             </TouchableOpacity>
                         ))}
-                        <TouchableOpacity style={styles.newCardAdd} onPress={onNewCard}>
-                            <FontAwesome name='plus-circle' size={20} color='#fff' style={styles.visaIcon} />
-                            <Text style={styles.cashbackLabelCard}>Add New Card</Text>
-                        </TouchableOpacity>
                     </ScrollView>
+                    {/* <ScrollView>
+                        {methods.map((item, index) => (
+                            <TouchableOpacity style={styles.otherCards} onPress={() => onCardButton(item.id, item.cardNumberFirstDigits, item.cardNumber)}>
+                                <FontAwesome name='cc-visa' size={20} color='#fff' style={styles.visaIcon} />
+                                <Text key={index} style={styles.animatedText}>
+                                    Card Ending With   **** {item.cardNumberFirstDigits}<Text style={styles.boldNumbers}>{item.cardNumber}</Text>
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </ScrollView> */}
                 </Animated.View>
             </View>
 
@@ -200,6 +247,19 @@ export default function PaymentScreen({ navigation, route }) {
             <TouchableOpacity style={styles.confirmButton} onPress={postOrder}>
                 <Text style={styles.confirmButtonText}>Confirm Order</Text>
             </TouchableOpacity>
+            {showWebView && (
+                 <View style={styles.webViewContainer}>
+                     <WebView
+                         source={{ uri: paymentUrl }}
+                         onNavigationStateChange={handleNavigationStateChange}
+                         javaScriptEnabled={true}
+                         domStorageEnabled={true}
+                         onShouldStartLoadWithRequest={(request) => {
+                             return true;
+                         }}
+                     />
+                 </View>
+             )}
         </SafeAreaView >
     );
 }
@@ -220,10 +280,24 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        height: 60,
-        marginTop: 20,
+        height: 20,
+        marginBottom: 20,
         // paddingHorizontal: 20,
 
+    },
+    webViewContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: '#1c1c1c', // или любой другой цвет фона
+    },    
+    selectedField: {
+        backgroundColor: '#5D5D5D',
+        borderRadius: 10,
+        padding: 5,
+        borderRadius: 10,
     },
     orderSection: {
         paddingHorizontal: 20,
@@ -250,6 +324,10 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         fontFamily: 'RobotoThin',
     },
+    arrow: {
+        marginLeft: 'auto',
+        alignSelf: 'center',
+    },
     productRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -268,8 +346,8 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomRightRadius: 0,
         borderBottomLeftRadius: 0,
-        paddingBottom: 7,
-
+        paddingBottom: 2,
+        paddingTop: 2,
     },
     newCardAdd: {
         flexDirection: 'row',

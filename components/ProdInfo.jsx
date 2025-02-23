@@ -40,7 +40,7 @@ const ProdInfo = ({ visible, productInfo, onClose, onAddToCart, companyColor, ha
     }, [visible]);
 
     const onAdd = () => {
-        onAddToCart(productInfo.item);
+        onAddToCart();
         handleVisibility();
     };
     if (!visible || !productInfo) return null;
@@ -57,7 +57,7 @@ const ProdInfo = ({ visible, productInfo, onClose, onAddToCart, companyColor, ha
                     <TouchableOpacity style={styles.closeIcon} onPress={onClose}>
                         <AntDesign name="closecircle" size={24} color="#000" />
                     </TouchableOpacity>
-                    <Image source={{ uri: productInfo.imageName }} style={styles.image} />
+                    <Image source={{ uri: productInfo.item.fileName }} style={styles.image} />
                     <Text style={[styles.productName, { color: companyColor }]}>{productInfo.name}</Text>
                     {/* <Text style={styles.description}>{productInfo.description}</Text> */}
                     <Text style={styles.description}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium adipisci asperiores blanditiis placeat </Text>

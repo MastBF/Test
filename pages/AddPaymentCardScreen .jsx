@@ -9,7 +9,7 @@ import { BASE_URL } from '@/utils/requests';
 
 const { width, height } = Dimensions.get('window');
 
-const AddPaymentCardScreen = ({ navigation }) => {
+const AddPaymentCardScreen = ({ navigation, route }) => {
     const [fontsLoaded, setFontsLoaded] = useState(false);
     const [name, setName] = useState('');
     const [cardNumber, setCardNumber] = useState('');
@@ -18,7 +18,7 @@ const AddPaymentCardScreen = ({ navigation }) => {
     const [year, setYear] = useState('');
     const [cvc, setCvc] = useState('');
     const [loading, setLoading] = useState(false);
-
+    const { token } = route.params
     const handleCardNumber = (text) => {
         const cleaned = text.replace(/\D/g, '');
         const formatted = cleaned.replace(/(.{4})/g, '$1 ').trim();
@@ -82,7 +82,6 @@ const AddPaymentCardScreen = ({ navigation }) => {
         try {
             // Alert.alert('Month', month);
             // Alert.alert('Year', year);
-            console.log(name, cardNumber.replace(/\s+/g, ''), month, cvc, year);
             const response = await axios.post(`${BASE_URL}/api/v1/Order/card`, {
                 cardHolderName: name,
                 pan: cardNumber.replace(/\s+/g, ''),
@@ -114,11 +113,11 @@ const AddPaymentCardScreen = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
+                <TouchableOpacity style={styles.iconBlock} onPress={onButtonPress}>
+                    <AntDesign name="left" size={20} color="#fff" style={styles.icon} />
+                </TouchableOpacity>
                 <Text style={styles.headerTitle}>Add a Payment Card</Text>
             </View>
-            <TouchableOpacity style={styles.iconBlock} onPress={onButtonPress}>
-                <AntDesign name="left" size={20} color="#fff" style={styles.icon} />
-            </TouchableOpacity>
             <View style={styles.form}>
                 <View style={styles.inputContainer}>
                     <Ionicons name="person-outline" size={24} color="#fff" style={styles.icon} />
@@ -229,8 +228,7 @@ const styles = StyleSheet.create({
     },
     iconBlock: {
         position: 'absolute',
-        top: 63,
-        left: 10,
+        left: 0,
     },
     input: {
         flex: 1,

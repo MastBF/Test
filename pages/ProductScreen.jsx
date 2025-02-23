@@ -35,9 +35,9 @@ const CoffeeMusicScreen = ({ navigation }) => {
   const [oneItem, setOneItem] = useState(null);
   const [cartProdCount, setCartProdCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true)
+  const [itemId, setItemId] = useState()
 
-  
- 
+
 
   const fetchProducts = async () => {
     try {
@@ -46,11 +46,9 @@ const CoffeeMusicScreen = ({ navigation }) => {
           'TokenString': token,
         },
       });
-      console.log('Products:', response.data);
       setCompanyColor(response.data.companyColour)
       setData(response.data.products.data);
       setCompanyImg(response.data.companyUiFileName);
-      // console.log(response.data.companyUiUrl);
     } catch (error) {
       console.error('Error fetching products:', error);
       setErrorMsg('Failed to load products');
@@ -61,28 +59,13 @@ const CoffeeMusicScreen = ({ navigation }) => {
   const handleVisibility = () => {
     setIsVisiable(false);
   };
-  const itemInfoHandle = (item, imageName, name, price, description) => {
+  const itemInfoHandle = (item, imageName, name, price, description, id, isVisiable = true) => {
     setOneItem({ item, imageName, name, price, description });
-    setIsVisiable(true);
+    setItemId(id)
+    setIsVisiable(isVisiable);
   };
-  const reqPeriId = async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/api/v1/Cart/cart`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'TokenString': token
-        },
-      });
-      setCartProdCount(response.data.totalCount);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  useEffect(() => {
-    reqPeriId();
-  }, [token]);
 
-  const showItemScreen = (name, price, type, id, typeId) => {
+  const showItemScreen = () => {
     setIsOpen(true);
     Animated.parallel([
       Animated.timing(opacityAnim, {
@@ -98,12 +81,23 @@ const CoffeeMusicScreen = ({ navigation }) => {
         useNativeDriver: true,
       }),
     ]).start();
-    setItemInfo({ name, price, type, id, typeId });
   };
-  const handleCartProducts = (prod) => {
-    setCartProducts(prev => [...prev, prod]);
-    console.log('Cart products:', cartProducts);
+  const handleCartProducts = (newItem) => {
+    setCartProducts(prevCart => {
+      const existingItemIndex = prevCart.findIndex(item => 
+        item.id === newItem.id && item.typeId === newItem.typeId
+      );
+  
+      if (existingItemIndex !== -1) {
+        const updatedCart = [...prevCart];
+        updatedCart[existingItemIndex].quantity += newItem.quantity;
+        return updatedCart;
+      } else {
+        return [...prevCart, newItem];
+      }
+    });
   };
+  
   const hideItemScreen = () => {
     Animated.parallel([
       Animated.timing(opacityAnim, {
@@ -136,20 +130,17 @@ const CoffeeMusicScreen = ({ navigation }) => {
     };
     getToken();
   }, []);
-
+  useEffect(() => {
+    setCartProdCount(cartProducts.length)
+  }, [cartProducts])
   useEffect(() => {
     if (token) {
       fetchProducts();
     }
   }, [token]);
 
-  const showItemSceenHandle = (item) => {
-    console.log("Types", item.productTypes);
-    if (item.productTypes && item.productTypes.length > 0) {
-      showItemScreen(item.name, item.price, item.type, item.id, item.productTypes[0].id);
-    } else {
-      console.error('Product types not available for this item');
-    }
+  const showItemSceenHandle = () => {
+    showItemScreen();
   };
 
 
@@ -179,8 +170,9 @@ const CoffeeMusicScreen = ({ navigation }) => {
   }, []);
 
   const cartNavigate = () => {
-    navigation.navigate('Cart', { navigation, companyColor, cartProducts, token });
+    navigation.navigate('Cart', { navigation, branchId: id, companyColor, cartProducts, token });
   };
+
 
   if (!fontsLoaded) {
     return (
@@ -190,9 +182,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
     );
   }
 
-  const navOrderScreen = () => {
-    navigation.navigate('PaymentScreen', { id: id, token: token, typeId: itemInfo.typeId, color: companyColor, coffeeName: itemInfo.name });
-  };
+
 
   if (isLoading || !fontsLoaded) {
     return (
@@ -202,13 +192,17 @@ const CoffeeMusicScreen = ({ navigation }) => {
     );
   }
 
-
   return (
     <View style={styles.container}>
       {/* {errorMsg && <ErrorMessage errorMsg={errorMsg} />} */}
       {isOpen && (
         <Animated.View style={[styles.animatedContainer, { opacity: opacityAnim, transform: [{ translateY: translateYAnim }] }]}>
-          <ItemScreen hideItemScreen={hideItemScreen} id={id} navigation={navigation} color={companyColor} cupImage={data[1].imageName} handleCartProducts={handleCartProducts} />
+          <ItemScreen
+            hideItemScreen={hideItemScreen}
+            color={companyColor}
+            handleCartProducts={handleCartProducts}
+            data={data.find(item => item.id === itemId)}
+          />
         </Animated.View>
       )}
       {isVisiable && (
@@ -223,10 +217,13 @@ const CoffeeMusicScreen = ({ navigation }) => {
         type="antdesign"
         color="#fff"
         containerStyle={styles.closeIcon}
-        onPress={() => navigation.goBack()}
+        onPress={() => {
+          setCartProducts([])
+          navigation.goBack()
+        }}
       />
 
-      <Image source={{uri: logo}} style={styles.companyLogo} />
+      {/* <Image source={{uri: logo}} style={styles.companyLogo} /> */}
       <ScrollView style={styles.prodList} contentContainerStyle={[styles.list, { paddingBottom: 80 }]}>
         <View style={styles.titlePart}>
           <Text onPress={fetchProducts} style={styles.title}>{name}</Text>
@@ -249,7 +246,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
           data.map((item) => (
             <TouchableOpacity
               key={item.id}
-              onPress={() => itemInfoHandle(item, item.imageName, item.name, item.price, item.description)}
+              onPress={() => itemInfoHandle(item, item.imageName, item.name, item.price, item.description, item.id)}
             >
               <View style={[styles.itemContainer, { borderColor: companyColor, borderWidth: 1 }]}>
                 <View style={styles.coffeeInfo}>
@@ -266,7 +263,8 @@ const CoffeeMusicScreen = ({ navigation }) => {
                     </View>
                     <View style={styles.itemContainerFooter}>
                       <TouchableOpacity onPress={() => {
-                        showItemSceenHandle(item);
+                        itemInfoHandle(item, item.imageName, item.name, item.price, item.description, item.id, false)
+                        showItemSceenHandle();
                       }}>
                         <AntDesign name='pluscircle' color={companyColor} size={25} />
                       </TouchableOpacity>

@@ -1,32 +1,48 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { RadioButton } from 'react-native-paper';
 import * as Font from 'expo-font';
 import dram2 from '../assets/images/amdWhite.png';
 import { AntDesign } from '@expo/vector-icons';
 import CustomButton from '../components/CustomButton';
+import { BASE_URL } from '@/utils/requests'; // Убедитесь, что BASE_URL правильно настроен
+import axios from 'axios';
 
-
-const ItemScreen = ({ hideItemScreen, id, color, cupImage, handleCartProducts }) => {
+const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
   const [selectedValue, setSelectedValue] = useState('Small');
-  const [quantity, setQuantity] = useState(0);
+  const [quantity, setQuantity] = useState(1);
   const [size, setSize] = useState('Small');
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
+
   const increaseQuantity = () => {
     setQuantity(prev => prev + 1);
   };
 
   const decreaseQuantity = () => {
-    if (quantity > 0) {
+    if (quantity > 1) {
       setQuantity(prev => prev - 1);
     }
   };
-  const onButtonPress = () => {
+
+  const onButtonPress = async () => {
+    let typeId;
+    if (selectedValue === 'Small') typeId = 0;
+    if (selectedValue === 'Medium') typeId = 1;
+    if (selectedValue === 'Big') typeId = 2;
+
+    handleCartProducts({
+        description: data.description,
+        image: data.fileName,
+        price: data.price,
+        title: data.name,
+        id: data.id,
+        typeId,
+        quantity,
+    });
     hideItemScreen();
-    handleCartProducts({ quantity, size, id });
-  }
+  };
 
   useEffect(() => {
     const loadFonts = async () => {
@@ -48,7 +64,7 @@ const ItemScreen = ({ hideItemScreen, id, color, cupImage, handleCartProducts })
     loadFonts();
   }, []);
 
-  if (loading) {
+  if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#ffffff" />
@@ -61,11 +77,10 @@ const ItemScreen = ({ hideItemScreen, id, color, cupImage, handleCartProducts })
       <ScrollView style={styles.scrollContainer}>
         <View style={styles.imageContainer}>
           <Image
-            source={{ uri: cupImage }}
+            source={{ uri: data.fileName }}
             style={[styles.productImage]}
             onError={() => console.log('Image load error')}
           />
-
           <Icon
             name="down"
             type="antdesign"
@@ -75,16 +90,10 @@ const ItemScreen = ({ hideItemScreen, id, color, cupImage, handleCartProducts })
           />
         </View>
         <View style={styles.detailsContainer}>
-          <Text style={styles.productTitle}>Americano</Text>
-          <Text style={styles.productPrice}>700 <Image source={dram2} style={styles.dramImg} /></Text>
-          <Text style={styles.productDescription}>Instant coffee, rich, smooth flavor.</Text>
+          <Text style={styles.productTitle}>{data.name}</Text>
+          <Text style={styles.productPrice}>{data.price} <Image source={dram2} style={styles.dramImg} /></Text>
+          <Text style={styles.productDescription}>{data.description}</Text>
           <Text style={styles.optionTitle}>Choose Size</Text>
-          <View style={styles.optionTextContainer}>
-            <Text style={styles.text}>Select 1 option</Text>
-            <View style={styles.borderDiv}>
-              <Text style={[styles.borderText, { backgroundColor: color }]}>Necessarily</Text>
-            </View>
-          </View>
           <View style={styles.choosSize}>
             <TouchableOpacity style={styles.sizeBlock} onPress={() => { setSelectedValue('Small'); setSize('Small'); }}>
               <Text style={styles.size}>Small</Text>
@@ -98,7 +107,6 @@ const ItemScreen = ({ hideItemScreen, id, color, cupImage, handleCartProducts })
             <TouchableOpacity style={styles.sizeBlock} onPress={() => { setSelectedValue('Medium'); setSize('Medium'); }}>
               <View style={styles.priceAddAmd}>
                 <Text style={styles.size}>Medium <Text style={[styles.priceAdd, { color: color }]}>+100</Text> </Text>
-                {/* <Image source={dramOrange} style={styles.dramImgOrange} /> */}
               </View>
               <RadioButton.Android
                 value="Medium"
@@ -110,7 +118,6 @@ const ItemScreen = ({ hideItemScreen, id, color, cupImage, handleCartProducts })
             <TouchableOpacity style={styles.sizeBlock} onPress={() => { setSelectedValue('Big'); setSize('Big'); }}>
               <View style={styles.priceAddAmd}>
                 <Text style={styles.size}>Big <Text style={[styles.priceAdd, { color: color }]}>+150</Text></Text>
-                {/* <Image source={dramOrange} style={styles.dramImgOrange} /> */}
               </View>
               <RadioButton.Android
                 value="Big"
@@ -122,34 +129,26 @@ const ItemScreen = ({ hideItemScreen, id, color, cupImage, handleCartProducts })
           </View>
           <View style={styles.quantityContainer}>
             <TouchableOpacity onPress={decreaseQuantity}>
-              <AntDesign name="minuscircle" type="antdesign" size={24} color={quantity > 0 ? "#D7D6D6" : "#2E2E2E"} />
+              <AntDesign name="minuscircle" size={24} color={quantity > 1 ? "#D7D6D6" : "#2E2E2E"} />
             </TouchableOpacity>
             <Text style={styles.quantityText}>{quantity}</Text>
             <TouchableOpacity onPress={increaseQuantity}>
-              <AntDesign name="pluscircle" type="antdesign" size={24} color="#D7D6D6" />
+              <AntDesign name="pluscircle" size={24} color="#D7D6D6" />
             </TouchableOpacity>
           </View>
         </View>
-
       </ScrollView>
-      {/* <Button
-        title={`Order ${quantity} For ${(700 + (size === 'Medium' ? 100 : size === 'Big' ? 150 : 0)) * quantity}`}
-        buttonStyle={styles.orderButton}
-        titleStyle={styles.orderButtonText}
-        onPress={() => { }}
-          containerStyle={styles.orderButtonContainer}
-          /> */}
 
       <CustomButton
         quantity={quantity}
         size={size}
         itemPrice={700}
-        onPress={(price) => onButtonPress(price)}
-      // onPress={(price) => console.log(price)}
+        onPress={onButtonPress}
       />
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

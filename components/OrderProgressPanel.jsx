@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Animated, Touchable, TouchableOpacity } from 'react-native';
 import * as Font from 'expo-font';
 
 const { width } = Dimensions.get('window');
 
-const OrderStatusPanel = () => {
+const OrderStatusPanel = ({ step, onPress}) => {
     const [fontsLoaded, setFontsLoaded] = useState(false);
-
+    const scaleAnim = useState(new Animated.Value(1))[0];
     useEffect(() => {
         const loadFonts = async () => {
             await Font.loadAsync({
@@ -24,26 +24,39 @@ const OrderStatusPanel = () => {
         loadFonts();
     }, []);
 
+    useEffect(() => {
+        Animated.sequence([
+            Animated.timing(scaleAnim, {
+                toValue: 1.2,
+                duration: 200,
+                useNativeDriver: true,
+            }),
+            Animated.timing(scaleAnim, {
+                toValue: 1,
+                duration: 200,
+                useNativeDriver: true,
+            })
+        ]).start();
+    }, [step]);
+
     return (
-        <View style={styles.container}>
+        <TouchableOpacity style={styles.container} onPress={onPress}>
             <Text style={styles.statusText}>Your order <Text style={styles.boldPart}>was sent</Text> to the store</Text>
             <View style={styles.statusBarContainer}>
                 <View>
-                    <View style={styles.firstBar}></View>
-                    <Text style={[styles.label, styles.activeLabel]}>Accepting</Text>
+                    <Animated.View style={[styles.bar, step >= 1 && styles.activeBar, { transform: [{ scale: step === 1 ? scaleAnim : 1 }] }]}></Animated.View>
+                    <Text style={[styles.label, step >= 1 && styles.activeLabel]}>Accepting</Text>
                 </View>
                 <View>
-                    <View style={styles.secondBar}></View>
-                    <Text style={styles.label}>Preparing Your Drink</Text>
+                    <Animated.View style={[styles.bar, step >= 2 && styles.activeBar, { transform: [{ scale: step === 2 ? scaleAnim : 1 }] }]}></Animated.View>
+                    <Text style={[styles.label, step >= 2 && styles.activeLabel]}>Preparing Your Drink</Text>
                 </View>
                 <View>
-                    <View style={styles.thirdBar}></View>
-                    <Text style={styles.label}>Waiting For You</Text>
+                    <Animated.View style={[styles.bar, step >= 3 && styles.activeBar, { transform: [{ scale: step === 3 ? scaleAnim : 1 }] }]}></Animated.View>
+                    <Text style={[styles.label, step >= 3 && styles.activeLabel]}>Waiting For You</Text>
                 </View>
             </View>
-            <View style={styles.labelsContainer}>
-            </View>
-        </View>
+        </TouchableOpacity>
     );
 };
 
@@ -51,14 +64,12 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: '#333333',
         padding: 16,
-        paddingHorizontal: 10,
         borderRadius: 20,
         alignItems: 'center',
         width: '90%',
     },
     statusText: {
         color: '#fff',
-        marginBottom: 8,
         marginBottom: 30,
         fontSize: 16,
         fontFamily: 'RobotoLight',
@@ -72,47 +83,15 @@ const styles = StyleSheet.create({
     boldPart: {
         fontFamily: 'RobotoBold',
     },
-    firstBar: {
+    bar: {
         height: 6,
         borderRadius: 2,
         width: width * 0.26,
+        backgroundColor: '#5E5D5D',
+        marginBottom: 5,
+    },
+    activeBar: {
         backgroundColor: '#fff',
-        marginBottom: 5,
-    },
-    secondBar: {
-        height: 6,
-        borderRadius: 2,
-        width: width * 0.3,
-        backgroundColor: '#5E5D5D',
-        marginBottom: 5,
-    },
-    thirdBar: {
-        height: 6,
-        borderRadius: 2,
-        width: width * 0.26,
-        backgroundColor: '#5E5D5D',
-        marginBottom: 5,
-    },
-    statusBar: {
-        height: 4,
-        borderRadius: 2,
-    },
-    accepting: {
-        width: width * 0.25,
-        fontFamily: 'RobotoBold',
-    },
-    preparing: {
-        width: width * 0.25,
-        fontFamily: 'RobotoBold',
-    },
-    waiting: {
-        width: width * 0.25,
-        fontFamily: 'RobotoBold',
-    },
-    labelsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
     },
     label: {
         color: '#888888',
