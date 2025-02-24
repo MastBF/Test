@@ -53,10 +53,10 @@ const LoginScreen = ({ navigation }) => {
         email,
         password,
       });
-  
+
       await AsyncStorage.setItem('token', response.data.token);
       await AsyncStorage.setItem('refreshToken', response.data.refreshToken);
-  
+
       setLoading(false);
       setIsDisabled(false);
       navigation.navigate('Main');
@@ -70,28 +70,48 @@ const LoginScreen = ({ navigation }) => {
   const refreshAccessToken = async () => {
     try {
       const refreshToken = await AsyncStorage.getItem('refreshToken');
-  
       const response = await axios.post(`${BASE_URL}/api/v1/Authentication/refresh-token`, {
         refreshToken,
       });
-  
-      // Сохраняем новый Access Token
-      await AsyncStorage.setItem('accessToken', response.data.token);
-  
-      // Если сервер возвращает новый Refresh Token, сохраняем его
+
+      await AsyncStorage.setItem('token', response.data.token);
       if (response.data.refreshToken) {
         await AsyncStorage.setItem('refreshToken', response.data.refreshToken);
       }
-  
-      return response.data.accessToken; // Возвращаем новый Access Token
+
+      return response.data.accessToken;
     } catch (error) {
-      // Если Refresh Token недействителен, перенаправляем на экран входа
       await AsyncStorage.removeItem('accessToken');
       await AsyncStorage.removeItem('refreshToken');
       navigation.navigate('Login');
       throw error;
     }
   };
+
+  const makeAuthenticatedRequest = async (url, options = {}) => {
+    let accessToken = await AsyncStorage.getItem('accessToken');
+    const isTokenExpired = checkIfTokenExpired(accessToken);
+
+    if (isTokenExpired) {
+      accessToken = await refreshAccessToken();
+    }
+
+    const headers = {
+      ...options.headers,
+      Authorization: `Bearer ${accessToken}`,
+    };
+
+    const response = await axios(url, { ...options, headers });
+    return response.data;
+  };
+
+  const checkIfTokenExpired = (token) => {
+    if (!token) return true;
+    const decodedToken = jwtDecode(token); // Используйте библиотеку для декодирования JWT
+    const currentTime = Date.now() / 1000;
+    return decodedToken.exp < currentTime;
+  };
+
   
   if (!fontsLoaded) {
     return (
