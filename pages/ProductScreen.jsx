@@ -53,7 +53,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
       console.error('Error fetching products:', error);
       setErrorMsg('Failed to load products');
     } finally {
-      setIsLoading(false); // Завершаем загрузку
+      setIsLoading(false); 
     }
   };
   const handleVisibility = () => {

@@ -10,12 +10,12 @@ import { BASE_URL } from '@/utils/requests'; // Убедитесь, что BASE_
 import axios from 'axios';
 
 const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
-  const [selectedValue, setSelectedValue] = useState('Small');
+  const [selectedValue, setSelectedValue] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [size, setSize] = useState('Small');
+  const [size, setSize] = useState(null);
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  const [warning, setWarning] = useState(false)
   const increaseQuantity = () => {
     setQuantity(prev => prev + 1);
   };
@@ -27,19 +27,24 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
   };
 
   const onButtonPress = async () => {
+    if (!selectedValue) {
+      setWarning(true)
+      return;
+    }
+
     let typeId;
     if (selectedValue === 'Small') typeId = 0;
     if (selectedValue === 'Medium') typeId = 1;
     if (selectedValue === 'Big') typeId = 2;
 
     handleCartProducts({
-        description: data.description,
-        image: data.fileName,
-        price: data.price,
-        title: data.name,
-        id: data.id,
-        typeId,
-        quantity,
+      description: data.description,
+      image: data.fileName,
+      price: data.price,
+      title: data.name,
+      id: data.id,
+      typeId,
+      quantity,
     });
     hideItemScreen();
   };
@@ -64,6 +69,9 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
     loadFonts();
   }, []);
 
+  useEffect(() => {
+    console.log(warning)
+  },[warning])
   if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
@@ -71,7 +79,6 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
       </View>
     );
   }
-
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
@@ -94,7 +101,7 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
           <Text style={styles.productPrice}>{data.price} <Image source={dram2} style={styles.dramImg} /></Text>
           <Text style={styles.productDescription}>{data.description}</Text>
           <Text style={styles.optionTitle}>Choose Size</Text>
-          <View style={styles.choosSize}>
+          <View style={[styles.choosSize]}>
             <TouchableOpacity style={styles.sizeBlock} onPress={() => { setSelectedValue('Small'); setSize('Small'); }}>
               <Text style={styles.size}>Small</Text>
               <RadioButton.Android
@@ -102,6 +109,8 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
                 status={selectedValue === 'Small' ? 'checked' : 'unchecked'}
                 onPress={() => { setSelectedValue('Small'); setSize('Small'); }}
                 color="#ffffff"
+                uncheckedColor={warning ? '#C51919' : ''}
+
               />
             </TouchableOpacity>
             <TouchableOpacity style={styles.sizeBlock} onPress={() => { setSelectedValue('Medium'); setSize('Medium'); }}>
@@ -113,6 +122,7 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
                 status={selectedValue === 'Medium' ? 'checked' : 'unchecked'}
                 onPress={() => { setSelectedValue('Medium'); setSize('Medium'); }}
                 color="#ffffff"
+                uncheckedColor={warning ? '#C51919' : ''}
               />
             </TouchableOpacity>
             <TouchableOpacity style={styles.sizeBlock} onPress={() => { setSelectedValue('Big'); setSize('Big'); }}>
@@ -124,6 +134,8 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
                 status={selectedValue === 'Big' ? 'checked' : 'unchecked'}
                 onPress={() => { setSelectedValue('Big'); setSize('Big'); }}
                 color="#ffffff"
+                uncheckedColor={warning ? '#C51919' : ''}
+
               />
             </TouchableOpacity>
           </View>
@@ -138,7 +150,6 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
           </View>
         </View>
       </ScrollView>
-
       <CustomButton
         quantity={quantity}
         size={size}
@@ -148,6 +159,7 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
     </View>
   );
 };
+
 
 
 const styles = StyleSheet.create({
@@ -163,6 +175,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: 'relative',
   },
+
   productImage: {
     width: '100%',
     height: 300,
@@ -190,6 +203,9 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     marginLeft: -4,
     marginTop: 15,
+  },
+  warning: {
+
   },
   productTitle: {
     color: '#fff',

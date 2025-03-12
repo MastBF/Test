@@ -66,7 +66,8 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 20,
         alignItems: 'center',
-        width: '90%',
+        width: '95%',
+        marginBottom:20
     },
     statusText: {
         color: '#fff',

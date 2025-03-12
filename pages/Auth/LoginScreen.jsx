@@ -16,19 +16,7 @@ const LoginScreen = ({ navigation }) => {
   const [isDisabled, setIsDisabled] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
 
-  // Проверка токена при монтировании компонента
-  useEffect(() => {
-    const checkToken = async () => {
-      const token = await AsyncStorage.getItem('token');
-      if (token) {
-        navigation.navigate('Main'); // Перенаправление на главную страницу, если токен есть
-      }
-    };
 
-    checkToken();
-  }, [navigation]);
-
-  // Загрузка шрифтов
   useEffect(() => {
     const loadFonts = async () => {
       await Font.loadAsync({
@@ -67,52 +55,68 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
-  const refreshAccessToken = async () => {
+  const refreshAccessToken = async (token) => {
     try {
       const refreshToken = await AsyncStorage.getItem('refreshToken');
-      const response = await axios.post(`${BASE_URL}/api/v1/Authentication/refresh-token`, {
-        refreshToken,
+      if (!refreshToken) {
+        return null;
+      }
+      console.log(token, 'ref', refreshToken)
+      const response = await axios.get(`${BASE_URL}/api/v1/Authentication/refresh-token`, {
+        headers: {
+          refreshTokenString: refreshToken,
+          tokenString: token
+        }
       });
-
-      await AsyncStorage.setItem('token', response.data.token);
+      if (response.data.tokenSignature) {
+        await AsyncStorage.setItem('token', response.data.tokenSignature);
+      }
       if (response.data.refreshToken) {
         await AsyncStorage.setItem('refreshToken', response.data.refreshToken);
       }
 
-      return response.data.accessToken;
+      return response.data.tokenSignature;
     } catch (error) {
-      await AsyncStorage.removeItem('accessToken');
+      await AsyncStorage.removeItem('token');
       await AsyncStorage.removeItem('refreshToken');
-      navigation.navigate('Login');
-      throw error;
+      console.error(error)
     }
   };
 
-  const makeAuthenticatedRequest = async (url, options = {}) => {
-    let accessToken = await AsyncStorage.getItem('accessToken');
-    const isTokenExpired = checkIfTokenExpired(accessToken);
-
-    if (isTokenExpired) {
-      accessToken = await refreshAccessToken();
+  const checkIfTokenExpired = async (token) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/v1/Authentication/state`, {
+        headers: {
+          Authorization: token,
+        },
+      });
+      if (response) return false
+    } catch (err) {
+      if (err.status === 401) {
+        return true
+      }
     }
-
-    const headers = {
-      ...options.headers,
-      Authorization: `Bearer ${accessToken}`,
-    };
-
-    const response = await axios(url, { ...options, headers });
-    return response.data;
   };
 
-  const checkIfTokenExpired = (token) => {
-    if (!token) return true;
-    const decodedToken = jwtDecode(token); // Используйте библиотеку для декодирования JWT
-    const currentTime = Date.now() / 1000;
-    return decodedToken.exp < currentTime;
+  const makeAuthenticatedRequest = async () => {
+    let accessToken = await AsyncStorage.getItem('token');
+    let isTokenInvalid
+    if (accessToken) {
+      isTokenInvalid = await checkIfTokenExpired(accessToken);
+    }
+    if (isTokenInvalid) {
+      accessToken = await refreshAccessToken(accessToken);
+    }
+    console.log(accessToken)
+    if (accessToken) {
+      navigation.navigate('Main')
+    }
   };
 
-  
+  useEffect(() => {
+    makeAuthenticatedRequest()
+  }, [])
+
   if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>

@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, Image, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions, RefreshControl, ScrollView } from 'react-native';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions, RefreshControl, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Font from 'expo-font';
 import Feather from '@expo/vector-icons/Feather';
@@ -11,6 +11,7 @@ import { BASE_URL } from '../utils/requests';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import OrderStatusPanel from '../components/OrderProgressPanel';
 import DeleteOrderScreen from '../components/DeleteOrderScreen';
+import SuccessAlert from '../components/SuccessAlert';
 
 const { width, height } = Dimensions.get('window');
 
@@ -26,84 +27,103 @@ const CoffeeMusicScreen = ({ navigation }) => {
     const [refreshing, setRefreshing] = useState(false);
     const [paymentType, setPaymentType] = useState(null);
     const [responseStatus, setResponseStatus] = useState(null);
-    const textInputRef = useRef(null);
 
-    useEffect(() => {
-        const loadFonts = async () => {
-            await Font.loadAsync({
-                RobotoRegular: require('../assets/fonts/Roboto-Regular.ttf'),
-                LatoLight: require('../assets/fonts/Lato-Light.ttf'),
-                InterThin: require('../assets/fonts/Inter-Thin.ttf'),
-                InterMedium: require('../assets/fonts/Inter-Medium.ttf'),
-                InterBold: require('../assets/fonts/Inter-Bold.ttf'),
-            });
-            setFontsLoaded(true);
-        };
-
-        const getToken = async () => {
-            try {
-                const storedToken = await AsyncStorage.getItem('token');
-                if (storedToken) {
-                    setToken(storedToken);
-                }
-            } catch (error) {
-                console.error("Error getting token from AsyncStorage:", error);
-            }
-        };
-
-        const getLocation = async () => {
-            try {
-                let { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== 'granted') {
-                    console.error('Permission to access location was denied');
-                    return;
-                }
-                const loc = await Location.getCurrentPositionAsync({});
-                setLocation(loc);
-            } catch (error) {
-                console.error("Error getting location:", error);
-            }
-        };
-
-        Promise.all([loadFonts(), getToken(), getLocation()]).then(() => {
-            setIsLoaded(true);
+    const loadFonts = useCallback(async () => {
+        await Font.loadAsync({
+            RobotoRegular: require('../assets/fonts/Roboto-Regular.ttf'),
+            LatoLight: require('../assets/fonts/Lato-Light.ttf'),
+            InterThin: require('../assets/fonts/Inter-Thin.ttf'),
+            InterMedium: require('../assets/fonts/Inter-Medium.ttf'),
+            InterBold: require('../assets/fonts/Inter-Bold.ttf'),
         });
+        setFontsLoaded(true);
+    }, []);
+
+    const getToken = useCallback(async () => {
+        try {
+            const storedToken = await AsyncStorage.getItem('token');
+            if (storedToken) {
+                setToken(storedToken);
+            }
+        } catch (error) {
+            console.error("Error getting token from AsyncStorage:", error);
+        }
+    }, []);
+
+    const getLocation = useCallback(async () => {
+        try {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                console.error('Permission to access location was denied');
+                return;
+            }
+            const loc = await Location.getCurrentPositionAsync({});
+            setLocation(loc);
+        } catch (error) {
+            console.error("Error getting location:", error);
+        }
     }, []);
 
     useEffect(() => {
-        if (token && location) {
-            fetchShops();
-            checkState(); // Вызываем checkState при загрузке токена и местоположения
-        }
-    }, [token, location]);
+        const initialize = async () => {
+            await Promise.all([loadFonts(), getToken(), getLocation()]);
+            setIsLoaded(true);
+        };
+        initialize();
+    }, [loadFonts, getToken, getLocation]);
 
-    const checkState = async () => {
+    const checkState = useCallback(async () => {
+        if (!token) return;
         try {
             const response = await axios.get(`${BASE_URL}/api/v1/Authentication/state`, {
-                headers: {
-                    TokenString: token,
-                },
+                headers: { TokenString: token },
             });
             setOrderStatus(response.data.orderStatus);
             setPaymentType(response.data.paymentType);
         } catch (err) {
             console.error(err);
         }
-    };
+    }, [token]);
+
+    const checkPayment = useCallback(async () => {
+        if (!token) return;
+        try {
+            const response = await axios.patch(`${BASE_URL}/api/v1/Order/check-payment`, {
+                headers: { tokenString: token }
+            });
+            if (response.data === false) {
+                await axios.delete(`${BASE_URL}/api/v1/Order/cancel-order-user`, {
+                    headers: { tokenString: token },
+                });
+            }
+        } catch (err) {
+            setOrderStatus(null);
+            console.error(err);
+        }
+    }, [token]);
+
+    useEffect(() => {
+        if (token && location) {
+            fetchShops();
+            checkState();
+            if (paymentType === 2) {
+                checkPayment();
+            }
+        }
+    }, [token, location, checkState, checkPayment, paymentType]);
 
     useEffect(() => {
         const interval = setInterval(() => {
             if (token) {
-                checkState(); // Периодически проверяем состояние
+                checkState();
             }
-        }, 60000); // 60 секунд
+        }, 60000);
 
-        return () => clearInterval(interval); // Очистка при размонтировании компонента
-    }, [token]);
+        return () => clearInterval(interval);
+    }, [token, checkState]);
 
-    const fetchShops = async () => {
+    const fetchShops = useCallback(async () => {
         if (!token || !location) return;
-        
         try {
             setLoadingShops(true);
             const { latitude, longitude } = location.coords;
@@ -118,40 +138,50 @@ const CoffeeMusicScreen = ({ navigation }) => {
         } finally {
             setLoadingShops(false);
         }
-    };
+    }, [token, location]);
 
-    const onOrderDelete = async () => {
+    const onOrderDelete = useCallback(async () => {
         try {
-            setResponseStatus('deleting'); // Устанавливаем состояние "удаление в процессе"
             const response = await axios.delete(`${BASE_URL}/api/v1/Order/cancel-order-user`, {
-                headers: {
-                    tokenString: token,
-                }
+                headers: { tokenString: token },
             });
             if (response.status === 200) {
-                setResponseStatus(true); // Устанавливаем состояние "успешное удаление"
+                setResponseStatus(true);
                 setTimeout(() => {
-                    setAlertVisible(false); // Закрываем модальное окно
-                    setResponseStatus(null); // Сбрасываем состояние
-                    checkState(); // Обновляем состояние заказа
-                }, 2000); // Закрываем через 2 секунды
+                    setAlertVisible(false);
+                    setResponseStatus(null);
+                    checkState();
+                }, 2000);
             }
         } catch (err) {
             console.error(err);
-            setResponseStatus(false); // Устанавливаем состояние "ошибка удаления"
+            setResponseStatus(false);
         }
-    };
+    }, [token, checkState]);
 
-    const onRefresh = async () => {
+    const onRefresh = useCallback(async () => {
         setRefreshing(true);
         await fetchShops();
-        await checkState(); // Вызываем checkState при обновлении страницы
+        await checkState();
         setRefreshing(false);
-    };
+    }, [fetchShops, checkState]);
 
-    const onPanelPress = () => {
+    const onPanelPress = useCallback(() => {
         setAlertVisible(true);
-    };
+    }, []);
+
+    const renderShopItem = useCallback(({ item }) => (
+        <TouchableOpacity
+            style={styles.shopItem}
+            onPress={() => navigation.navigate('ProductScreen', { id: item.id, logo: item.logoFileName, name: item.name })}
+        >
+            <Image source={{ uri: item.uiFileName }} style={styles.shopImage} />
+            <View style={styles.shopText}>
+                <Text style={styles.shopName}>{item.name}</Text>
+                <Text style={styles.shopDistance}>Nearest {item.nearest}m</Text>
+            </View>
+        </TouchableOpacity>
+    ), [navigation]);
 
     if (!isLoaded || loadingShops) {
         return (
@@ -170,19 +200,23 @@ const CoffeeMusicScreen = ({ navigation }) => {
                 paymentType={paymentType}
                 responseStatus={responseStatus}
             />
-
             <View style={styles.header}>
                 <Feather name="user" size={RFPercentage(2.5)} color="white" onPress={() => navigation.navigate('ProfileScreen')} />
-                <TextInput
-                    ref={textInputRef}
-                    style={styles.searchInput}
-                    placeholder="Search your coffee shop"
-                    placeholderTextColor="#1C1C1C"
-                />
+                <View style={styles.logoBlock}>
+                    <Text style={styles.logoText}>Take & Go</Text>
+                    <Image
+                        source={require('../assets/images/trueLogo.png')}
+                        style={styles.logo}
+                        resizeMode="contain"
+                    />
+                </View>
                 <FontAwesome5 name="coins" size={RFPercentage(2.5)} color="white" />
             </View>
 
-            <ScrollView
+            <FlatList
+                data={shops}
+                renderItem={renderShopItem}
+                keyExtractor={(item) => item.id.toString()}
                 contentContainerStyle={styles.scroll}
                 refreshControl={
                     <RefreshControl
@@ -192,29 +226,13 @@ const CoffeeMusicScreen = ({ navigation }) => {
                         tintColor="#fff"
                     />
                 }
-            >
-                {orderStatus || orderStatus === 0 ? <OrderStatusPanel step={orderStatus} onPress={onPanelPress} /> : null}
-
-                <View style={styles.shopList}>
-                    {shops.length > 0 ? (
-                        shops.map((item) => (
-                            <TouchableOpacity
-                                key={item.id}
-                                style={styles.shopItem}
-                                onPress={() => navigation.navigate('ProductScreen', { id: item.id, logo: item.logoFileName, name: item.name })}
-                            >
-                                <Image source={{ uri: item.uiFileName }} style={styles.shopImage} />
-                                <View style={styles.shopText}>
-                                    <Text style={styles.shopName}>{item.name}</Text>
-                                    <Text style={styles.shopDistance}>Nearest {item.nearest}m</Text>
-                                </View>
-                            </TouchableOpacity>
-                        ))
-                    ) : (
-                        <Text style={styles.noShopsText}>No shops found</Text>
-                    )}
-                </View>
-            </ScrollView>
+                ListHeaderComponent={
+                    orderStatus !== null ? (
+                        <OrderStatusPanel step={orderStatus} onPress={onPanelPress} />
+                    ) : null
+                }
+                ListEmptyComponent={<Text style={styles.noShopsText}>No shops found</Text>}
+            />
         </View>
     );
 };
@@ -240,18 +258,16 @@ const styles = StyleSheet.create({
         paddingHorizontal: width * 0.05,
         paddingVertical: height * 0.02,
     },
-    searchInput: {
-        backgroundColor: 'white',
-        borderRadius: width * 0.05,
-        paddingHorizontal: width * 0.04,
-        paddingVertical: height * 0.01,
-        color: '#1C1C1C',
-        width: width * 0.6,
-    },
     shopList: {
         paddingHorizontal: width * 0.05,
         paddingTop: height * 0.02,
         alignItems: 'center',
+    },
+    logo: {
+        width: 30,
+    },
+    logoText: {
+        width: 20,
     },
     shopItem: {
         marginBottom: height * 0.03,
@@ -286,6 +302,20 @@ const styles = StyleSheet.create({
         fontSize: RFPercentage(2.5),
         fontFamily: 'InterThin',
         marginTop: height * 0.02,
+    },
+    logoBlock: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    logoText: {
+        color: '#fff',
+        fontSize: RFPercentage(3),
+        fontFamily: 'InterBold',
+        marginRight: 8,
+    },
+    logo: {
+        width: 40,
+        height: 40,
     },
 });
 

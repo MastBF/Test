@@ -9,6 +9,9 @@ import axios from 'axios';
 import AlertScreen from '@/components/AlertScreen';
 import { WebView } from 'react-native-webview';
 import { Linking } from "react-native";
+import SuccessAlert from '@/components/SuccessAlert';
+import ErrorAlert from '@/components/ErrorAlert'
+import CardSelectionPopup from '@/components/CardSelectionPopup'
 
 export default function PaymentScreen({ navigation, route }) {
     const [fontsLoaded, setFontsLoaded] = useState(false);
@@ -22,8 +25,8 @@ export default function PaymentScreen({ navigation, route }) {
     const [paymentType, setPaymentType] = useState(null)
     const [message, setMessage] = useState('')
     const [showWebView, setShowWebView] = useState(false);
-    const [navigateMain,setNavigateMain] = useState(false)
-    const [title,setTitle] = useState()
+    const [navigateMain, setNavigateMain] = useState(false)
+    const [title, setTitle] = useState()
     const [methods, setMethods] = useState([
         { title: 'Payment by card', type: 'card', id: 0 },
         // { title: 'Payment by points', type: 'coin' },
@@ -32,6 +35,9 @@ export default function PaymentScreen({ navigation, route }) {
     const [creditCardId, setCreditCardId] = useState(null);
     const [paymentUrl, setPaymentUrl] = useState('');
     const [selectedCard, setSelectedCard] = useState({ cardNumber: 'Choose Credit Card' });
+    const [successAlert, setSuccessAlert] = useState(false)
+    const [errorAlert, setErrorAlert] = useState(false)
+    const [isSelect, setIsSelect] = useState(false)
     const { id, token, typeId, color, cartProducts, totalPrice, totalQuantity } = route.params;
     const toggleCard = () => {
         const finalHeight = isOpen ? 0 : 150;
@@ -40,21 +46,42 @@ export default function PaymentScreen({ navigation, route }) {
             duration: 400,
             useNativeDriver: false,
         }).start();
- 
+
         setIsOpen(!isOpen);
     };
+    const checkPayment = async () => {
+        try {
+            const response = await axios.patch(`${BASE_URL}/api/v1/Order/check-payment`, {}, {
+                headers: {
+                    tokenString: token
+                }
+            })
+            console.log('resp', response.data)
+            if (!response.data) {
+                await axios.delete(`${BASE_URL}/api/v1/Order/cancel-order-user`, {
+                    headers: {
+                        tokenString: token,
+                    }
+                });
+            } else {
+                return true
+            }
+        } catch (err) {
+            console.error(err.status)
+        }
+    }
 
-        const onConfirm = (id) => {
+    const onConfirm = (id) => {
         setCreditId(id)
         setOpenModal(false)
         if (id) {
-            console.log('liahsdjn')
-            setPaymentType(0)}
+            setPaymentType(0)
+        }
     }
-    const ChooseCreditCard =async () => {
+    const ChooseCreditCard = async () => {
         await getCard()
         setTitle('Choose Credit Card')
-        setOpenModal(true)
+        setIsSelect(true)
     }
     const onAddCard = () => {
         selectedCard === 2 ? setSelectedCard(null) : setPaymentType(2)
@@ -62,9 +89,6 @@ export default function PaymentScreen({ navigation, route }) {
     const onButtonPress = async () => {
         navigation.goBack();
     }
-    useEffect(() => {
-        console.log(creditId)
-    }, [creditId])
     const postOrder = async () => {
         try {
             if (paymentType !== 0) {
@@ -75,12 +99,12 @@ export default function PaymentScreen({ navigation, route }) {
                     return;
                 }
             }
-    
+
             const orderItems = cartProducts.map(item => ({
                 productTypeId: item.typeId,
                 quantity: item.quantity
             }));
-    
+
             if (paymentType === 2) {
                 const response = await axios.post(
                     `${BASE_URL}/api/v1/Order/${id}?paymentType=${paymentType}`,
@@ -98,10 +122,11 @@ export default function PaymentScreen({ navigation, route }) {
                     setPaymentUrl(paymentUrl);
                     setShowWebView(true);
                 }
+
             } else if (paymentType === 0) {
-                const response = await axios.post(
+               const response = await axios.post(
                     `${BASE_URL}/api/v1/Order/${id}?cardId=${creditId}&paymentType=${paymentType}`,
-                    orderItems, 
+                    orderItems,
                     {
                         headers: {
                             'accept': '*/*',
@@ -110,12 +135,12 @@ export default function PaymentScreen({ navigation, route }) {
                         },
                     }
                 );
+                console.log('resss',response.status)
+                if(response.status === 204) setSuccessAlert(true)
             }
-    
+
         } catch (error) {
-            // setMessage(error.response?.data?.message || "Unknown error");
-            setTitle('Something went wrong');
-            setMessage('Please try later')
+            setErrorAlert(true)
             setCards([])
             setOpenModal(true);
             console.error(error)
@@ -124,19 +149,32 @@ export default function PaymentScreen({ navigation, route }) {
     const handleNavigationStateChange = async (navState) => {
         const { url } = navState;
         console.log('Current URL:', url);
-    
+
         if (url.includes('https://poxery-qashela')) {
             setShowWebView(false);
-            setOpenModal(true);
             setNavigateMain(true);
-            setMessage('Payment was successful');
+            const check = await checkPayment()
+            if (check) {
+                setSuccessAlert(true)
+            } else {
+                setErrorAlert(true)
+            }
         }
     };
     const onSuccessOrder = () => {
-        if(navigateMain) navigation.navigate('Main')
-        setOpenModal(false)
+        if (navigateMain) navigation.navigate('Main')
+        setSuccessAlert(false)
+    }
+    const onErrorOrder = () => {
+        setErrorAlert(false)
     }
 
+    const onSelectCard = (card) => {
+        console.log(card)
+        setCreditId(card); 
+        setIsSelect(false); 
+        setPaymentType(0); 
+    };
 
     useEffect(() => {
         const loadFonts = async () => {
@@ -182,8 +220,9 @@ export default function PaymentScreen({ navigation, route }) {
                 <AntDesign name="left" size={20} color="#fff" style={styles.icon} onPress={onButtonPress} />
                 <Text style={styles.headerText}>Payment For The Order</Text>
             </View>
-            {openModal && <AlertScreen isVisible={openModal} list={cards} onConfirm={navigateMain ? onSuccessOrder : onConfirm} message={message} title={title? title:''}/>}
-
+            <SuccessAlert visible={successAlert} onCancel={onSuccessOrder} />
+            <ErrorAlert visible={errorAlert} onCancel={onErrorOrder} />
+            <CardSelectionPopup visible={isSelect} onCancel={() => setIsSelect(false)} cards={cards} onSelectCard={onSelectCard}/>
             {/* Payment Method Section */}
             <View style={styles.paymentSection}>
                 <Text style={styles.sectionTitle}>Payment Method</Text>
@@ -248,18 +287,18 @@ export default function PaymentScreen({ navigation, route }) {
                 <Text style={styles.confirmButtonText}>Confirm Order</Text>
             </TouchableOpacity>
             {showWebView && (
-                 <View style={styles.webViewContainer}>
-                     <WebView
-                         source={{ uri: paymentUrl }}
-                         onNavigationStateChange={handleNavigationStateChange}
-                         javaScriptEnabled={true}
-                         domStorageEnabled={true}
-                         onShouldStartLoadWithRequest={(request) => {
-                             return true;
-                         }}
-                     />
-                 </View>
-             )}
+                <View style={styles.webViewContainer}>
+                    <WebView
+                        source={{ uri: paymentUrl }}
+                        onNavigationStateChange={handleNavigationStateChange}
+                        javaScriptEnabled={true}
+                        domStorageEnabled={true}
+                        onShouldStartLoadWithRequest={(request) => {
+                            return true;
+                        }}
+                    />
+                </View>
+            )}
         </SafeAreaView >
     );
 }
@@ -292,7 +331,7 @@ const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
         backgroundColor: '#1c1c1c', // или любой другой цвет фона
-    },    
+    },
     selectedField: {
         backgroundColor: '#5D5D5D',
         borderRadius: 10,
