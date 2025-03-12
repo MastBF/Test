@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Linking, StyleSheet, TouchableOpacity, View } from 'react-native';
-import MapView, { Marker, Callout } from 'react-native-maps';
+import { Alert, Linking, TouchableOpacity, View, Platform, StyleSheet } from 'react-native';
+import MapView, { Marker, Callout, PROVIDER_GOOGLE } from 'react-native-maps';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import ListOfCompanies from '../components/ListOfCompanies';
@@ -10,7 +10,6 @@ import { BASE_URL } from '@/utils/requests';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import BranchInfo from '../components/BranchInfo';
-import { EvilIcons } from '@expo/vector-icons';
 
 function MapScreen({ navigation }) {
     const [isListVisible, setIsListVisible] = useState(false);
@@ -30,61 +29,6 @@ function MapScreen({ navigation }) {
     const [companyBranches, setCompanyBranches] = useState(null);
     const [showBranches, setShowBranches] = useState(false);
     const [companyImage, setCompanyImage] = useState(null);
-    useEffect(() => {
-        const getToken = async () => {
-            try {
-                const storedToken = await AsyncStorage.getItem('token');
-                if (storedToken) {
-                    setToken(storedToken);
-                } else {
-                    console.error("Token not found in AsyncStorage");
-                }
-            } catch (error) {
-                console.error("Error getting token from AsyncStorage:", error);
-            }
-        };
-
-        getToken();
-    }, []);
-
-    const heightAnim = useSharedValue(200); // Initial height in pixels
-
-    const toggleList = () => {
-        heightAnim.value = withSpring(isListVisible ? 50 : 350);
-        setIsListVisible(!isListVisible);
-    };
-    const onMarekerPress = (id, image, address, companyName, logo) => {
-        if (!isListVisible) toggleList();
-        if (!shopInfoShow) {
-            setShopInfoShow(prev => !prev);
-        }
-        setCompanyId(id);
-        setImage(image);
-        setAddress(address);
-        setCompanyName(companyName);
-        setLogo(logo);
-        const filteredBranches = branches.filter(branch => branch.companyName === companyName);
-        if (filteredBranches.length > 0) {
-            setUiImagePath(filteredBranches[0].companyUiFileName);
-        }
-        setImageHeader(uiImagePath);
-    }
-
-    const animatedStyle = useAnimatedStyle(() => {
-        return {
-            height: heightAnim.value,
-        };
-    });
-
-    const handleGesture = (event) => {
-        if (event.nativeEvent.translationY > 0) {
-            heightAnim.value = withSpring(150);
-            setIsListVisible(false);
-        } else {
-            heightAnim.value = withSpring(400);
-            setIsListVisible(true);
-        }
-    };
     const darkTheme = [
 
         {
@@ -274,6 +218,63 @@ function MapScreen({ navigation }) {
     ];
 
     useEffect(() => {
+        const getToken = async () => {
+            try {
+                const storedToken = await AsyncStorage.getItem('token');
+                if (storedToken) {
+                    setToken(storedToken);
+                } else {
+                    console.error("Token not found in AsyncStorage");
+                }
+            } catch (error) {
+                console.error("Error getting token from AsyncStorage:", error);
+            }
+        };
+
+        getToken();
+    }, []);
+
+    const heightAnim = useSharedValue(200); 
+
+    const toggleList = () => {
+        heightAnim.value = withSpring(isListVisible ? 50 : 350);
+        setIsListVisible(!isListVisible);
+    };
+
+    const onMarekerPress = (id, image, address, companyName, logo) => {
+        if (!isListVisible) toggleList();
+        if (!shopInfoShow) {
+            setShopInfoShow(prev => !prev);
+        }
+        setCompanyId(id);
+        setImage(image);
+        setAddress(address);
+        setCompanyName(companyName);
+        setLogo(logo);
+        const filteredBranches = branches.filter(branch => branch.companyName === companyName);
+        if (filteredBranches.length > 0) {
+            setUiImagePath(filteredBranches[0].companyUiFileName);
+        }
+        setImageHeader(uiImagePath);
+    }
+
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            height: heightAnim.value,
+        };
+    });
+
+    const handleGesture = (event) => {
+        if (event.nativeEvent.translationY > 0) {
+            heightAnim.value = withSpring(150);
+            setIsListVisible(false);
+        } else {
+            heightAnim.value = withSpring(400);
+            setIsListVisible(true);
+        }
+    };
+
+    useEffect(() => {
         (async () => {
             try {
                 let { status } = await Location.requestForegroundPermissionsAsync();
@@ -310,7 +311,6 @@ function MapScreen({ navigation }) {
             const response = await axios.get(`${BASE_URL}/api/v1/Branch/all-branches/${latitude}/${longitude}`, {
                 headers: { TokenString: token },
             });
-            console.log('Branches response:', response.data);
             setCompanyBranches(response.data);
         } catch (error) {
             console.error('Error fetching branches:', error);
@@ -327,16 +327,15 @@ function MapScreen({ navigation }) {
             return;
         }
         try {
-
             const { latitude, longitude } = location.coords;
             const response = await axios.get(`${BASE_URL}/api/v1/Company/nearest/${longitude}/${latitude}`, {
                 headers: {
                     TokenString: token,
                 },
             });
-
             if (Array.isArray(response.data)) {
                 setShops(response.data);
+                setShowBranches(false);
             } else {
                 console.error("Expected an array but got:", response.data);
             }
@@ -344,6 +343,7 @@ function MapScreen({ navigation }) {
             console.error("Error fetching shops:", error);
         }
     };
+
     const companyAllBranches = async (id) => {
         if (!token) {
             console.error("No token found");
@@ -359,15 +359,16 @@ function MapScreen({ navigation }) {
             const response = await axios.get(`${BASE_URL}/api/v1/Branch/all-branches/${id}/${latitude}/${longitude}`, {
                 headers: { TokenString: token },
             });
-            console.log('Company branches response:', response.data);
             setBranches(response.data);
             setCompanyImage(response.data[0].companyLogoFileName);
-            console.log(response.data[0].companyLogoFileName)
         } catch (error) {
             console.error('Error fetching company branches:', error);
         }
     };
 
+    const onBackPress = () => {
+        setShopInfoShow(false)
+    }
 
     useEffect(() => {
         if (token && location) {
@@ -375,40 +376,28 @@ function MapScreen({ navigation }) {
             fetchShops();
         };
     }, [token, location]);
+
     const onPressCompany = (id, companyName) => {
         companyAllBranches(id);
         setShowBranches(true);
         setCompanyName(companyName)
     }
 
+    // Ensure MapView works well on Web, if needed
+    const isWeb = Platform.OS === 'web';
+
     return (
-        <View style={styles.container}>
-            {/* <Icon
-                name="left"
-                type="antdesign"
-                color="white"
-                containerStyle={styles.closeIcon}
-                onPress={() => navigation.goBack()}
-            /> */}
+        <View style={{ flex: 1 }}>
             <MapView
-                style={styles.map}
+                style={{ flex: 1 }}
                 region={region} // Use region instead of initialRegion
-                customMapStyle={darkTheme}
-                onPress={toggleList}
                 showsUserLocation={true}
                 showsMyLocationButton={false}
                 userLocationPriority="high"
                 showsCompass={false}
-                provider='google'
+                customMapStyle={darkTheme}
+                provider={isWeb ? PROVIDER_GOOGLE : null} // Only use Google provider for web if necessary
             >
-                {/* {location && (
-                    <MarkerCustom
-                        coordinate={{
-                            latitude: location.coords.latitude,
-                            longitude: location.coords.longitude,
-                        }}
-                    />
-                )} */}
                 {branches.map(marker => (
                     <Marker
                         key={marker.id}
@@ -418,31 +407,26 @@ function MapScreen({ navigation }) {
                         onPress={() => onMarekerPress(marker.id, marker.imageUrl, marker.address, marker.companyName, marker.companyLogoFileName)}
                         pinColor={marker.companyColour}
                     >
-
                         <Callout>
-                            <View style={styles.callout}>
-                                {/* <Text style={styles.title}>{marker.title}</Text>
-                                    <Text style={styles.description}>{marker.description}</Text> */}
-                            </View>
+                            <View style={{ width: 150, padding: 5 }} />
                         </Callout>
                     </Marker>
                 ))}
-
             </MapView>
             <PanGestureHandler onGestureEvent={handleGesture}>
-                <Animated.View style={[styles.listContainer, animatedStyle]}>
-
-                    <View style={styles.dragHandle} />
+                <Animated.View style={[{ position: 'absolute', bottom: 0, width: '100%', backgroundColor: '#E0E0E0', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingHorizontal: 5, overflow: 'hidden' }, animatedStyle]}>
+                    <View style={{ width: 40, height: 5, backgroundColor: '#CCC', borderRadius: 2.5, alignSelf: 'center', marginVertical: 10 }} />
                     {shopInfoShow ? (
-                        <BranchInfo image={image} address={address} id={companyId} companyName={companyName} logo={logo} navigation={navigation} imageHeader={uiImagePath} />
+                        <BranchInfo image={image} address={address} id={companyId} companyName={companyName} logo={logo} navigation={navigation} imageHeader={uiImagePath} onBack={onBackPress} />
                     ) : (
-                        <ListOfCompanies navigation={navigation} shops={shops} onPressCompany={onPressCompany} companyBranches={companyBranches} showBranches={showBranches} companyImage={companyImage} onBranchPress={onMarekerPress} companyName={companyName}/>
+                        <ListOfCompanies navigation={navigation} shops={shops} onPressCompany={onPressCompany} companyBranches={companyBranches} showBranches={showBranches} companyImage={companyImage} onBranchPress={onMarekerPress} companyName={companyName} onBackPress={fetchShops} />
                     )}
                 </Animated.View>
             </PanGestureHandler>
-        </View >
+        </View>
     );
 }
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,

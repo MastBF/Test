@@ -51,7 +51,6 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         `${BASE_URL}/api/v1/Authentication/sign-up-user`,
         obj
       );
-      console.log(response.data);
       alert('User signed up successfully');
       navigation.navigate('LoginScreen');
     } catch (error) {

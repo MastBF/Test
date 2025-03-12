@@ -10,74 +10,81 @@ import amdWhite from '../assets/images/amdWhite.png';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
 import { BASE_URL } from '@/utils/requests';
+import AlertScreen from './AlertScreen';
 
 const { width, height } = Dimensions.get('window');
 
-
-
 const Cart = () => {
     const route = useRoute();
-    const [data, setData] = useState([]);
-    const { navigation, companyColor, token } = route.params;
-    const reqPeriId = async () => {
-        try {
-            const response = await axios.get(`${BASE_URL}/api/v1/Cart/cart`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'TokenString': token
-                },
-            });
-            console.log("response", response.data.productTypeCounts);
-            setData(response.data.productTypeCounts);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-    useEffect(() => {
-        reqPeriId();
-    }, [token]);
-    return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView style={styles.prodList} contentContainerStyle={[styles.list, { paddingBottom: 80 }]}>
-                <Icon
-                    name="left"
-                    type="antdesign"
-                    color="#fff"
-                    containerStyle={styles.closeIcon}
-                    size={24}
-                    onPress={() => navigation.goBack()}
-                />
-                <View style={styles.titlePart}>
+    const [cartProducts, setCartProducts] = useState(route.params.cartProducts || []);
+    const { navigation, companyColor, token, branchId } = route.params;
 
+    const [totalQuantity, setTotalQuantity] = useState(0);
+    const [totalPrice, setTotalPrice] = useState(0);
+    useEffect(() => {
+        const quantity = cartProducts.reduce((sum, item) => sum + item.quantity, 0);
+        const price = cartProducts.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+        setTotalQuantity(quantity);
+        setTotalPrice(price);
+    }, [cartProducts]);
+
+    const updateQuantity = (id, action) => {
+        setCartProducts(prevProducts =>
+            prevProducts.map(product => {
+                if (product.id === id) {
+                    const newQuantity = action === 'increase' ? product.quantity + 1 : product.quantity - 1;
+                    return {
+                        ...product,
+                        quantity: newQuantity >= 1 ? newQuantity : 1, 
+                    };
+                }
+                return product;
+            })
+        );
+    };
+    return (
+        <View style={styles.container}>
+            <ScrollView style={styles.prodList} contentContainerStyle={[styles.list, { paddingBottom: 80 }]}>
+                <View style={styles.header}>
+                    <Icon
+                        name="left"
+                        type="antdesign"
+                        color="#fff"
+                        containerStyle={styles.closeIcon}
+                        size={20}
+                        onPress={() => navigation.goBack()}
+                    />
                     <Text style={styles.title}>Cart</Text>
                 </View>
-
-                {Array.isArray(data) && data.length > 0 ? (
-                    data.map((item) => (
-                        <TouchableOpacity
-                            key={item.id}
-                        >
+                {Array.isArray(cartProducts) && cartProducts.length > 0 ? (
+                    cartProducts.map((item) => (
+                        <TouchableOpacity key={item.id}>
                             <View style={[styles.itemContainer, { borderColor: companyColor, borderWidth: 1 }]}>
                                 <View style={styles.coffeeInfo}>
-                                    <Image source={{ uri: item.imageUrl }} style={styles.image} />
+                                    <Image source={{ uri: item.image }} style={styles.image} />
                                     <View style={styles.info}>
                                         <View style={styles.details}>
                                             <View style={styles.PriveName}>
-                                                <Text style={styles.name}>{item.productName}</Text>
+                                                <Text style={styles.name}>{item.title}</Text>
                                             </View>
                                         </View>
                                         <View>
-                                            <Text style={styles.description}>Lorem, ipsum dolor sit amet consectetur adipisicing elit</Text>
+                                            <Text style={styles.description}>{item.description}</Text>
                                         </View>
                                         <View style={styles.itemContainerFooter}>
                                             <View style={[styles.buttonPlusMinus, { backgroundColor: companyColor }]}>
-                                                <TouchableOpacity style={styles.buttonWrapper}  >
+                                                <TouchableOpacity
+                                                    style={styles.buttonWrapper}
+                                                    onPress={() => updateQuantity(item.id, 'decrease')}>
                                                     <Entypo name="minus" size={16} color="black" />
                                                 </TouchableOpacity>
                                                 <View style={styles.count}>
-                                                    <Text style={styles.textStyle}>{item.count}</Text>
+                                                    <Text style={styles.textStyle}>{item.quantity}</Text>
                                                 </View>
-                                                <TouchableOpacity style={styles.buttonWrapper} >
+                                                <TouchableOpacity
+                                                    style={styles.buttonWrapper}
+                                                    onPress={() => updateQuantity(item.id, 'increase')}>
                                                     <Entypo name="plus" size={16} color="black" />
                                                 </TouchableOpacity>
                                             </View>
@@ -94,22 +101,22 @@ const Cart = () => {
                 ) : (
                     <Text style={styles.noDataText}>No Products found</Text>
                 )}
-
             </ScrollView>
+            {!!cartProducts.length &&
+                <TouchableOpacity TouchableOpacity style={styles.orderButton} onPress={() => navigation.navigate('PaymentScreen', { id: branchId, token, color: companyColor, cartProducts, totalPrice, totalQuantity })
+                }>
 
-            <TouchableOpacity style={styles.orderButton} >
-                <View style={styles.content}>
-                    <Text style={styles.orderButtonText}>
-                        Order {6} Cups for {3000}
-                    </Text>
-                    <Image source={require('../assets/images/amdBlack.png')} style={styles.icon} />
-                </View>
-            </TouchableOpacity>
-
-        </SafeAreaView >
+                    <View style={styles.content}>
+                        <Text style={styles.orderButtonText}>
+                            Order {totalQuantity} Cups for {totalPrice}
+                        </Text>
+                        <Image source={require('../assets/images/amdBlack.png')} style={styles.icon} />
+                    </View>
+                </TouchableOpacity>
+            }
+        </View >
     );
 };
-
 
 const styles = StyleSheet.create({
     container: {
@@ -118,11 +125,11 @@ const styles = StyleSheet.create({
 
     },
     titlePart: {
-        // flexDirection: 'row',
-        // justifyContent: 'space-between',
-        alignSelf: 'center',
-        marginTop: height * 0.09,
-        marginBottom: height * 0.09,
+        color: '#fff',
+        fontSize: 24,
+        fontWeight: 'bold',
+        fontFamily: 'RobotoBold',
+        marginBottom: 20,
     },
     loadingContainer: {
         flex: 1,
@@ -131,8 +138,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#1C1C1C',
     },
     header: {
-        height: height * 0.3,
-        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: 25,
+        marginTop: 100,
+        marginBottom: 20,
     },
     animatedContainer: {
         position: 'absolute',
@@ -161,8 +172,9 @@ const styles = StyleSheet.create({
     },
     title: {
         color: '#fff',
-        fontFamily: 'LatoBold',
-        fontSize: width * 0.08,
+        fontSize: 18,
+        fontFamily: 'RobotoBold',
+        alignSelf: 'center',
 
     },
     list: {
@@ -324,13 +336,7 @@ const styles = StyleSheet.create({
     },
     closeIcon: {
         position: 'absolute',
-        top: height * 0.07,
-        // left: width * 0.03,
-        padding: width * 0.05,
-        width: width * 0.15,
-        height: width * 0.15,
-        justifyContent: 'center',
-        alignItems: 'center',
+        left: 0,
     },
     price: {
         fontSize: width * 0.045,

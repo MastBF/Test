@@ -1,24 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, ActivityIndicator } from 'react-native';
 import * as Font from 'expo-font';
 
-const AlertScreen = ({ isVisible, onClose, title, message, onConfirm, onCancel }) => {
+const AlertScreen = ({ isVisible, onClose, title, message, onConfirm, onCancel, list = [], isDelete, onDelete, orderStatus }) => {
     const [fontsLoaded, setFontsLoaded] = useState(false);
+    const [selectedId, setSelectedId] = useState(null);
+    const [isLoading, setIsLoading] = useState(false); // Состояние для загрузки
+    
+    const onChoose = (id) => {
+        selectedId === id ? setSelectedId(null) : setSelectedId(id);
+    };
+
+
 
     useEffect(() => {
         const loadFonts = async () => {
             await Font.loadAsync({
                 RobotoRegular: require('../assets/fonts/Roboto-Regular.ttf'),
-                RobotoLight: require('../assets/fonts/Roboto-Light.ttf'),
                 RobotoThin: require('../assets/fonts/Roboto-Thin.ttf'),
-                LatoLight: require('../assets/fonts/Lato-Light.ttf'),
-                InterThin: require('../assets/fonts/Inter-Thin.ttf'),
-                InterMedium: require('../assets/fonts/Inter-Medium.ttf'),
-                InterBold: require('../assets/fonts/Inter-Bold.ttf'),
             });
             setFontsLoaded(true);
         };
-
         loadFonts();
     }, []);
 
@@ -31,19 +33,47 @@ const AlertScreen = ({ isVisible, onClose, title, message, onConfirm, onCancel }
         >
             <View style={styles.overlay}>
                 <View style={styles.alertContainer}>
-                    <Text style={styles.title}>{title}</Text>
-                    <Text style={styles.message}>{message}</Text>
+                    {title && <Text style={styles.title}>{title}</Text>}
+                    {message && <Text style={styles.message}>{message ? message : ''}</Text>}
+
+                    {list.length > 0 && (
+                        <ScrollView style={styles.listContainer}>
+                            {list.map((item) => (
+                                <TouchableOpacity
+                                    key={item.id}
+                                    onPress={() => onChoose(item.id)}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.listItem,
+                                            selectedId === item.id && styles.selectedItem,
+                                        ]}
+                                    >
+                                        **** **** **** {item.cardNumberFirstDigits}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    )}
+
                     <View style={styles.buttonContainer}>
                         {onCancel && (
-                            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onCancel}>
+                            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onClose}>
                                 <Text style={styles.buttonText}>Cancel</Text>
                             </TouchableOpacity>
                         )}
-                        <TouchableOpacity style={styles.buttonCancel} onPress={onConfirm || onClose}>
-                            <Text style={styles.buttonTextCancel}>Cancel</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.button} onPress={onConfirm || onClose}>
-                            <Text style={styles.buttonText}>OK</Text>
+                        <TouchableOpacity 
+                            style={[styles.button]} 
+                            onPress={ list ? () => onConfirm(selectedId) : onConfirm || onClose}
+                            disabled={isLoading} // Отключаем кнопку во время загрузки
+                        >
+                            {isLoading ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : (
+                                <Text style={[styles.buttonText]}>
+                                    OK
+                                </Text>
+                            )}
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -64,17 +94,11 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: '#1E1E1E',
         borderRadius: 10,
-        // alignItems: 'center',
         shadowColor: 'white',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.5,
         shadowRadius: 8,
         elevation: 10,
-    },
-    icon: {
-        width: 60,
-        height: 60,
-        marginBottom: 15,
     },
     title: {
         fontSize: 20,
@@ -86,10 +110,25 @@ const styles = StyleSheet.create({
     message: {
         fontSize: 16,
         color: 'white',
-        marginBottom: 20,
-        // textAlign: 'center',
+        marginBottom: 10,
         fontFamily: 'RobotoThin',
-        // fontWeight: '200',
+    },
+    listContainer: {
+        maxHeight: 150,
+        marginBottom: 20,
+    },
+    listItem: {
+        fontSize: 14,
+        color: 'white',
+        paddingVertical: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#444',
+    },
+    selectedItem: {
+        backgroundColor: '#C3C3C3',
+        color: 'black',
+        borderRadius: 10,
+        padding: 5,
     },
     buttonContainer: {
         flexDirection: 'row',
@@ -108,25 +147,16 @@ const styles = StyleSheet.create({
     cancelButton: {
         backgroundColor: '#555',
     },
+    deleteButton: {
+        backgroundColor: 'red',
+    },
     buttonText: {
-        color: 'black',
         fontSize: 16,
         fontWeight: 'bold',
     },
-    buttonTextCancel: {
-        color: '#DEDEDE',
-        fontSize: 16,
-        fontWeight: 'thin',
-    },
-    buttonCancel: {
-        flex: 1,
-        paddingVertical: 10,
-        marginHorizontal: 5,
-        // backgroundColor: 'red',
-        borderRadius: 5,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
+    deleteButtonText: {
+        color: '#fff'
+    }
 });
 
 export default AlertScreen;

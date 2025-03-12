@@ -14,7 +14,8 @@ const LoginScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
-  const [passwordVisible, setPasswordVisible] = useState(false); // New state for password visibility
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
 
   useEffect(() => {
     const loadFonts = async () => {
@@ -38,9 +39,12 @@ const LoginScreen = ({ navigation }) => {
     try {
       const response = await axios.post(`${BASE_URL}/api/v1/Authentication/login`, {
         email,
-        password
+        password,
       });
+
       await AsyncStorage.setItem('token', response.data.token);
+      await AsyncStorage.setItem('refreshToken', response.data.refreshToken);
+
       setLoading(false);
       setIsDisabled(false);
       navigation.navigate('Main');
@@ -50,6 +54,68 @@ const LoginScreen = ({ navigation }) => {
       Alert.alert('Login failed', 'Invalid email or password');
     }
   };
+
+  const refreshAccessToken = async (token) => {
+    try {
+      const refreshToken = await AsyncStorage.getItem('refreshToken');
+      if (!refreshToken) {
+        return null;
+      }
+      console.log(token, 'ref', refreshToken)
+      const response = await axios.get(`${BASE_URL}/api/v1/Authentication/refresh-token`, {
+        headers: {
+          refreshTokenString: refreshToken,
+          tokenString: token
+        }
+      });
+      if (response.data.tokenSignature) {
+        await AsyncStorage.setItem('token', response.data.tokenSignature);
+      }
+      if (response.data.refreshToken) {
+        await AsyncStorage.setItem('refreshToken', response.data.refreshToken);
+      }
+
+      return response.data.tokenSignature;
+    } catch (error) {
+      await AsyncStorage.removeItem('token');
+      await AsyncStorage.removeItem('refreshToken');
+      console.error(error)
+    }
+  };
+
+  const checkIfTokenExpired = async (token) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/v1/Authentication/state`, {
+        headers: {
+          Authorization: token,
+        },
+      });
+      if (response) return false
+    } catch (err) {
+      if (err.status === 401) {
+        return true
+      }
+    }
+  };
+
+  const makeAuthenticatedRequest = async () => {
+    let accessToken = await AsyncStorage.getItem('token');
+    let isTokenInvalid
+    if (accessToken) {
+      isTokenInvalid = await checkIfTokenExpired(accessToken);
+    }
+    if (isTokenInvalid) {
+      accessToken = await refreshAccessToken(accessToken);
+    }
+    console.log(accessToken)
+    if (accessToken) {
+      navigation.navigate('Main')
+    }
+  };
+
+  useEffect(() => {
+    makeAuthenticatedRequest()
+  }, [])
 
   if (!fontsLoaded) {
     return (
@@ -81,7 +147,7 @@ const LoginScreen = ({ navigation }) => {
           style={styles.passwordInput}
           placeholder="Password"
           placeholderTextColor="#aaa"
-          secureTextEntry={!passwordVisible} // Toggle secure text entry
+          secureTextEntry={!passwordVisible}
           value={password}
           onChangeText={setPassword}
           autoCapitalize="none"

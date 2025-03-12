@@ -1,11 +1,14 @@
 {
   "expo": {
     "name": "Take&Go",
-    "slug": "Take&Go",
+    "slug": "aora",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/trueLogo_with_black_background_and_rounded_corners.png",
-    "scheme": "aora",
+    "scheme": "takeandgo",
+    "deeplink": {
+      "host": "main"
+    },
     "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/images/trueLogo.png",
@@ -13,12 +16,20 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyCDWBEASleBbBlbPVHEyO4NuHINBDo41y8"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCDWBEASleBbBlbPVHEyO4NuHINBDo41y8"
+        }
       },
       "package": "com.mast.aora"
     },
@@ -29,7 +40,8 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
@@ -41,6 +53,7 @@
       "eas": {
         "projectId": "e5264aea-963d-495a-a9cf-ca40a336884d"
       }
-    }
+    },
+    "owner": "mast"
   }
 }

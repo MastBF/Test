@@ -3,7 +3,6 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 
 const CustomButton = ({ quantity, size, itemPrice, onPress }) => {
   // if (!quantity || !size || !itemPrice) {
-  //   console.log(quantity);
   //   return null;
   // }
   const price = (itemPrice + (size === 'Medium' ? 100 : size === 'Big' ? 150 : 0)) * quantity;

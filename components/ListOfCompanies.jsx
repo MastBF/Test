@@ -4,28 +4,24 @@ import { ScrollView } from 'react-native-gesture-handler';
 import * as Font from 'expo-font';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import logo from '../assets/images/trueLogo.png';
-import image1 from '../assets/images/MainImg/image1.png';
-import image2 from '../assets/images/MainImg/image2.png';
-import image3 from '../assets/images/MainImg/image3.png';
 import IceLavaLogo from '../assets/images/iceLavaLogo.png';
 import CoffeeMusicLogo from '../assets/images/CoffeeMusicLogo.jpg';
 import CoffeeInLogo from '../assets/images/CoffeeInLogo.png';
 import JazzveLogo from '../assets/images/JazzveLogo.jpg';
 import TheGreenBean from '../assets/images/TheGreenBean.png';
 import * as Location from 'expo-location';
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BASE_URL } from '@/utils/requests';
+import { Animated } from 'react-native';
 
-export default function ListOfBranches({ navigation, company, shops, onPressCompany, companyBranches, showBranches, companyImage, onBranchPress, companyName }) {
+export default function ListOfBranches({ navigation, company, shops, onPressCompany, companyBranches, showBranches, companyImage, onBranchPress, companyName, onBackPress }) {
     const [fontsLoaded, setFontsLoaded] = useState(false);
     const [token, setToken] = useState(null);
-    // const [shops, setShops] = useState([]);
     const [location, setLocation] = useState(null);
-
-
+    const [loading, setLoading] = useState(true); // Добавлено состояние загрузки
+    const [fadeAnim] = useState(new Animated.Value(0));
+    
     useEffect(() => {
-        const getToken = async () => {
+        const initialize = async () => {
             try {
                 const storedToken = await AsyncStorage.getItem('token');
                 if (storedToken) {
@@ -33,112 +29,96 @@ export default function ListOfBranches({ navigation, company, shops, onPressComp
                 } else {
                     console.error("Token not found in AsyncStorage");
                 }
-            } catch (error) {
-                console.error("Error getting token from AsyncStorage:", error);
-            }
-        };
 
-        getToken();
-    }, []);
-
-    useEffect(() => {
-        (async () => {
-            try {
                 let { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== 'granted') {
                     console.error('Permission to access location was denied');
-                    return;
+                } else {
+                    let location = await Location.getCurrentPositionAsync({});
+                    setLocation(location);
                 }
 
-                let location = await Location.getCurrentPositionAsync({});
-                setLocation(location);
+                await Font.loadAsync({
+                    RobotoRegular: require('../assets/fonts/Roboto-Regular.ttf'),
+                    RobotoBold: require('../assets/fonts/Roboto-Bold.ttf'),
+                    RobotoThin: require('../assets/fonts/Roboto-Thin.ttf'),
+                    RobotoLight: require('../assets/fonts/Roboto-Light.ttf'),
+                });
+
+                setFontsLoaded(true);
             } catch (error) {
-                console.error("Error getting location:", error);
+                console.error("Initialization error:", error);
+            } finally  {
+                setLoading(false);
+                fadeAnim.setValue(0);
+                Animated.timing(fadeAnim, {
+                    toValue: 1,
+                    duration: 500,
+                    useNativeDriver: true,
+                }).start();
             }
-        })();
-    }, []);
-
-
-
-    useEffect(() => {
-        if (token && location) {
-            // fetchShops();
-            // setActiveShops(true);
-        }
-    }, [token, location]);
-
-    const companies = [
-        { logo: IceLavaLogo, name: 'Ice Lava', branches: 35 },
-        { logo: CoffeeMusicLogo, name: 'Coffee Music', branches: 21 },
-        { logo: CoffeeInLogo, name: 'Coffee Inn', branches: 40 },
-        { logo: JazzveLogo, name: 'Jazzve', branches: 15 },
-        { logo: TheGreenBean, name: 'The Green Bean', branches: 2 },
-    ];
-
-    useEffect(() => {
-        const loadFonts = async () => {
-            await Font.loadAsync({
-                RobotoRegular: require('../assets/fonts/Roboto-Regular.ttf'),
-                RobotoBold: require('../assets/fonts/Roboto-Bold.ttf'),
-                RobotoThin: require('../assets/fonts/Roboto-Thin.ttf'),
-                RobotoLight: require('../assets/fonts/Roboto-Light.ttf'),
-            });
-            setFontsLoaded(true);
         };
-        loadFonts();
-    }, []);
 
-    if (!fontsLoaded) {
+        initialize();
+    }, []);
+    useEffect(() => {
+        fadeAnim.setValue(0); // Сбрасываем значение перед началом новой анимации
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: true,
+        }).start();
+    }, [showBranches]);
+
+    if (loading) {
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#fff" />
+                <Text style={styles.loadingText}>Loading, please wait...</Text>
             </View>
         );
     }
 
     return (
         <View style={styles.container}>
-            <View style={styles.logoBlock}>
-                <View style={companyImage ? styles.withoutBlack : styles.blackBackground}>
-                    {/* <Image source={logo} style={styles.logo} /> */}
-                    <Image source={companyImage ? { uri: companyImage } : logo} style={styles.logo2} />
+            <Animated.View style={{ ...styles.container, opacity: fadeAnim }}>
+                <View style={styles.logoBlock}>
+                    <View style={styles.CompInfo}>
+                        <View style={showBranches ? styles.withoutBlack : styles.blackBackground}>
+                            <Image source={showBranches ? { uri: companyImage } : logo} style={styles.logo2} />
+                        </View>
+                        <Text style={styles.branchTitle}>{showBranches ? companyName : 'Take&Go'}</Text>
+                    </View>
+                    {showBranches &&
+                        <TouchableOpacity style={styles.backButton} onPress={onBackPress}>
+                            <Feather name="arrow-left" size={24} color="#000" />
+                        </TouchableOpacity>
+                    }
                 </View>
-                <Text style={styles.branchTitle}>{companyName}</Text>
-            </View>
-
-            <ScrollView contentContainerStyle={styles.scrollViewContent} showsHorizontalScrollIndicator={true} showsVerticalScrollIndicator={false}>
-                {showBranches ? companyBranches.map((companies) => (
-                    // <TouchableOpacity key={companies.id} onPress={() => { navigation.navigate('ProductScreen', { id: companies.id, imageHeader: companies.uiImagePath }) }}
-                    <TouchableOpacity key={companies.id} onPress={() => onBranchPress(companies.id, companies.companyUiFileName, companies.address, companies.companyName, companies.companyLogoFileName)}
-                    >
-                        <View style={styles.branchBlock}>
-                            {/* <Image source={{ uri: companies.logoFileName }} style={styles.companyImage} /> */}
-                            <FontAwesome name='map-pin' size={25} style={styles.companyIcon} />
-                            <View style={styles.block}>
-                                <Text style={styles.streetName}>{companies.address}</Text>
-                                {/* <Text style={[styles.streetName, styles.thinStyle]}>{companies.branches} Branches</Text> */}
-                                <Text style={[styles.streetName, styles.thinStyle]}>{companies.nearest}m</Text>
+                <ScrollView contentContainerStyle={styles.scrollViewContent} showsHorizontalScrollIndicator={true} showsVerticalScrollIndicator={false}>
+                    {showBranches ? companyBranches.map((companies) => (
+                        <TouchableOpacity key={companies.id} onPress={() => onBranchPress(companies.id, companies.companyUiFileName, companies.address, companies.companyName, companies.companyLogoFileName)}>
+                            <View style={styles.branchBlock}>
+                                <FontAwesome name='map-pin' size={25} style={styles.companyIcon} />
+                                <View style={styles.block}>
+                                    <Text style={styles.streetName}>{companies.address}</Text>
+                                    <Text style={[styles.streetName, styles.thinStyle]}>{companies.nearest}m</Text>
+                                </View>
                             </View>
-                        </View>
-                    </TouchableOpacity>
-                )) : shops.map((companies) => (
-                    // <TouchableOpacity key={companies.id} onPress={() => { navigation.navigate('ProductScreen', { id: companies.id, imageHeader: companies.uiImagePath }) }}
-                    <TouchableOpacity key={companies.id} onPress={() => onPressCompany(companies.id, companies.name)}
-                    >
-                        <View style={styles.branchBlock}>
-                            {/* <Image source={{ uri: companies.logoImagePath }} style={styles.companyImage} /> */}
-                            <FontAwesome name='map-pin' size={25} style={styles.companyIcon} />
-
-                            <View style={styles.block}>
-                                <Text style={styles.streetName}>{companies.name}</Text>
-                                {/* <Text style={[styles.streetName, styles.thinStyle]}>{companies.branches} Branches</Text> */}
-                                <Text style={[styles.streetName, styles.thinStyle]}>{companies.nearest}m</Text>
-
+                        </TouchableOpacity>
+                    )) : shops.map((companies) => (
+                        <TouchableOpacity key={companies.id} onPress={() => onPressCompany(companies.id, companies.name)}>
+                            <View style={styles.branchBlock}>
+                                <FontAwesome name='map-pin' size={25} style={styles.companyIcon} />
+                                <View style={styles.block}>
+                                    <Text style={styles.streetName}>{companies.name}</Text>
+                                    <Text style={[styles.streetName, styles.thinStyle]}>{companies.nearest}m</Text>
+                                </View>
                             </View>
-                        </View>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+            </Animated.View>
         </View>
     );
 }
@@ -163,9 +143,31 @@ const styles = StyleSheet.create({
         // paddingBottom: 20,
         alignItems: 'center',
     },
+    backButton: {
+        // position: 'absolute',
+        // top: -30, // Отступ сверху (подстраивайте в зависимости от высоты вашего статуса-бара)
+        // left: 10, // Отступ от левого края
+        // zIndex: 100, // Убедитесь, что кнопка будет поверх других элементов
+        backgroundColor: '#fff', // Опционально: добавьте фон, чтобы кнопка выглядела аккуратно
+        padding: 8, // Опционально: немного пространства вокруг иконки
+        borderRadius: 20, // Скругленные края
+        shadowColor: '#000', // Тень для визуального разделения
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+        elevation: 5,
+        width: 40,
+        height: 40,
+        // alignSelf: 'flex-end',
+        // textAlign: 'flex-end'
+    },
+    CompInfo: {
+        flexDirection: 'row',
+    },
     logoBlock: {
         flexDirection: 'row',
         marginBottom: 10,
+        justifyContent: 'space-between'
     },
     blackBackground: {
         backgroundColor: '#000',
@@ -196,7 +198,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         borderBottomWidth: 1,
         borderBottomColor: '#C5C5C5',
-        paddingBottom: 20,
+        paddingBottom: 10,
         flex: 1,
         // paddingTop: 10,
     },

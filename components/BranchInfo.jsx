@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Dimensions, Image, FlatList, Animated } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import * as Font from 'expo-font';
+import { Feather } from '@expo/vector-icons';
+// import { Animated } from 'react-native';
 
 
-export default function BranchInfo({ navigation, image, address, id, logo, companyName, imageHeader }) {
+export default function BranchInfo({ navigation, image, address, id, logo, companyName, imageHeader, onBack }) {
     const [fontsLoaded, setFontsLoaded] = useState(false);
     const [loading, setLoading] = useState(false);
-
+    const [fadeAnim] = useState(new Animated.Value(0));
     useEffect(() => {
         const loadFonts = async () => {
             await Font.loadAsync({
@@ -17,6 +19,11 @@ export default function BranchInfo({ navigation, image, address, id, logo, compa
                 RobotoLight: require('../assets/fonts/Roboto-Light.ttf'),
             });
             setFontsLoaded(true);
+            Animated.timing(fadeAnim, {
+                toValue: 1, // Конечное значение прозрачности
+                duration: 500, // Длительность анимации в миллисекундах
+                useNativeDriver: true,
+            }).start();
         };
         loadFonts();
     }, []);
@@ -30,27 +37,33 @@ export default function BranchInfo({ navigation, image, address, id, logo, compa
     }
 
     return (
-        <View style={styles.container}>
+        <Animated.View style={{ ...styles.container, opacity: fadeAnim }}>
             <View style={styles.logoBlock}>
-                <View style={styles.blackBackground}>
-                    <Image source={{ uri: logo }} style={styles.logo} />
+                <View style={styles.compInfo}>
+                    <View style={styles.blackBackground}>
+                        <Image source={{ uri: logo }} style={styles.logo} />
+                    </View>
+                    <Text style={styles.branchTitle}>{companyName}</Text>
                 </View>
-                <Text style={styles.branchTitle}>{companyName}</Text>
+                <TouchableOpacity style={styles.backButton} onPress={onBack}>
+                    <Feather name="arrow-left" size={24} color="#000" />
+                </TouchableOpacity>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollViewContent} showsHorizontalScrollIndicator={true} showsVerticalScrollIndicator={false}>
                 <Image style={styles.branchImage} source={{ uri: image }} />
-                <TouchableOpacity onPress={() => { navigation.navigate('ProductScreen', { id: id, imageHeader: imageHeader, name: companyName }) }}
+                {console.log('dsadasdsad',id, companyName)}
+                <TouchableOpacity onPress={() => { navigation.navigate('ProductScreen', { id: id, name: companyName }) }}
                 >
-                    <View style={styles.branchBlock}>
 
+                    <View style={styles.branchBlock}>
                         <View style={styles.block}>
                             <Text style={styles.streetName}>{address}</Text>
                         </View>
                     </View>
                 </TouchableOpacity>
             </ScrollView>
-        </View>
+        </Animated.View>
     );
 }
 
@@ -79,14 +92,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginBottom: 10,
         marginLeft: 10,
+        justifyContent: 'space-between'
     },
     logo: {
-        width: 70,
-        height: 70,
-        // alignSelf: 'center',
+        width: 50,
+        height: 50,
         borderRadius: 50,
-        // resizeMode: 'contain',
-
     },
     branchTitle: {
         color: '#000',
@@ -118,6 +129,28 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginRight: 10,
         resizeMode: 'contain',
+    },
+    compInfo: {
+        flexDirection: 'row',
+
+    },
+    backButton: {
+        // position: 'absolute',
+        // top: -30, // Отступ сверху (подстраивайте в зависимости от высоты вашего статуса-бара)
+        // left: 10, // Отступ от левого края
+        // zIndex: 100, // Убедитесь, что кнопка будет поверх других элементов
+        backgroundColor: '#fff', // Опционально: добавьте фон, чтобы кнопка выглядела аккуратно
+        padding: 8, // Опционально: немного пространства вокруг иконки
+        borderRadius: 20, // Скругленные края
+        shadowColor: '#000', // Тень для визуального разделения
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+        elevation: 5,
+        width: 40,
+        height: 40,
+        alignSelf: 'center',
+        // textAlign: 'flex-end'
     },
     BranchIcon: {
         backgroundColor: '#C5C5C5',

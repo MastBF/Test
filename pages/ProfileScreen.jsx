@@ -11,9 +11,10 @@ import { ScrollView } from 'react-native-gesture-handler';
 const ProfileScreen = ({ navigation }) => {
   const [card, setCard] = useState(null);
   const [token, setToken] = useState(null);
-  const [isOpen, setIsOpen] = useState(false); // состояние для управления открытием/закрытием
+  const [isOpen, setIsOpen] = useState(false);
   const [state, setState] = useState(null);
-  const animation = useRef(new Animated.Value(0)).current; // начальная высота анимации
+  const animation = useRef(new Animated.Value(0)).current;
+
   const getState = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/api/v1/Authentication/state`, {
@@ -72,17 +73,17 @@ const ProfileScreen = ({ navigation }) => {
     }
   }, [token]);
 
-  // Функция для анимации открытия/закрытия карточки
   const toggleCard = () => {
-    const finalHeight = isOpen ? 0 : 110; // высота при открытии (например, 150)
+    const finalHeight = isOpen ? 0 : 110;
     Animated.timing(animation, {
       toValue: finalHeight,
       duration: 400,
-      useNativeDriver: false, // так как изменяем высоту
+      useNativeDriver: false,
     }).start();
 
-    setIsOpen(!isOpen); // смена состояния
+    setIsOpen(!isOpen);
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.profileSection}>
@@ -92,6 +93,16 @@ const ProfileScreen = ({ navigation }) => {
         <Text style={styles.username}>{state?.username}</Text>
       </View>
 
+      {/* Раздел Points */}
+      <View style={styles.pointsSection}>
+        <Text style={styles.sectionTitle}>Your Points</Text>
+        <View style={styles.pointsContainer}>
+          <Icon name="star-outline" size={30} color="#FFD700" />
+          <Text style={styles.pointsText}>{state?.balance} Points</Text>
+        </View>
+      </View>
+
+      {/* Раздел Saved Payment Methods */}
       <View style={styles.paymentSection}>
         <Text style={styles.sectionTitle}>Saved Payment Methods</Text>
         {card && card.length > 0 ? (
@@ -121,13 +132,6 @@ const ProfileScreen = ({ navigation }) => {
             </ScrollView>
           )}
         </Animated.View>
-
-        <TouchableOpacity
-          style={styles.addNewCard}
-          onPress={() => navigation.navigate('AddPaymentCardScreen')}
-        >
-          <Text style={styles.addNewCardText}>Add New Card</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -155,18 +159,38 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 10,
   },
-  paymentSection: {
+  pointsSection: {
     marginTop: 40,
     borderColor: '#2E2E2E',
     borderBottomWidth: 1,
     borderTopWidth: 1,
-    paddingVertical: 40,
+    paddingVertical: 20,
+  },
+  pointsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#333',
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  pointsText: {
+    color: '#FFD700',
+    fontSize: 18,
+    marginLeft: 10,
+  },
+  paymentSection: {
+    marginTop: 20,
+    borderColor: '#2E2E2E',
+    borderBottomWidth: 1,
+    borderTopWidth: 1,
+    paddingVertical: 20,
   },
   sectionTitle: {
     color: 'white',
     marginBottom: 10,
-    fontSize: 13,
-    fontWeight: '200',
+    fontSize: 16,
+    fontWeight: '300',
   },
   paymentCard: {
     backgroundColor: '#333',
@@ -185,17 +209,6 @@ const styles = StyleSheet.create({
   iconEnd: {
     marginLeft: 'auto',
   },
-  addNewCard: {
-    padding: 15,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#555',
-    alignItems: 'center',
-  },
-  addNewCardText: {
-    color: '#999',
-    fontSize: 16,
-  },
   cardListContainer: {
     overflow: 'hidden',
   },
@@ -203,11 +216,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     padding: 10,
-    // backgroundColor: '#444',
     marginBottom: 5,
     borderRadius: 15,
     borderBottomWidth: 1,
-    // borderTopWidth: 1,
     borderColor: '#2E2E2E',
   },
 });
