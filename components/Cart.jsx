@@ -18,7 +18,14 @@ const Cart = () => {
     const route = useRoute();
     const [cartProducts, setCartProducts] = useState(route.params.cartProducts || []);
     const { navigation, companyColor, token, branchId } = route.params;
+    const [buttonPressed, setButtonPressed] = useState(false);
+    const handlePressIn = () => {
+        setButtonPressed(true);
+    };
 
+    const handlePressOut = () => {
+        setButtonPressed(false);
+    };
     const [totalQuantity, setTotalQuantity] = useState(0);
     const [totalPrice, setTotalPrice] = useState(0);
     useEffect(() => {
@@ -36,7 +43,7 @@ const Cart = () => {
                     const newQuantity = action === 'increase' ? product.quantity + 1 : product.quantity - 1;
                     return {
                         ...product,
-                        quantity: newQuantity >= 1 ? newQuantity : 1, 
+                        quantity: newQuantity >= 1 ? newQuantity : 1,
                     };
                 }
                 return product;
@@ -60,7 +67,7 @@ const Cart = () => {
                 {Array.isArray(cartProducts) && cartProducts.length > 0 ? (
                     cartProducts.map((item) => (
                         <TouchableOpacity key={item.id}>
-                            <View style={[styles.itemContainer, { borderColor: companyColor, borderWidth: 1 }]}>
+                            <View style={[styles.itemContainer, { borderColor: companyColor, borderWidth: 1, shadowColor:companyColor }]}>
                                 <View style={styles.coffeeInfo}>
                                     <Image source={{ uri: item.image }} style={styles.image} />
                                     <View style={styles.info}>
@@ -103,8 +110,12 @@ const Cart = () => {
                 )}
             </ScrollView>
             {!!cartProducts.length &&
-                <TouchableOpacity TouchableOpacity style={styles.orderButton} onPress={() => navigation.navigate('PaymentScreen', { id: branchId, token, color: companyColor, cartProducts, totalPrice, totalQuantity })
-                }>
+                <TouchableOpacity TouchableOpacity style={[styles.orderButton, buttonPressed && styles.orderButtonActive]}
+                    onPress={() => navigation.navigate('PaymentScreen', { id: branchId, token, color: companyColor, cartProducts, totalPrice, totalQuantity })
+                    }
+                    onPressIn={handlePressIn}
+                    onPressOut={handlePressOut}
+                >
 
                     <View style={styles.content}>
                         <Text style={styles.orderButtonText}>
@@ -224,15 +235,27 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     orderButton: {
-        backgroundColor: '#fff',
-        padding: 10,
-        borderRadius: 20,
-        width: '90%',
+        backgroundColor: 'transparent',
+        paddingVertical: 10,
+        paddingHorizontal: 25,
+        borderRadius: 30,
+        borderWidth: 1,
+        borderColor: '#fff', // Gold border to make it more appealing
         alignSelf: 'center',
         position: 'absolute',
-        alignItems: 'center',
         bottom: 20,
-    },
+        width: '80%', // Adjust the width to make it more balanced
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff', // Adding a gold color for a premium look
+        shadowColor: '#fff',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.5,
+        shadowRadius: 10,
+        elevation: 5, // Shadow for Android
+        transform: [{ scale: 1 }],
+        transition: 'transform 0.2s ease-in-out', // Smooth scale transition for touch
+      },
     coffeeInfo: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -249,10 +272,13 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
     },
     orderButtonText: {
-        color: '#000',
-        fontSize: 21,
+        fontSize: 22, // Increase font size for better readability
         fontWeight: 'bold',
-    },
+        color: '#000', // Text color contrast with the gold background
+        textAlign: 'center',
+        fontFamily: 'LatoBold', // Keep the same font as the rest for consistency
+      },
+      
     prodList: {
         backgroundColor: '#1C1C1C',
         borderTopRightRadius: width * 0.1,
@@ -267,26 +293,25 @@ const styles = StyleSheet.create({
         marginVertical: height * 0.01,
         justifyContent: 'space-between',
         borderWidth: 1,
-        // borderBottomWidth: 1,
-        // borderBottomColor: '#2E2E2E',
-        // paddingBottom: height * 0.015,
-        // paddingHorizontal: width * 0.0,
-        // height: 10,
         width: '100%',
         paddingVertical: width * 0.03,
         paddingHorizontal: width * 0.015,
-        borderRadius: 10,
-    },
-    image: {
-        width: width * 0.21,
-        height: width * 0.3,
-        resizeMode: 'cover',
-        // marginRight: width * 0.1,
-        // borderRadius: 10,
-        // marginBottom: 10,
-        alignSelf: 'center',
-
-    },
+        borderRadius: 15,
+        height: height * 0.17,
+        maxHeight: height * 0.17,
+        backgroundColor: '#2E2E2E',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 5,
+        overflow: 'hidden',
+      },
+      image: {
+        width: width * 0.22,
+        height: width * 0.25,
+        resizeMode: 'contain',
+        alignSelf: 'center'
+      },
     name: {
         fontSize: width * 0.05,
         fontFamily: 'RobotoBold',
@@ -355,6 +380,9 @@ const styles = StyleSheet.create({
         borderRadius: width * 0.1,
         alignSelf: 'center',
     },
+    orderButtonActive: {
+        transform: [{ scale: 0.95 }], // Make the button shrink slightly when pressed
+      },
     footerBlock: {
         justifyContent: 'center',
         alignItems: 'center',

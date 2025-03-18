@@ -13,17 +13,23 @@ import {
 import axios from 'axios';
 import * as Font from 'expo-font';
 import { BASE_URL } from '../../utils/requests';
+import ErrorAlert from '@/components/ErrorAlert';
 
 const { width, height } = Dimensions.get('window');
 
-const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const [username, setUsername] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [confirmPassword, setConfirmPassword] = useState<string>('');
+const SignupScreen= ({ navigation }) => {
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const [usernameError, setUsernameError] = useState(null);
+  const [emailError, setEmailError] = useState(null);
+  const [passwordError, setPasswordError] = useState(null);
+  const [confirmPasswordError, setConfirmPasswordError] = useState(null);
+  const [errorAlert, setErrorAlert] = useState(false)
+  const [errorDescription, setErrorDescription] = useState('')
   useEffect(() => {
     const loadFonts = async () => {
       await Font.loadAsync({
@@ -54,18 +60,56 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       alert('User signed up successfully');
       navigation.navigate('LoginScreen');
     } catch (error) {
-      console.error(error);
-      alert('Error signing up');
+      setErrorAlert(true)
+      setErrorDescription(error?.response?.data?.message)
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSignup = () => {
-    if (password === confirmPassword) {
-      signUpReq();
+  const validateInputs = () => {
+    let isValid = true;
+
+    if (!username) {
+      setUsernameError('Username is required');
+      isValid = false;
     } else {
-      alert('Passwords do not match');
+      setUsernameError(null);
+    }
+
+    if (!email) {
+      setEmailError('Email is required');
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError('Invalid email format');
+      isValid = false;
+    } else {
+      setEmailError(null);
+    }
+
+    if (!password) {
+      setPasswordError('Password is required');
+      isValid = false;
+    } else if (password.length < 6) {
+      setPasswordError('Password must be at least 6 characters');
+      isValid = false;
+    } else {
+      setPasswordError(null);
+    }
+
+    if (password !== confirmPassword) {
+      setConfirmPasswordError('Passwords do not match');
+      isValid = false;
+    } else {
+      setConfirmPasswordError(null);
+    }
+
+    return isValid;
+  };
+
+  const handleSignup = () => {
+    if (validateInputs()) {
+      signUpReq();
     }
   };
 
@@ -79,6 +123,7 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ErrorAlert visible={errorAlert} onCancel={() => setErrorAlert(false)} description={errorDescription} title={'Sign up faild'}/>
       <View style={styles.container}>
         <Image
           source={require('../../assets/images/trueLogo.png')}
@@ -87,7 +132,10 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         />
         <Text style={styles.title}>Sign up</Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            usernameError ? styles.inputError : null
+          ]}
           placeholder="Username"
           value={username}
           onChangeText={setUsername}
@@ -96,8 +144,13 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           selectionColor={'#fff'}
           placeholderTextColor={'#aaa'}
         />
+        {usernameError && <Text style={styles.errorText}>{usernameError}</Text>}
+
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            emailError ? styles.inputError : null
+          ]}
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
@@ -107,8 +160,13 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           selectionColor={'#fff'}
           placeholderTextColor={'#aaa'}
         />
+        {emailError && <Text style={styles.errorText}>{emailError}</Text>}
+
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            passwordError ? styles.inputError : null
+          ]}
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
@@ -117,8 +175,13 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           selectionColor={'#fff'}
           placeholderTextColor={'#aaa'}
         />
+        {passwordError && <Text style={styles.errorText}>{passwordError}</Text>}
+
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            confirmPasswordError ? styles.inputError : null
+          ]}
           placeholder="Confirm Password"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
@@ -127,6 +190,10 @@ const SignupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           selectionColor={'#fff'}
           placeholderTextColor={'#aaa'}
         />
+        {confirmPasswordError && (
+          <Text style={styles.errorText}>{confirmPasswordError}</Text>
+        )}
+
         <TouchableOpacity
           style={[styles.button, loading && { opacity: 0.5 }]} // Изменяем прозрачность при отключенной кнопке
           onPress={handleSignup}
@@ -273,6 +340,20 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: width * 0.04,
     fontFamily: 'InterMedium',
+  },
+  inputError: {
+    borderColor: 'red',
+    borderWidth: 1,
+    backgroundColor: '#451B1B',
+    color: '#fff'
+  },
+  errorText: {
+    marginTop: -height * 0.01,
+    color: 'red',
+    fontSize: width * 0.035,
+    marginBottom: height * 0.01,
+    alignSelf: 'flex-start',
+    paddingLeft: width * 0.1,
   },
 });
 

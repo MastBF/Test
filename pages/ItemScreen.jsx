@@ -6,11 +6,12 @@ import * as Font from 'expo-font';
 import dram2 from '../assets/images/amdWhite.png';
 import { AntDesign } from '@expo/vector-icons';
 import CustomButton from '../components/CustomButton';
-import { BASE_URL } from '@/utils/requests'; // Убедитесь, что BASE_URL правильно настроен
+import { BASE_URL } from '@/utils/requests';
 import axios from 'axios';
 
 const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
-  const [selectedValue, setSelectedValue] = useState(null);
+  const [typeId, setTypeId] = useState(null)
+  const [selectedType, setSelectedType] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [size, setSize] = useState(null);
   const [fontsLoaded, setFontsLoaded] = useState(false);
@@ -20,6 +21,7 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
     setQuantity(prev => prev + 1);
   };
 
+
   const decreaseQuantity = () => {
     if (quantity > 1) {
       setQuantity(prev => prev - 1);
@@ -27,15 +29,11 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
   };
 
   const onButtonPress = async () => {
-    if (!selectedValue) {
+    console.log('dsasdsaad', typeId)
+    if (!typeId) {
       setWarning(true)
       return;
     }
-
-    let typeId;
-    if (selectedValue === 'Small') typeId = 0;
-    if (selectedValue === 'Medium') typeId = 1;
-    if (selectedValue === 'Big') typeId = 2;
 
     handleCartProducts({
       description: data.description,
@@ -69,9 +67,7 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
     loadFonts();
   }, []);
 
-  useEffect(() => {
-    console.log(warning)
-  },[warning])
+
   if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
@@ -101,43 +97,25 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
           <Text style={styles.productPrice}>{data.price} <Image source={dram2} style={styles.dramImg} /></Text>
           <Text style={styles.productDescription}>{data.description}</Text>
           <Text style={styles.optionTitle}>Choose Size</Text>
-          <View style={[styles.choosSize]}>
-            <TouchableOpacity style={styles.sizeBlock} onPress={() => { setSelectedValue('Small'); setSize('Small'); }}>
-              <Text style={styles.size}>Small</Text>
+          <View style={styles.chooseSize}>
+            {data.productTypes.map(type => (
+             <TouchableOpacity key={type.id} style={styles.sizeBlock} onPress={() => {
+              setSelectedType(type);
+              setTypeId(type.id);
+            }}>
+              <Text style={styles.size}>{type.type} {type.price === 0 && <Text style={[styles.priceAdd,{ color: color }]}>+{type.price} AMD</Text>}</Text>
               <RadioButton.Android
-                value="Small"
-                status={selectedValue === 'Small' ? 'checked' : 'unchecked'}
-                onPress={() => { setSelectedValue('Small'); setSize('Small'); }}
-                color="#ffffff"
-                uncheckedColor={warning ? '#C51919' : ''}
-
-              />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.sizeBlock} onPress={() => { setSelectedValue('Medium'); setSize('Medium'); }}>
-              <View style={styles.priceAddAmd}>
-                <Text style={styles.size}>Medium <Text style={[styles.priceAdd, { color: color }]}>+100</Text> </Text>
-              </View>
-              <RadioButton.Android
-                value="Medium"
-                status={selectedValue === 'Medium' ? 'checked' : 'unchecked'}
-                onPress={() => { setSelectedValue('Medium'); setSize('Medium'); }}
+                value={type.type}
+                status={typeId === type.id ? 'checked' : 'unchecked'}
+                onPress={() => {
+                  setSelectedType(type);
+                  setTypeId(type.id);
+                }}
                 color="#ffffff"
                 uncheckedColor={warning ? '#C51919' : ''}
               />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.sizeBlock} onPress={() => { setSelectedValue('Big'); setSize('Big'); }}>
-              <View style={styles.priceAddAmd}>
-                <Text style={styles.size}>Big <Text style={[styles.priceAdd, { color: color }]}>+150</Text></Text>
-              </View>
-              <RadioButton.Android
-                value="Big"
-                status={selectedValue === 'Big' ? 'checked' : 'unchecked'}
-                onPress={() => { setSelectedValue('Big'); setSize('Big'); }}
-                color="#ffffff"
-                uncheckedColor={warning ? '#C51919' : ''}
-
-              />
-            </TouchableOpacity>
+            ))}
           </View>
           <View style={styles.quantityContainer}>
             <TouchableOpacity onPress={decreaseQuantity}>
@@ -266,7 +244,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     marginBottom: 20,
   },
-  choosSize: {
+  chooseSize: {
     marginBottom: 20,
   },
   sizeBlock: {

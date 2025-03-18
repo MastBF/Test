@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Font from 'expo-font';
 import { BASE_URL } from '../../utils/requests';
 import { AntDesign } from '@expo/vector-icons';
+import ErrorAlert from '@/components/ErrorAlert';
 
 const { width, height } = Dimensions.get('window');
 
@@ -15,8 +16,9 @@ const LoginScreen = ({ navigation }) => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
-
-
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [errorAlert, setErrorAlert] = useState(false)
   useEffect(() => {
     const loadFonts = async () => {
       await Font.loadAsync({
@@ -34,8 +36,11 @@ const LoginScreen = ({ navigation }) => {
   }, []);
 
   const handleLogin = async () => {
+    if (!validateForm()) return;
+
     setLoading(true);
     setIsDisabled(true);
+
     try {
       const response = await axios.post(`${BASE_URL}/api/v1/Authentication/login`, {
         email,
@@ -51,8 +56,35 @@ const LoginScreen = ({ navigation }) => {
     } catch (error) {
       setLoading(false);
       setIsDisabled(false);
-      Alert.alert('Login failed', 'Invalid email or password');
+      setErrorAlert(true)
     }
+  };
+
+  const validateForm = () => {
+    let valid = true;
+
+    if (!email) {
+      setEmailError('Email is required');
+      valid = false;
+    } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setEmailError('Invalid email format');
+      valid = false;
+    } else {
+      setEmailError('');
+    }
+
+    // Password validation
+    if (!password) {
+      setPasswordError('Password is required');
+      valid = false;
+    } else if (password.length < 6) {
+      setPasswordError('Password must be at least 6 characters');
+      valid = false;
+    } else {
+      setPasswordError('');
+    }
+
+    return valid;
   };
 
   const refreshAccessToken = async (token) => {
@@ -127,6 +159,7 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <ErrorAlert visible={errorAlert} description={'Invalid username or password'} title ={'Login failed'} onCancel={() => setErrorAlert(false)}/>
       <Image
         source={require('../../assets/images/trueLogo.png')}
         style={styles.logo}
@@ -134,7 +167,10 @@ const LoginScreen = ({ navigation }) => {
       />
       <Text style={styles.title}>Login</Text>
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          emailError ? styles.inputError : null
+        ]}
         placeholder="Email"
         placeholderTextColor="#aaa"
         keyboardType="email-address"
@@ -142,7 +178,12 @@ const LoginScreen = ({ navigation }) => {
         onChangeText={setEmail}
         autoCapitalize="none"
       />
-      <View style={styles.passwordContainer}>
+      {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+
+      <View style={[
+        styles.passwordContainer,
+        passwordError ? styles.inputError : null
+      ]}>
         <TextInput
           style={styles.passwordInput}
           placeholder="Password"
@@ -156,6 +197,8 @@ const LoginScreen = ({ navigation }) => {
           <AntDesign name={passwordVisible ? 'eye' : 'eyeo'} color="#ffffff" size={24} />
         </TouchableOpacity>
       </View>
+      {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+
 
       <TouchableOpacity
         style={[styles.button, isDisabled && { opacity: 0.5 }]}
@@ -211,6 +254,7 @@ const styles = StyleSheet.create({
     marginBottom: -height * 0.01,
     marginLeft: width * 0.02,
   },
+
   title: {
     fontFamily: 'RobotoBold',
     fontSize: width * 0.07,
@@ -315,6 +359,20 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: width * 0.04,
     fontFamily: 'InterMedium',
+  },
+  inputError: {
+    borderColor: 'red',
+    borderWidth: 1,
+    backgroundColor: '#451B1B',
+    color: '#fff'
+  },
+  errorText: {
+    marginTop: -height * 0.01,
+    color: 'red',
+    fontSize: width * 0.035,
+    marginBottom: height * 0.01,
+    alignSelf: 'flex-start',
+    paddingLeft: width * 0.05,
   },
 });
 
