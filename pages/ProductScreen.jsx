@@ -13,8 +13,14 @@ import { Icon } from 'react-native-elements';
 import ItemScreen from './ItemScreen';
 import { useRoute } from '@react-navigation/native';
 import ProdInfo from '@/components/ProdInfo';
+import {  PixelRatio } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
+const scale = width / 375; 
+const normalize = (size) => {
+  const newSize = size * scale;
+  return Math.round(PixelRatio.roundToNearestPixel(newSize));
+};
 
 const CoffeeMusicScreen = ({ navigation }) => {
   const [data, setData] = useState([]);
@@ -31,13 +37,19 @@ const CoffeeMusicScreen = ({ navigation }) => {
   const [cartProducts, setCartProducts] = useState([]);
   const [isVisiable, setIsVisiable] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
-  const [itemInfo, setItemInfo] = useState(null);
   const [oneItem, setOneItem] = useState(null);
   const [cartProdCount, setCartProdCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true)
   const [itemId, setItemId] = useState()
+  const [buttonPressed, setButtonPressed] = useState(false);
 
-
+  const handlePressIn = () => {
+    setButtonPressed(true);
+  };
+  
+  const handlePressOut = () => {
+    setButtonPressed(false);
+  };
 
   const fetchProducts = async () => {
     try {
@@ -53,7 +65,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
       console.error('Error fetching products:', error);
       setErrorMsg('Failed to load products');
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
   const handleVisibility = () => {
@@ -83,11 +95,12 @@ const CoffeeMusicScreen = ({ navigation }) => {
     ]).start();
   };
   const handleCartProducts = (newItem) => {
+    console.log(newItem)
     setCartProducts(prevCart => {
-      const existingItemIndex = prevCart.findIndex(item => 
+      const existingItemIndex = prevCart.findIndex(item =>
         item.id === newItem.id && item.typeId === newItem.typeId
       );
-  
+
       if (existingItemIndex !== -1) {
         const updatedCart = [...prevCart];
         updatedCart[existingItemIndex].quantity += newItem.quantity;
@@ -97,7 +110,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
       }
     });
   };
-  
+
   const hideItemScreen = () => {
     Animated.parallel([
       Animated.timing(opacityAnim, {
@@ -194,7 +207,6 @@ const CoffeeMusicScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* {errorMsg && <ErrorMessage errorMsg={errorMsg} />} */}
       {isOpen && (
         <Animated.View style={[styles.animatedContainer, { opacity: opacityAnim, transform: [{ translateY: translateYAnim }] }]}>
           <ItemScreen
@@ -223,7 +235,6 @@ const CoffeeMusicScreen = ({ navigation }) => {
         }}
       />
 
-      {/* <Image source={{uri: logo}} style={styles.companyLogo} /> */}
       <ScrollView style={styles.prodList} contentContainerStyle={[styles.list, { paddingBottom: 80 }]}>
         <View style={styles.titlePart}>
           <Text onPress={fetchProducts} style={styles.title}>{name}</Text>
@@ -248,7 +259,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
               key={item.id}
               onPress={() => itemInfoHandle(item, item.imageName, item.name, item.price, item.description, item.id)}
             >
-              <View style={[styles.itemContainer, { borderColor: companyColor, borderWidth: 1 }]}>
+              <View style={[styles.itemContainer, { borderColor: companyColor, borderWidth: 1, shadowColor: companyColor }]}>
                 <View style={styles.coffeeInfo}>
                   <Image source={{ uri: item.fileName }} style={styles.image} />
                   <View style={styles.info}>
@@ -258,7 +269,6 @@ const CoffeeMusicScreen = ({ navigation }) => {
                       </View>
                     </View>
                     <View>
-                      {/* <Text style={styles.description}>{item.description}</Text> */}
                       <Text style={styles.description}>Lorem, ipsum dolor sit amet </Text>
                     </View>
                     <View style={styles.itemContainerFooter}>
@@ -284,11 +294,14 @@ const CoffeeMusicScreen = ({ navigation }) => {
 
       </ScrollView>
 
-      <TouchableOpacity style={styles.orderButton} onPress={cartNavigate}>
+      <TouchableOpacity
+        style={[styles.orderButton, buttonPressed && styles.orderButtonActive]}
+        onPress={cartNavigate}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+      >
         <View style={styles.content}>
-          <Text style={styles.orderButtonText}>
-            View Cart
-          </Text>
+          <Text style={styles.orderButtonText}>View Cart</Text>
         </View>
       </TouchableOpacity>
 
@@ -305,7 +318,7 @@ const styles = StyleSheet.create({
   titlePart: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: height * 0.03,
+    marginTop: normalize(24),
   },
   loadingContainer: {
     flex: 1,
@@ -314,7 +327,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1C1C1C',
   },
   header: {
-    height: height * 0.3,
+    height: normalize(244),
     width: '100%',
   },
   companyLogo: {
@@ -340,50 +353,49 @@ const styles = StyleSheet.create({
   },
   cartIcon: {
     // alignSelf: 'center',
-    // marginRight: width * 0.05,
+    // marginRight: normalize(19),
 
   },
   headerImage: {
-    marginTop: -height * 0.04,
-    height: height * 0.33,
+    marginTop: -normalize(32),
+    height: normalize(268),
   },
   PriveName: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: height * 0.01,
+    marginBottom: normalize(8),
     width: '100%',
-    marginLeft: -width * 0.04,
+    marginLeft: -normalize(15),
   },
   title: {
     color: '#fff',
     fontFamily: 'LatoBold',
-    fontSize: width * 0.08,
+    fontSize: normalize(30),
 
   },
   list: {
-    paddingHorizontal: width * 0.05,
+    paddingHorizontal: normalize(19),
     // height: '100%',
   },
   req: {
     color: '#fff',
-    fontSize: width * 0.08,
-    marginTop: height * 0.01,
+    fontSize: normalize(30),
+    marginTop: normalize(8),
     fontFamily: 'LatoBold',
-    marginBottom: height * 0.04,
+    marginBottom: normalize(32),
   },
 
   amdWhite: {
-    width: width * 0.035,
-    height: width * 0.035,
+    width: normalize(13),
+    height: normalize(13),
     resizeMode: 'contain',
   },
   cartOpacity: {
     // position: 'relative',
     alignSelf: 'center',
-    marginTop: height * 0.01,
-    marginRight: width * 0.015,
-    // alignItems: 'center',
-  },
+    marginTop: normalize(8),
+    marginRight: normalize(6),
+    },
   closeIcon: {
     position: 'absolute',
     top: 40,
@@ -396,8 +408,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   amdBlack: {
-    width: width * 0.035,
-    height: width * 0.035,
+    width: normalize(13),
+    height: normalize(13),
     resizeMode: 'contain',
   },
   priceOnButton: {
@@ -405,15 +417,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   orderButton: {
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 20,
-    width: '90%',
+    backgroundColor: 'transparent',
+    paddingVertical: 10,
+    paddingHorizontal: 25,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: '#fff', // Gold border to make it more appealing
     alignSelf: 'center',
     position: 'absolute',
-    alignItems: 'center',
     bottom: 20,
+    width: '80%', // Adjust the width to make it more balanced
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff', // Adding a gold color for a premium look
+    shadowColor: '#fff',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 5, // Shadow for Android
+    transform: [{ scale: 1 }],
+    transition: 'transform 0.2s ease-in-out', // Smooth scale transition for touch
   },
+
   cartBadge: {
     position: 'absolute',
     top: -5,
@@ -428,7 +453,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     color: 'white',
-    fontSize: 12,
+    fontSize: normalize(12),
     fontWeight: 'bold',
   },
   coffeeInfo: {
@@ -441,125 +466,110 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  orderButtonActive: {
+    transform: [{ scale: 0.95 }],
+  },
   icon: {
     width: 13,
     height: 14,
     resizeMode: 'contain',
   },
   orderButtonText: {
-    color: '#000',
-    fontSize: 21,
+    fontSize: normalize(22),
     fontWeight: 'bold',
+    color: '#000', 
+    textAlign: 'center',
+    fontFamily: 'LatoBold',
   },
   prodList: {
     backgroundColor: '#1C1C1C',
-    borderTopRightRadius: width * 0.1,
-    // borderTopLeftRadius: width * 0.1,
-    // height: '90%',
-    // position: 'absolute',
-
-    marginTop: -height * 0.09,
+    borderTopRightRadius: normalize(38),
+    marginTop: -normalize(73),
   },
   itemContainer: {
     flexDirection: 'column',
-    marginVertical: height * 0.01,
+    marginVertical: normalize(8),
     justifyContent: 'space-between',
     borderWidth: 1,
-    // borderBottomWidth: 1,
-    // borderBottomColor: '#2E2E2E',
-    // paddingBottom: height * 0.015,
-    // paddingHorizontal: width * 0.0,
-    // height: 10,
     width: '100%',
-    paddingVertical: width * 0.03,
-    paddingHorizontal: width * 0.015,
-    borderRadius: 10,
-    height: height * 0.17,
-    maxHeight: height * 0.17,
-  },
-  image: {
-    width: width * 0.2,
-    height: width * 0.25,
-    // resizeMode: 'contain',
-    // marginRight: width * 0.1,
-    // borderRadius: 10,
-    // marginBottom: 10,
-    alignSelf: 'center',
-
+    paddingVertical: normalize(11),
+    paddingHorizontal: normalize(6),
+    borderRadius: 15,
+    height: normalize(138),
+    maxHeight: normalize(138),
+    backgroundColor: '#2E2E2E',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+    overflow: 'hidden',
   },
   name: {
-    fontSize: width * 0.05,
+    fontSize: normalize(19),
     fontFamily: 'RobotoBold',
     color: '#fff',
   },
   description: {
-    fontSize: width * 0.04,
+    fontSize: normalize(15),
     fontFamily: 'RobotoLight',
     color: '#fff',
-    width: width * 0.35,
-    marginLeft: -width * 0.04,
-
+    width: normalize(131),
+    marginLeft: -normalize(15),
+  },
+  image: {
+    width: normalize(82),
+    height: normalize(82),
+    resizeMode: 'contain',
+    alignSelf: 'center'
   },
   info: {
-    width: width * 0.55,
-    maxHeight: height * 0.15,
+    width: normalize(206),
+    maxHeight: normalize(122),
   },
   buttonWrapper: {
     alignSelf: 'center',
-    // fontSize: width * 0.05,
     padding: 5,
     paddingHorizontal: 10,
-    // padding: height * 0.01,
-    // paddingHorizontal: width * 0.025,
   },
 
   count: {
     color: '#fff',
-    fontSize: width * 0.035,
+    fontSize: normalize(13),
     fontFamily: 'RubikRegular',
     backgroundColor: '#1C1C1C',
-    width: width * 0.08,
-    // textAlign: 'center',
+    width: normalize(30),
     alignSelf: 'center',
     height: '97%',
     alignItems: 'center',
     justifyContent: 'center',
   },
   textStyle: {
-    // alignSelf: 'center',
-    // textAlign: 'center',
     color: '#fff',
   },
   itemContainerFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: height * 0.015,
-    marginLeft: -width * 0.04,
-
-    // marginTop: height * 0.015,
+    marginTop: normalize(12),
+    marginLeft: -normalize(15),
   },
   closeIcon: {
     position: 'absolute',
     top: 30,
     left: 10,
-    // padding: 10,
   },
   price: {
-    fontSize: width * 0.045,
+    fontSize: normalize(17),
     fontFamily: 'RobotoRegular',
     color: '#fff',
   },
   footer: {
     position: 'absolute',
     bottom: 10,
-    height: height * 0.06,
+    height: normalize(49),
     width: '90%',
     backgroundColor: '#fff',
-    // padding: 10,
-    // borderTopRightRadius: width * 0. 1,    
-    // borderTopLeftRadius: width * 0.1,
-    borderRadius: width * 0.1,
+    borderRadius: normalize(38),
     alignSelf: 'center',
   },
   footerBlock: {
@@ -569,30 +579,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   footerText: {
-    fontSize: width * 0.05,
+    fontSize: normalize(19),
     fontFamily: 'RobotoBold',
     color: '#000',
-    marginHorizontal: width * 0.2,
+    marginHorizontal: normalize(75),
   },
   footerTextNone: {
-    fontSize: width * 0.05,
+    fontSize: normalize(19),
     fontFamily: 'RobotoLight',
     color: '#000',
-    // marginLeft: width * 0.04,
   },
   footerTextSecond: {
-    fontSize: width * 0.05,
+    fontSize: normalize(19),
     fontFamily: 'RobotoLight',
     color: '#000',
-    // marginRight: width * 0.01,
   },
   noDataText: {
     color: '#fff',
-    fontSize: width * 0.045,
+    fontSize: normalize(17),
     fontFamily: 'RobotoRegular',
     textAlign: 'center',
-    marginTop: height * 0.02,
+    marginTop: normalize(16),
   },
-});
 
+});
 export default CoffeeMusicScreen;

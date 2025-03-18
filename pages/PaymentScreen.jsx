@@ -29,7 +29,7 @@ export default function PaymentScreen({ navigation, route }) {
     const [title, setTitle] = useState()
     const [methods, setMethods] = useState([
         { title: 'Payment by card', type: 'card', id: 0 },
-        // { title: 'Payment by points', type: 'coin' },
+        { title: 'Payment by points', type: 'coin', id: 1, },
         { title: 'Add card and pay', type: 'add', id: 2, },
     ])
     const [creditCardId, setCreditCardId] = useState(null);
@@ -86,6 +86,9 @@ export default function PaymentScreen({ navigation, route }) {
     const onAddCard = () => {
         selectedCard === 2 ? setSelectedCard(null) : setPaymentType(2)
     }
+    const onCoinPress = () => {
+        setPaymentType(1);
+    };
     const onButtonPress = async () => {
         navigation.goBack();
     }
@@ -124,7 +127,7 @@ export default function PaymentScreen({ navigation, route }) {
                 }
 
             } else if (paymentType === 0) {
-               const response = await axios.post(
+                const response = await axios.post(
                     `${BASE_URL}/api/v1/Order/${id}?cardId=${creditId}&paymentType=${paymentType}`,
                     orderItems,
                     {
@@ -135,8 +138,21 @@ export default function PaymentScreen({ navigation, route }) {
                         },
                     }
                 );
-                console.log('resss',response.status)
-                if(response.status === 204) setSuccessAlert(true)
+                if (response.status === 204) setSuccessAlert(true)
+            } else if (paymentType === 1) {
+                const response = await axios.post(
+                    `${BASE_URL}/api/v1/Order/${id}?paymentType=${paymentType}`,
+                    orderItems,
+                    {
+                        headers: {
+                            'accept': '*/*',
+                            'TokenString': `${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                console.log('aijndoasno')
+                if (response.status === 204) setSuccessAlert(true)
             }
 
         } catch (error) {
@@ -171,9 +187,9 @@ export default function PaymentScreen({ navigation, route }) {
 
     const onSelectCard = (card) => {
         console.log(card)
-        setCreditId(card); 
-        setIsSelect(false); 
-        setPaymentType(0); 
+        setCreditId(card);
+        setIsSelect(false);
+        setPaymentType(0);
     };
 
     useEffect(() => {
@@ -222,7 +238,7 @@ export default function PaymentScreen({ navigation, route }) {
             </View>
             <SuccessAlert visible={successAlert} onCancel={onSuccessOrder} />
             <ErrorAlert visible={errorAlert} onCancel={onErrorOrder} />
-            <CardSelectionPopup visible={isSelect} onCancel={() => setIsSelect(false)} cards={cards} onSelectCard={onSelectCard}/>
+            <CardSelectionPopup visible={isSelect} onCancel={() => setIsSelect(false)} cards={cards} onSelectCard={onSelectCard} />
             {/* Payment Method Section */}
             <View style={styles.paymentSection}>
                 <Text style={styles.sectionTitle}>Payment Method</Text>
@@ -242,7 +258,19 @@ export default function PaymentScreen({ navigation, route }) {
 
                     <ScrollView>
                         {methods.map((item, index) => (
-                            <TouchableOpacity style={[styles.otherCards, paymentType === item.id && styles.selectedField]} key={index} onPress={item.type === 'card' ? ChooseCreditCard : onAddCard}>
+                            <TouchableOpacity
+                                style={[styles.otherCards, paymentType === item.id && styles.selectedField]}
+                                key={index}
+                                onPress={() => {
+                                    if (item.type === 'card') {
+                                        ChooseCreditCard();
+                                    } else if (item.type === 'coin') {
+                                        onCoinPress();
+                                    } else if (item.type === 'add') {
+                                        onAddCard();
+                                    }
+                                }}
+                            >
                                 {item.type === 'card' &&
                                     <FontAwesome name='cc-visa' size={20} color='#fff' style={styles.visaIcon} />
                                 }

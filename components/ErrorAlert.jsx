@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 
-const ErrorAlert = ({ visible, onCancel, onRetry, errorMessage, responseStatus = true }) => {
+const ErrorAlert = ({ visible, onCancel, onRetry, errorMessage, responseStatus = true, description, title}) => {
     const isError = responseStatus === false;
     const isProcessing = responseStatus === 'processing';
 
@@ -17,7 +17,7 @@ const ErrorAlert = ({ visible, onCancel, onRetry, errorMessage, responseStatus =
                 <View style={styles.shadowContainer}>
                     <View style={styles.popup} accessible accessibilityRole="alert">
                         <Text style={styles.title} accessibilityRole="header">
-                            {isError ? 'An Error Occurred' : 'An Error Occurred'}
+                            {title ? title : 'An Error Occurred'}
                         </Text>
                         {isError ? (
                             <Text style={styles.message} accessibilityLabel="Error Message">
@@ -25,7 +25,7 @@ const ErrorAlert = ({ visible, onCancel, onRetry, errorMessage, responseStatus =
                             </Text>
                         ) : (
                             <Text style={styles.message} accessibilityLabel="Processing Message">
-                               Something went wrong. Please try again.
+                               {description || 'Something went wrong. Please try again.'}
                             </Text>
                         )}
                         <View style={styles.buttonContainer} accessibilityRole="toolbar">
