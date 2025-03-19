@@ -1,33 +1,46 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Dimensions } from 'react-native';
 import axios from 'axios';
-import { BASE_URL } from '../../utils/requests';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../utils/requests';
 import { Image } from 'react-native-elements';
-import SuccessAlert from '@/components/SuccessAlert';
 
 const { width, height } = Dimensions.get('window');
 
-const ForgotPasswordScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('');
+const ForceChangePasswordScreen = ({ navigation }) => {
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [visible, setVisible] = useState(false);
 
-  const handleSendCode = async () => {
-    if (!email) {
-      Alert.alert('Error', 'Please enter your email address.');
+  const handleChangePassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      Alert.alert('Error', 'Please fill in all fields.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match.');
       return;
     }
 
     setLoading(true);
     try {
-      await axios.get(`${BASE_URL}/api/v1/Authentication/forget-password/send-email?email=${email}`);
-
-      setVisible(true)
-
-    } catch (error) {
-
-      Alert.alert('Error', error.response.data.message || 'Failed to send verification code.');
+      const token = await AsyncStorage.getItem('token');
+      console.log(token);
       
+      var response = await axios.patch(
+        `${BASE_URL}/api/v1/Authentication/change-own-password-forced`,
+        { password: newPassword },
+        { headers: { TokenString: token } }
+      );
+
+      console.log(response);
+      
+      Alert.alert('Success', 'Your password has been updated successfully.');
+      navigation.navigate('Main'); // Redirect back to the main screen
+    } catch (error) {
+      console.log(response);
+      Alert.alert('Error', 'An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -35,35 +48,38 @@ const ForgotPasswordScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-    <SuccessAlert visible={visible}
-    onCancel={() => navigation.navigate('LoginScreen')}
-    
-    />
       <Image
-        source={require('../../assets/images/trueLogo.png')}
+        source={require('../assets/images/trueLogo.png')}
         style={styles.logo}
         resizeMode="contain"
       />
-      <Text style={styles.title}>Forgot Password</Text>
-      <Text style={styles.subtitle}>Enter your email to receive a verification code.</Text>
+      <Text style={styles.title}>Change Password</Text>
+      <Text style={styles.subtitle}>You are required to change your password.</Text>
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        placeholder="New Password"
         placeholderTextColor="#aaa"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
+        secureTextEntry
+        value={newPassword}
+        onChangeText={setNewPassword}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Confirm New Password"
+        placeholderTextColor="#aaa"
+        secureTextEntry
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
       />
       <TouchableOpacity
         style={styles.button}
-        onPress={handleSendCode}
+        onPress={handleChangePassword}
         disabled={loading}
       >
         {loading ? (
           <ActivityIndicator size="small" color="#000" />
         ) : (
-          <Text style={styles.buttonText}>Send Verification Code</Text>
+          <Text style={styles.buttonText}>Change Password</Text>
         )}
       </TouchableOpacity>
     </View>
@@ -123,4 +139,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ForgotPasswordScreen;
+export default ForceChangePasswordScreen;
