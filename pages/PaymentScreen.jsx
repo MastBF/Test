@@ -257,7 +257,10 @@ export default function PaymentScreen({ navigation, route }) {
                 <Animated.View style={[styles.animatedContainer, { height: animation }]}>
 
                     <ScrollView>
-                        {methods.map((item, index) => (
+                        {
+                        cards.count > 0
+                        ?
+                        methods.map((item, index) => (
                             <TouchableOpacity
                                 style={[styles.otherCards, paymentType === item.id && styles.selectedField]}
                                 key={index}
@@ -284,7 +287,27 @@ export default function PaymentScreen({ navigation, route }) {
                                     {item.title}
                                 </Text>
                             </TouchableOpacity>
-                        ))}
+                    
+                        ))
+                    :
+                    methods.map((item, index) => (
+                        <TouchableOpacity
+                            style={[styles.otherCards, paymentType === item.id && styles.selectedField]}
+                            key={index}
+                            onPress={() => {
+                                onAddCard();
+                            }}
+                        >
+                                {item.type === 'add' &&
+                                    <Ionicons name='add-circle' size={20} color='#fff' style={styles.visaIcon} />
+                                }
+                            {item.type === 'add' && <Text key={index} style={[styles.animatedText]}>
+                                {item.title}
+                            </Text>}
+                        </TouchableOpacity>
+                
+                    ))
+                }
                     </ScrollView>
                     {/* <ScrollView>
                         {methods.map((item, index) => (
