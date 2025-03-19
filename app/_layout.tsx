@@ -9,6 +9,8 @@ import ItemScreen from '../pages/ItemScreen';
 import ProfileScreen from '../pages/ProfileScreen';
 import Panel from '../components/Panel';
 import LoginScreen from '../pages/Auth/LoginScreen';
+import ForgotPasswordScreen from '../components/ForgotPasswordScreen';
+import ForceChangePasswordScreen from '../components/ForceChangePasswordScreen';
 import MapScreen from '../components/MapScreen';
 import AddPaymentCardScreen from '../pages/AddPaymentCardScreen ';
 import PaymentScreen from '../pages/PaymentScreen';
@@ -40,6 +42,17 @@ const App: React.FC = () => {
             options={{ headerShown: false }}
           />
 
+          <Stack.Screen
+            name="ForgotPasswordScreen"
+            component={ForgotPasswordScreen}
+            options={{ headerShown: false }}
+          />
+
+          <Stack.Screen
+            name="ForceChangePasswordScreen"
+            component={ForceChangePasswordScreen}
+            options={{ headerShown: false }}
+          />
           <Stack.Screen
             name="Main"
             component={Footer}
