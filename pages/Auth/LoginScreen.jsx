@@ -211,6 +211,13 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.buttonText}>Login</Text>
         )}
       </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.resetPasswordButton}
+        disabled={isDisabled}
+        onPress={() => navigation.navigate('ForgotPasswordScreen')}
+      >
+        <Text style={styles.resetPasswordButtonText}>Forgot Password?</Text>
+      </TouchableOpacity>
       <View style={styles.orContainer}>
         <View style={styles.line} />
         <Text style={styles.orText}>Or With</Text>
@@ -373,6 +380,15 @@ const styles = StyleSheet.create({
     marginBottom: height * 0.01,
     alignSelf: 'flex-start',
     paddingLeft: width * 0.05,
+  },
+  resetPasswordButton: {
+    marginTop: height * 0.02,
+  },
+  resetPasswordButtonText: {
+    color: '#fff',
+    fontSize: width * 0.04,
+    fontFamily: 'InterMedium',
+    textDecorationLine: 'underline',
   },
 });
 
