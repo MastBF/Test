@@ -50,6 +50,20 @@ const CoffeeMusicScreen = ({ navigation }) => {
         }
     }, []);
 
+    const handleLogout = useCallback(async () => {
+        try {
+            await AsyncStorage.removeItem('token');
+            await AsyncStorage.removeItem('refreshToken')
+            setToken(null);
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'LoginScreen' }],
+            });
+        } catch (error) {
+            console.error("Error during logout:", error);
+        }
+    }, [navigation]);
+
     const getLocation = useCallback(async () => {
         try {
             let { status } = await Location.requestForegroundPermissionsAsync();
@@ -210,7 +224,13 @@ const CoffeeMusicScreen = ({ navigation }) => {
                         resizeMode="contain"
                     />
                 </View>
-                <FontAwesome5 name="coins" size={RFPercentage(2.5)} color="white" />
+                {/* <FontAwesome5 name="coins" size={RFPercentage(2.5)} color="white" /> */}
+                <Feather
+                    name='log-out'
+                    color='white'
+                    size={RFPercentage(2.5)}
+                    onPress={handleLogout}
+                />
             </View>
 
             <FlatList

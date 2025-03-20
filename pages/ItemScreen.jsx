@@ -103,7 +103,7 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
               setSelectedType(type);
               setTypeId(type.id);
             }}>
-              <Text style={styles.size}>{type.type} {type.price === 0 && <Text style={[styles.priceAdd,{ color: color }]}>+{type.price} AMD</Text>}</Text>
+              <Text style={styles.size}>{type.type} {type.price > 1 && <Text style={[styles.priceAdd,{ color: color }]}>+{type.price} AMD</Text>}</Text>
               <RadioButton.Android
                 value={type.type}
                 status={typeId === type.id ? 'checked' : 'unchecked'}
@@ -200,6 +200,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     marginVertical: 10,
+    fontFamily:'RobotoRegular'
   },
   priceAdd: {
     color: '#EC6C4F',
@@ -248,6 +249,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sizeBlock: {
+    marginVertical:'20px',
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
