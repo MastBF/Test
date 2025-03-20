@@ -1,8 +1,7 @@
-// ProductList.js
 import { AntDesign, Entypo, FontAwesome5 } from '@expo/vector-icons';
 import { useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, FlatList, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, Button, FlatList, StyleSheet, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Image } from 'react-native-elements';
 import { Icon } from 'react-native-elements';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -18,16 +17,44 @@ const Cart = () => {
     const route = useRoute();
     const [cartProducts, setCartProducts] = useState(route.params.cartProducts || []);
     const { navigation, companyColor, token, branchId } = route.params;
-    const [buttonPressed, setButtonPressed] = useState(false);
+    const [buttonPressed, setButtonPressed] = useState(false); // State for button press
+    const [totalQuantity, setTotalQuantity] = useState(0);
+    const [totalPrice, setTotalPrice] = useState(0);
+    const [companyInfo, setCompanyInfo] = useState(null); // State for company info
+    const [loadingCompanyInfo, setLoadingCompanyInfo] = useState(true); // Loading state for company info
+
+    // Define handlePressIn and handlePressOut
     const handlePressIn = () => {
-        setButtonPressed(true);
+        setButtonPressed(true); // Set buttonPressed to true when pressed
     };
 
     const handlePressOut = () => {
-        setButtonPressed(false);
+        setButtonPressed(false); // Set buttonPressed to false when released
     };
-    const [totalQuantity, setTotalQuantity] = useState(0);
-    const [totalPrice, setTotalPrice] = useState(0);
+
+    // Fetch company info when the component mounts
+    useEffect(() => {
+        const fetchCompanyInfo = async () => {
+            try {
+                const response = await axios.get(
+                    `${BASE_URL}/api/v1/Branch/user/get-company-basic-info/${branchId}`,
+                    { headers: { TokenString: token } }
+                );
+                console.log(response.data);
+                
+                setCompanyInfo(response.data);
+            } catch (error) {
+                console.error('Error fetching company info:', error);
+                Alert.alert('Error', 'Failed to load company information');
+            } finally {
+                setLoadingCompanyInfo(false);
+            }
+        };
+
+        fetchCompanyInfo();
+    }, [branchId, token]);
+
+    // Calculate total quantity and price
     useEffect(() => {
         const quantity = cartProducts.reduce((sum, item) => sum + item.quantity, 0);
         const price = cartProducts.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -36,6 +63,7 @@ const Cart = () => {
         setTotalPrice(price);
     }, [cartProducts]);
 
+    // Update product quantity
     const updateQuantity = (id, action) => {
         setCartProducts(prevProducts =>
             prevProducts.map(product => {
@@ -50,6 +78,7 @@ const Cart = () => {
             })
         );
     };
+
     return (
         <View style={styles.container}>
             <ScrollView style={styles.prodList} contentContainerStyle={[styles.list, { paddingBottom: 80 }]}>
@@ -64,10 +93,31 @@ const Cart = () => {
                     />
                     <Text style={styles.title}>Cart</Text>
                 </View>
+
+                {/* Company Info Section */}
+                {loadingCompanyInfo ? (
+                    <ActivityIndicator size="small" color="#fff" style={styles.loadingIndicator} />
+                ) : companyInfo ? (
+                    <View style={[styles.companyInfoContainer, { borderColor: companyColor }]}>
+                        <Image
+                            source={{ uri: companyInfo.logoFileName }}
+                            style={styles.companyLogo}
+                            resizeMode="contain"
+                        />
+                        <View style={styles.companyDetails}>
+                            <Text style={styles.companyName}>{companyInfo.name}</Text>
+                            <Text style={styles.companyAddress}>{companyInfo.branchAddress}</Text>
+                        </View>
+                    </View>
+                ) : (
+                    <Text style={styles.noCompanyInfo}>Company information not available</Text>
+                )}
+
+                {/* Product List */}
                 {Array.isArray(cartProducts) && cartProducts.length > 0 ? (
                     cartProducts.map((item) => (
                         <TouchableOpacity key={item.id}>
-                            <View style={[styles.itemContainer, { borderColor: companyColor, borderWidth: 1, shadowColor:companyColor }]}>
+                            <View style={[styles.itemContainer, { borderColor: companyColor, borderWidth: 1, shadowColor: companyColor }]}>
                                 <View style={styles.coffeeInfo}>
                                     <Image source={{ uri: item.image }} style={styles.image} />
                                     <View style={styles.info}>
@@ -109,14 +159,15 @@ const Cart = () => {
                     <Text style={styles.noDataText}>No Products found</Text>
                 )}
             </ScrollView>
-            {!!cartProducts.length &&
-                <TouchableOpacity TouchableOpacity style={[styles.orderButton, buttonPressed && styles.orderButtonActive]}
-                    onPress={() => navigation.navigate('PaymentScreen', { id: branchId, token, color: companyColor, cartProducts, totalPrice, totalQuantity })
-                    }
-                    onPressIn={handlePressIn}
-                    onPressOut={handlePressOut}
-                >
 
+            {/* Order Button */}
+            {!!cartProducts.length && (
+                <TouchableOpacity
+                    style={[styles.orderButton, buttonPressed && styles.orderButtonActive]}
+                    onPress={() => navigation.navigate('PaymentScreen', { id: branchId, token, color: companyColor, cartProducts, totalPrice, totalQuantity })}
+                    onPressIn={handlePressIn} // Uses handlePressIn
+                    onPressOut={handlePressOut} // Uses handlePressOut
+                >
                     <View style={styles.content}>
                         <Text style={styles.orderButtonText}>
                             Order {totalQuantity} Cups for {totalPrice}
@@ -124,8 +175,8 @@ const Cart = () => {
                         <Image source={require('../assets/images/amdBlack.png')} style={styles.icon} />
                     </View>
                 </TouchableOpacity>
-            }
-        </View >
+            )}
+        </View>
     );
 };
 
@@ -413,6 +464,52 @@ const styles = StyleSheet.create({
         fontFamily: 'RobotoRegular',
         textAlign: 'center',
         marginTop: height * 0.02,
+    },
+    companyInfoContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 15,
+        borderRadius: 10,
+        borderWidth: 1,
+        marginBottom: 20,
+        backgroundColor: '#2E2E2E',
+    },
+    companyLogo: {
+        width: 60,
+        height: 60,
+        borderRadius: 8,
+        marginRight: 15,
+    },
+    companyDetails: {
+        flex: 1,
+    },
+    companyName: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 5,
+        fontFamily: 'RobotoBold',
+    },
+    companyAddress: {
+        color: '#fff',
+        fontSize: 14,
+        fontFamily: 'RobotoRegular',
+        opacity: 0.9,
+    },
+    companyEmail: {
+        color: '#fff',
+        fontSize: 14,
+        fontFamily: 'RobotoRegular',
+        marginTop: 5,
+        opacity: 0.8,
+    },
+    loadingIndicator: {
+        marginVertical: 20,
+    },
+    noCompanyInfo: {
+        color: '#fff',
+        textAlign: 'center',
+        marginBottom: 20,
     },
 });
 export default Cart;
