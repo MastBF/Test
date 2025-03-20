@@ -4,7 +4,6 @@ import { View, Text, Modal, TouchableOpacity, StyleSheet, ActivityIndicator } fr
 const ErrorAlert = ({ visible, onCancel, onRetry, errorMessage, responseStatus = true, description, title}) => {
     const isError = responseStatus === false;
     const isProcessing = responseStatus === 'processing';
-
     return (
         <Modal
             transparent
@@ -25,7 +24,7 @@ const ErrorAlert = ({ visible, onCancel, onRetry, errorMessage, responseStatus =
                             </Text>
                         ) : (
                             <Text style={styles.message} accessibilityLabel="Processing Message">
-                               {description || 'Something went wrong. Please try again.'}
+                               {errorMessage || 'Something went wrong. Please try again.'}
                             </Text>
                         )}
                         <View style={styles.buttonContainer} accessibilityRole="toolbar">

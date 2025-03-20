@@ -4,6 +4,7 @@ import axios from 'axios';
 import { BASE_URL } from '../utils/requests';
 import { Image } from 'react-native-elements';
 import SuccessAlert from '@/components/SuccessAlert';
+import ErrorAlert from './ErrorAlert';
 
 const { width, height } = Dimensions.get('window');
 
@@ -11,7 +12,8 @@ const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(false);
-
+  const [errorVisible, setErrorVisible] = useState(false)
+  const [errorMessage, setErrorMessage] = useState()
   const handleSendCode = async () => {
     if (!email) {
       Alert.alert('Error', 'Please enter your email address.');
@@ -21,24 +23,26 @@ const ForgotPasswordScreen = ({ navigation }) => {
     setLoading(true);
     try {
       await axios.get(`${BASE_URL}/api/v1/Authentication/forget-password/send-email?email=${email}`);
-
       setVisible(true)
-
     } catch (error) {
-
-      Alert.alert('Error', error.response.data.message || 'Failed to send verification code.');
-      
+      setErrorMessage(error.response.data.message || 'Failed to send verification code.')
+      setErrorVisible(true)
     } finally {
       setLoading(false);
     }
   };
-
+  const onCancel = () => {
+    console.log()
+    setErrorVisible(false)
+  }
   return (
     <View style={styles.container}>
-    <SuccessAlert visible={visible}
-    onCancel={() => navigation.navigate('LoginScreen')}
-    
-    />
+      <SuccessAlert visible={visible}
+        onCancel={onCancel}
+        text = 'If you can’t find it in your inbox, please check your spam folder.'  
+        title = 'Check your email'  
+      />
+      <ErrorAlert visible={errorVisible} errorMessage={errorMessage} onCancel={onCancel}/>
       <Image
         source={require('../assets/images/trueLogo.png')}
         style={styles.logo}
