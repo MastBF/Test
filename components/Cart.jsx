@@ -6,6 +6,8 @@ import { Image } from 'react-native-elements';
 import { Icon } from 'react-native-elements';
 import { ScrollView } from 'react-native-gesture-handler';
 import amdWhite from '../assets/images/amdWhite.png';
+import axios from 'axios';
+import { BASE_URL } from '@/utils/requests';
 
 const { width, height } = Dimensions.get('window');
 const scale = width / 375; 
