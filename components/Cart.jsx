@@ -6,12 +6,10 @@ import { Image } from 'react-native-elements';
 import { Icon } from 'react-native-elements';
 import { ScrollView } from 'react-native-gesture-handler';
 import amdWhite from '../assets/images/amdWhite.png';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import axios from 'axios';
-import { BASE_URL } from '@/utils/requests';
-import AlertScreen from './AlertScreen';
 
 const { width, height } = Dimensions.get('window');
+const scale = width / 375; 
+const normalize = (size) => Math.round(PixelRatio.roundToNearestPixel(size * scale));
 
 const Cart = () => {
     const route = useRoute();
@@ -139,7 +137,8 @@ const Cart = () => {
                                             </View>
                                         </View>
                                         <View>
-                                            <Text style={styles.description}>{item.description}</Text>
+                                            {/* <Text style={styles.description}>{item.description}</Text> */}
+                                            <Text style={styles.description}>Lorem ipsum, dolor sit  Omnis </Text>
                                         </View>
                                         <View style={styles.itemContainerFooter}>
                                             <View style={[styles.buttonPlusMinus, { backgroundColor: companyColor }]}>
@@ -196,14 +195,13 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#1C1C1C',
-
     },
     titlePart: {
         color: '#fff',
-        fontSize: 24,
+        fontSize: normalize(24),
         fontWeight: 'bold',
         fontFamily: 'RobotoBold',
-        marginBottom: 20,
+        marginBottom: normalize(20),
     },
     loadingContainer: {
         flex: 1,
@@ -215,9 +213,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        height: 25,
-        marginTop: 100,
-        marginBottom: 20,
+        height: normalize(25),
+        marginTop: normalize(100),
+        marginBottom: normalize(20),
     },
     animatedContainer: {
         position: 'absolute',
@@ -231,72 +229,65 @@ const styles = StyleSheet.create({
     },
     cartIcon: {
         alignSelf: 'center',
-        // marginRight: width * 0.05,
     },
     headerImage: {
-        marginTop: -height * 0.04,
-        height: height * 0.33,
+        marginTop: normalize(-height * 0.04),
+        height: normalize(height * 0.33),
     },
     PriveName: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: height * 0.01,
+        marginBottom: normalize(height * 0.01),
         width: '100%',
-        marginLeft: -width * 0.04,
+        marginLeft: normalize(-width * 0.04),
     },
     title: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: normalize(18),
         fontFamily: 'RobotoBold',
         alignSelf: 'center',
-
     },
     closeButton: {
         position: 'absolute',
-        right: 10,
-        top: 15,
+        right: normalize(10),
+        top: normalize(15),
         color: '#fff'
     },
     list: {
-        paddingHorizontal: width * 0.05,
-        // height: '100%',
+        paddingHorizontal: normalize(width * 0.05),
     },
     req: {
         color: '#fff',
-        fontSize: width * 0.08,
-        marginTop: height * 0.01,
+        fontSize: normalize(width * 0.08),
+        marginTop: normalize(height * 0.01),
         fontFamily: 'LatoBold',
-        marginBottom: height * 0.04,
+        marginBottom: normalize(height * 0.04),
     },
-
     amdWhite: {
-        width: width * 0.035,
-        height: width * 0.035,
+        width: normalize(width * 0.035),
+        height: normalize(width * 0.035),
         resizeMode: 'contain',
     },
     pageTitle: {
         color: '#fff',
-        fontSize: width * 0.08,
+        fontSize: normalize(width * 0.08),
         fontFamily: 'LatoBold',
-        marginTop: height * 0.02,
-
+        marginTop: normalize(height * 0.02),
     },
-
-
     buttonPlusMinus: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        borderRadius: 30,
-        height: height * 0.035,
-        width: width * 0.25,
+        borderRadius: normalize(30),
+        height: normalize(height * 0.035),
+        width: normalize(width * 0.25),
     },
     priceContainer: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     amdBlack: {
-        width: width * 0.035,
-        height: width * 0.035,
+        width: normalize(width * 0.035),
+        height: normalize(width * 0.035),
         resizeMode: 'contain',
     },
     priceOnButton: {
@@ -305,114 +296,103 @@ const styles = StyleSheet.create({
     },
     orderButton: {
         backgroundColor: 'transparent',
-        paddingVertical: 10,
-        paddingHorizontal: 25,
-        borderRadius: 30,
+        paddingVertical: normalize(10),
+        paddingHorizontal: normalize(25),
+        borderRadius: normalize(30),
         borderWidth: 1,
-        borderColor: '#fff', // Gold border to make it more appealing
+        borderColor: '#fff',
         alignSelf: 'center',
         position: 'absolute',
-        bottom: 20,
-        width: '80%', // Adjust the width to make it more balanced
+        bottom: normalize(20),
+        width: '80%',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#fff', // Adding a gold color for a premium look
+        backgroundColor: '#fff',
         shadowColor: '#fff',
-        shadowOffset: { width: 0, height: 6 },
+        shadowOffset: { width: 0, height: normalize(6) },
         shadowOpacity: 0.5,
-        shadowRadius: 10,
-        elevation: 5, // Shadow for Android
+        shadowRadius: normalize(10),
+        elevation: 5,
         transform: [{ scale: 1 }],
-        transition: 'transform 0.2s ease-in-out', // Smooth scale transition for touch
+        transition: 'transform 0.2s ease-in-out',
     },
     coffeeInfo: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
-
     },
     content: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     icon: {
-        width: 13,
-        height: 14,
+        width: normalize(13),
+        height: normalize(14),
         resizeMode: 'contain',
     },
     orderButtonText: {
-        fontSize: 22, // Increase font size for better readability
+        fontSize: normalize(22),
         fontWeight: 'bold',
-        color: '#000', // Text color contrast with the gold background
+        color: '#000',
         textAlign: 'center',
-        fontFamily: 'LatoBold', // Keep the same font as the rest for consistency
+        fontFamily: 'LatoBold',
     },
-
     prodList: {
         backgroundColor: '#1C1C1C',
-        borderTopRightRadius: width * 0.1,
-        // borderTopLeftRadius: width * 0.1,
-        // height: '90%',
-        // position: 'absolute',
-
-        marginTop: -height * 0.09,
+        borderTopRightRadius: normalize(width * 0.1),
+        marginTop: normalize(-height * 0.09),
     },
     itemContainer: {
         flexDirection: 'column',
-        marginVertical: height * 0.01,
+        marginVertical: normalize(height * 0.01),
         justifyContent: 'space-between',
         borderWidth: 1,
         width: '100%',
-        paddingVertical: width * 0.03,
-        paddingHorizontal: width * 0.015,
-        borderRadius: 15,
-        height: height * 0.17,
-        maxHeight: height * 0.17,
+        paddingVertical: normalize(width * 0.03),
+        paddingHorizontal: normalize(width * 0.015),
+        borderRadius: normalize(15),
+        height: normalize(height * 0.17),
+        maxHeight: normalize(height * 0.17),
         backgroundColor: '#2E2E2E',
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: { width: 0, height: normalize(4) },
         shadowOpacity: 0.3,
-        shadowRadius: 5,
+        shadowRadius: normalize(5),
         elevation: 5,
         overflow: 'hidden',
     },
     image: {
-        width: width * 0.22,
-        height: width * 0.25,
+        width: normalize(width * 0.18),
+        height: normalize(width * 0.25),
         resizeMode: 'contain',
-        alignSelf: 'center'
+        alignSelf: 'center',
+        // backgroundColor: 'red'
     },
     name: {
-        fontSize: width * 0.05,
+        fontSize: normalize(width * 0.05),
         fontFamily: 'RobotoBold',
         color: '#fff',
     },
     description: {
-        fontSize: width * 0.04,
+        fontSize: normalize(15),
         fontFamily: 'RobotoLight',
         color: '#fff',
-        width: width * 0.38,
-        marginLeft: -width * 0.04,
-
+        width: normalize(131),
+        marginLeft: -normalize(15),
     },
     info: {
-        width: width * 0.55,
+        width: normalize(width * 0.55),
     },
     buttonWrapper: {
         alignSelf: 'center',
-        // fontSize: width * 0.05,
-        padding: 5,
-        paddingHorizontal: 10,
-        // padding: height * 0.01,
-        // paddingHorizontal: width * 0.025,
+        padding: normalize(5),
+        paddingHorizontal: normalize(10),
     },
-
     count: {
         color: '#fff',
-        fontSize: width * 0.035,
+        fontSize: normalize(width * 0.035),
         fontFamily: 'RubikRegular',
         backgroundColor: '#1C1C1C',
-        width: width * 0.08,
-        // textAlign: 'center',
+        width: normalize(width * 0.08),
         alignSelf: 'center',
         height: '97%',
         alignItems: 'center',
@@ -425,32 +405,29 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginTop: height * 0.03,
-        marginLeft: -width * 0.04,
+        marginTop: normalize(height * 0.02),
+        marginLeft: normalize(-width * 0.04),
     },
     closeIcon: {
         position: 'absolute',
         left: 0,
     },
     price: {
-        fontSize: width * 0.045,
+        fontSize: normalize(width * 0.045),
         fontFamily: 'RobotoRegular',
         color: '#fff',
     },
     footer: {
         position: 'absolute',
-        bottom: 10,
-        height: height * 0.06,
+        bottom: normalize(10),
+        height: normalize(height * 0.06),
         width: '90%',
         backgroundColor: '#fff',
-        // padding: 10,
-        // borderTopRightRadius: width * 0. 1,    
-        // borderTopLeftRadius: width * 0.1,
-        borderRadius: width * 0.1,
+        borderRadius: normalize(width * 0.1),
         alignSelf: 'center',
     },
     orderButtonActive: {
-        transform: [{ scale: 0.95 }], // Make the button shrink slightly when pressed
+        transform: [{ scale: 0.95 }],
     },
     footerBlock: {
         justifyContent: 'center',
@@ -459,29 +436,27 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     footerText: {
-        fontSize: width * 0.05,
+        fontSize: normalize(width * 0.05),
         fontFamily: 'RobotoBold',
         color: '#000',
-        marginHorizontal: width * 0.2,
+        marginHorizontal: normalize(width * 0.2),
     },
     footerTextNone: {
-        fontSize: width * 0.05,
+        fontSize: normalize(width * 0.05),
         fontFamily: 'RobotoLight',
         color: '#000',
-        // marginLeft: width * 0.04,
     },
     footerTextSecond: {
-        fontSize: width * 0.05,
+        fontSize: normalize(width * 0.05),
         fontFamily: 'RobotoLight',
         color: '#000',
-        // marginRight: width * 0.01,
     },
     noDataText: {
         color: '#fff',
-        fontSize: width * 0.045,
+        fontSize: normalize(width * 0.045),
         fontFamily: 'RobotoRegular',
         textAlign: 'center',
-        marginTop: height * 0.02,
+        marginTop: normalize(height * 0.02),
     },
     companyInfoContainer: {
         flexDirection: 'row',
@@ -530,4 +505,6 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
 });
+
+
 export default Cart;
