@@ -1,7 +1,7 @@
 import { AntDesign, Entypo, FontAwesome5 } from '@expo/vector-icons';
 import { useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, FlatList, StyleSheet, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, Button, FlatList, StyleSheet, Dimensions, TouchableOpacity, PixelRatio, ActivityIndicator } from 'react-native';
 import { Image } from 'react-native-elements';
 import { Icon } from 'react-native-elements';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -27,7 +27,13 @@ const Cart = () => {
     const handlePressIn = () => {
         setButtonPressed(true); // Set buttonPressed to true when pressed
     };
-
+    const removeItem = (id) => {
+        console.log('Removing item from cart:', id);        
+        setCartProducts(prevProducts => prevProducts.filter(product => product.id !== id));
+        if (route.params.removeFromCart) {
+          route.params.removeFromCart(id);
+        }
+      };
     const handlePressOut = () => {
         setButtonPressed(false); // Set buttonPressed to false when released
     };
@@ -118,6 +124,12 @@ const Cart = () => {
                     cartProducts.map((item) => (
                         <TouchableOpacity key={item.id}>
                             <View style={[styles.itemContainer, { borderColor: companyColor, borderWidth: 1, shadowColor: companyColor }]}>
+                                <AntDesign
+                                    name="close"
+                                    style={styles.closeButton}
+                                    size={18}
+                                    onPress={() => removeItem(item.id)}
+                                />
                                 <View style={styles.coffeeInfo}>
                                     <Image source={{ uri: item.image }} style={styles.image} />
                                     <View style={styles.info}>
@@ -239,6 +251,12 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
 
     },
+    closeButton: {
+        position: 'absolute',
+        right: 10,
+        top: 15,
+        color: '#fff'
+    },
     list: {
         paddingHorizontal: width * 0.05,
         // height: '100%',
@@ -306,7 +324,7 @@ const styles = StyleSheet.create({
         elevation: 5, // Shadow for Android
         transform: [{ scale: 1 }],
         transition: 'transform 0.2s ease-in-out', // Smooth scale transition for touch
-      },
+    },
     coffeeInfo: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -328,8 +346,8 @@ const styles = StyleSheet.create({
         color: '#000', // Text color contrast with the gold background
         textAlign: 'center',
         fontFamily: 'LatoBold', // Keep the same font as the rest for consistency
-      },
-      
+    },
+
     prodList: {
         backgroundColor: '#1C1C1C',
         borderTopRightRadius: width * 0.1,
@@ -356,13 +374,13 @@ const styles = StyleSheet.create({
         shadowRadius: 5,
         elevation: 5,
         overflow: 'hidden',
-      },
-      image: {
+    },
+    image: {
         width: width * 0.22,
         height: width * 0.25,
         resizeMode: 'contain',
         alignSelf: 'center'
-      },
+    },
     name: {
         fontSize: width * 0.05,
         fontFamily: 'RobotoBold',
@@ -433,7 +451,7 @@ const styles = StyleSheet.create({
     },
     orderButtonActive: {
         transform: [{ scale: 0.95 }], // Make the button shrink slightly when pressed
-      },
+    },
     footerBlock: {
         justifyContent: 'center',
         alignItems: 'center',

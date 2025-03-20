@@ -42,7 +42,10 @@ const CoffeeMusicScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [itemId, setItemId] = useState()
   const [buttonPressed, setButtonPressed] = useState(false);
-
+  const removeFromCart = (id) => {
+    setCartProducts(prevCart => prevCart.filter(item => item.id !== id));
+  };
+  
   const handlePressIn = () => {
     setButtonPressed(true);
   };
@@ -145,6 +148,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
   }, []);
   useEffect(() => {
     setCartProdCount(cartProducts.length)
+    console.log(cartProducts)
   }, [cartProducts])
   useEffect(() => {
     if (token) {
@@ -183,7 +187,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
   }, []);
 
   const cartNavigate = () => {
-    navigation.navigate('Cart', { navigation, branchId: id, companyColor, cartProducts, token });
+    navigation.navigate('Cart', { navigation, branchId: id, companyColor, cartProducts, token,  removeFromCart });
   };
 
 
