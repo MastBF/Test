@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
     },
     companyName: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 5,
         fontFamily: 'RobotoBold',
