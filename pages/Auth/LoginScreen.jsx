@@ -159,7 +159,7 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <ErrorAlert visible={errorAlert} description={'Invalid username or password'} title ={'Login failed'} onCancel={() => setErrorAlert(false)}/>
+      <ErrorAlert visible={errorAlert} description={'Invalid username or password'} title={'Login failed'} onCancel={() => setErrorAlert(false)} />
       <Image
         source={require('../../assets/images/trueLogo.png')}
         style={styles.logo}
@@ -382,13 +382,12 @@ const styles = StyleSheet.create({
     paddingLeft: width * 0.05,
   },
   resetPasswordButton: {
-    marginTop: height * 0.02,
+    marginTop: height * 0.01,
   },
   resetPasswordButtonText: {
     color: '#fff',
-    fontSize: width * 0.04,
+    fontSize: width * 0.035,
     fontFamily: 'InterMedium',
-    textDecorationLine: 'underline',
   },
 });
 
