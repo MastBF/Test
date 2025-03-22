@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     width: '90%',
     backgroundColor: '#4CAF50',
     paddingVertical: scaleSize(14),
-    borderRadius: scaleSize(12),
+    borderRadius: scaleSize(9),
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#4CAF50',

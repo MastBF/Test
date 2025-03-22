@@ -402,10 +402,12 @@ const styles = StyleSheet.create({
     },
   closeIcon: {
     position: 'absolute',
-    top: 40,
-    left: 0,
-    padding: 10,
+    top: normalize(20),
+    left: normalize(10),
     zIndex: 10,
+    padding: normalize(8),
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: normalize(10),
   },
   priceContainer: {
     flexDirection: 'row',
@@ -557,11 +559,7 @@ const styles = StyleSheet.create({
     marginTop: normalize(12),
     marginLeft: -normalize(15),
   },
-  closeIcon: {
-    position: 'absolute',
-    top: 30,
-    left: 10,
-  },
+
   price: {
     fontSize: normalize(17),
     fontFamily: 'RobotoRegular',

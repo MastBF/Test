@@ -17,13 +17,12 @@ const Cart = () => {
     const route = useRoute();
     const [cartProducts, setCartProducts] = useState(route.params.cartProducts || []);
     const { navigation, companyColor, token, branchId } = route.params;
-    const [buttonPressed, setButtonPressed] = useState(false); // State for button press
+    const [buttonPressed, setButtonPressed] = useState(false); 
     const [totalQuantity, setTotalQuantity] = useState(0);
     const [totalPrice, setTotalPrice] = useState(0);
-    const [companyInfo, setCompanyInfo] = useState(null); // State for company info
+    const [companyInfo, setCompanyInfo] = useState(null); 
     const [loadingCompanyInfo, setLoadingCompanyInfo] = useState(true); // Loading state for company info
 
-    // Define handlePressIn and handlePressOut
     const handlePressIn = () => {
         setButtonPressed(true); // Set buttonPressed to true when pressed
     };
@@ -35,10 +34,9 @@ const Cart = () => {
         }
       };
     const handlePressOut = () => {
-        setButtonPressed(false); // Set buttonPressed to false when released
+        setButtonPressed(false); 
     };
 
-    // Fetch company info when the component mounts
     useEffect(() => {
         const fetchCompanyInfo = async () => {
             try {
@@ -46,7 +44,6 @@ const Cart = () => {
                     `${BASE_URL}/api/v1/Branch/user/get-company-basic-info/${branchId}`,
                     { headers: { TokenString: token } }
                 );
-                console.log(response.data);
                 
                 setCompanyInfo(response.data);
             } catch (error) {
@@ -87,8 +84,6 @@ const Cart = () => {
 
     return (
         <View style={styles.container}>
-            <ScrollView style={styles.prodList} contentContainerStyle={[styles.list, { paddingBottom: 80 }]}>
-                <View style={styles.header}>
                     <Icon
                         name="left"
                         type="antdesign"
@@ -97,6 +92,8 @@ const Cart = () => {
                         size={20}
                         onPress={() => navigation.goBack()}
                     />
+            <ScrollView style={styles.prodList} contentContainerStyle={[styles.list, { paddingBottom: 80 }]}>
+                <View style={styles.header}>
                     <Text style={styles.title}>Cart</Text>
                 </View>
 
@@ -412,7 +409,12 @@ const styles = StyleSheet.create({
     },
     closeIcon: {
         position: 'absolute',
-        left: 0,
+        top: normalize(20),
+        left: normalize(10),
+        zIndex: 10,
+        padding: normalize(8),
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        borderRadius: normalize(10),
     },
     price: {
         fontSize: normalize(width * 0.045),

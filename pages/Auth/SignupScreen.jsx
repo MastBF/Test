@@ -14,8 +14,11 @@ import axios from 'axios';
 import * as Font from 'expo-font';
 import { BASE_URL } from '../../utils/requests';
 import ErrorAlert from '@/components/ErrorAlert';
+import { PixelRatio } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
+const scaleFont = size => size * PixelRatio.getFontScale();
+const scaleSize = size => (width / 375) * size;
 
 const SignupScreen= ({ navigation }) => {
   const [username, setUsername] = useState('');
@@ -228,7 +231,6 @@ const SignupScreen= ({ navigation }) => {
     </ScrollView>
   );
 };
-
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
@@ -239,7 +241,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: width * 0.05,
+    padding: scaleSize(20),
   },
   loadingContainer: {
     flex: 1,
@@ -248,113 +250,111 @@ const styles = StyleSheet.create({
     backgroundColor: '#1e1e1e',
   },
   logo: {
-    width: width * 0.7,
-    height: height * 0.4,
-    marginBottom: -height * 0.09,
-    marginTop: -height * 0.1,
-    marginLeft: width * 0.02,
+    width: scaleSize(260),
+    height: scaleSize(240),
+    marginBottom: scaleSize(-36),
+    marginTop: scaleSize(-40),
+    marginLeft: scaleSize(8),
   },
   title: {
     fontFamily: 'RobotoRegular',
-    fontSize: width * 0.06,
+    fontSize: scaleFont(22),
     fontWeight: 'bold',
-    marginBottom: height * 0.03,
+    marginBottom: scaleSize(24),
     textAlign: 'center',
     color: '#fff',
   },
   input: {
-    height: height * 0.06,
+    height: scaleSize(50),
     borderColor: '#ccc',
     borderWidth: 0.5,
-    marginBottom: height * 0.015,
-    paddingHorizontal: width * 0.02,
+    marginBottom: scaleSize(10),
+    paddingHorizontal: scaleSize(12),
     backgroundColor: '#2E2E2E',
-    borderRadius: width * 0.03,
+    borderRadius: scaleSize(12),
     color: '#fff',
-    width: '80%',
-    margin: height * 0.015,
-    padding: height * 0.02,
-    paddingLeft: width * 0.05,
+    width: scaleSize(300),
+    padding: scaleSize(14),
+    paddingLeft: scaleSize(20),
     fontWeight: '200',
   },
   button: {
     backgroundColor: '#fff',
-    padding: height * 0.018,
+    padding: scaleSize(14),
     alignItems: 'center',
-    borderRadius: width * 0.02,
-    width: '80%',
-    margin: height * 0.03,
-    marginBottom: height * 0.015,
+    borderRadius: scaleSize(8),
+    width: scaleSize(300),
+    margin: scaleSize(24),
+    marginBottom: scaleSize(10),
   },
   buttonText: {
     color: '#000',
     fontWeight: 'bold',
-    fontSize: width * 0.04,
+    fontSize: scaleFont(16),
   },
   orContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: height * 0.03,
+    marginVertical: scaleSize(24),
     width: '80%',
   },
   line: {
     flex: 1,
-    height: height * 0.002,
+    height: scaleSize(1),
     backgroundColor: '#fff',
   },
   orText: {
-    marginHorizontal: width * 0.02,
+    marginHorizontal: scaleSize(8),
     color: '#fff',
     textAlign: 'center',
     fontWeight: 'bold',
-    fontSize: width * 0.04,
+    fontSize: scaleFont(16),
   },
   googleIcon: {
-    width: width * 0.06,
-    height: width * 0.06,
-    marginRight: width * 0.02,
+    width: scaleSize(24),
+    height: scaleSize(24),
+    marginRight: scaleSize(8),
   },
   googleButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    padding: height * 0.018,
-    borderRadius: width * 0.02,
-    width: '80%',
+    padding: scaleSize(14),
+    borderRadius: scaleSize(8),
+    width: scaleSize(300),
     justifyContent: 'center',
   },
   googleButtonText: {
     color: '#000',
     fontWeight: 'bold',
-    fontSize: width * 0.04,
+    fontSize: scaleFont(16),
     fontFamily: 'InterBold',
   },
   loginLink: {
-    marginTop: height * 0.02,
+    marginTop: scaleSize(10),
     textAlign: 'center',
     color: '#fff',
-    fontSize: width * 0.04,
+    fontSize: scaleFont(16),
     fontFamily: 'InterThin',
   },
   loginLinkText: {
     color: '#FFFFFF',
-    fontSize: width * 0.04,
+    fontSize: scaleFont(16),
     fontFamily: 'InterMedium',
   },
   inputError: {
     borderColor: 'red',
     borderWidth: 1,
     backgroundColor: '#451B1B',
-    color: '#fff'
+    color: '#fff',
   },
   errorText: {
-    marginTop: -height * 0.01,
+    marginTop: scaleSize(-4),
     color: 'red',
-    fontSize: width * 0.035,
-    marginBottom: height * 0.01,
+    fontSize: scaleFont(14),
+    marginBottom: scaleSize(8),
     alignSelf: 'flex-start',
-    paddingLeft: width * 0.1,
+    paddingLeft: scaleSize(40),
   },
 });
-
 export default SignupScreen;

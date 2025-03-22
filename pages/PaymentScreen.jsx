@@ -394,7 +394,12 @@ const styles = StyleSheet.create({
     },
     icon: {
         position: 'absolute',
-        left: 15,
+        // top: 20,
+        left: 10,
+        zIndex: 10,
+        padding: 8,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        borderRadius: 10,
     },
     headerText: {
         color: '#fff',
