@@ -12,7 +12,7 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 import OrderStatusPanel from '../components/OrderProgressPanel';
 import DeleteOrderScreen from '../components/DeleteOrderScreen';
 import SuccessAlert from '../components/SuccessAlert';
-
+import MapTest from '../components/test'
 const { width, height } = Dimensions.get('window');
 
 const CoffeeMusicScreen = ({ navigation }) => {
@@ -220,6 +220,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
                 paymentType={paymentType}
                 responseStatus={responseStatus}
             />
+            <MapTest   />
             <View style={styles.header}>
                 <Feather name="user" size={RFPercentage(2.5)} color="white" onPress={() => navigation.navigate('ProfileScreen')} />
                 <View style={styles.logoBlock}>
