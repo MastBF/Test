@@ -6,8 +6,12 @@ import * as Font from 'expo-font';
 import { BASE_URL } from '../../utils/requests';
 import { AntDesign } from '@expo/vector-icons';
 import ErrorAlert from '@/components/ErrorAlert';
+import { PixelRatio } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
+
+const scaleFont = size => size * PixelRatio.getFontScale();
+const scaleSize = size => (width / 375) * size;
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -159,7 +163,7 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <ErrorAlert visible={errorAlert} description={'Invalid username or password'} title ={'Login failed'} onCancel={() => setErrorAlert(false)}/>
+      <ErrorAlert visible={errorAlert} description={'Invalid username or password'} title={'Login failed'} onCancel={() => setErrorAlert(false)} />
       <Image
         source={require('../../assets/images/trueLogo.png')}
         style={styles.logo}
@@ -211,6 +215,13 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.buttonText}>Login</Text>
         )}
       </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.resetPasswordButton}
+        disabled={isDisabled}
+        onPress={() => navigation.navigate('ForgotPasswordScreen')}
+      >
+        <Text style={styles.resetPasswordButtonText}>Forgot Password?</Text>
+      </TouchableOpacity>
       <View style={styles.orContainer}>
         <View style={styles.line} />
         <Text style={styles.orText}>Or With</Text>
@@ -240,7 +251,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#1C1C1C',
-    padding: width * 0.05,
+    padding: scaleSize(20),
   },
   loadingContainer: {
     flex: 1,
@@ -249,130 +260,136 @@ const styles = StyleSheet.create({
     backgroundColor: '#1C1C1C',
   },
   logo: {
-    width: width * 0.8,
-    height: height * 0.33,
-    marginBottom: -height * 0.01,
-    marginLeft: width * 0.02,
+    width: scaleSize(300),
+    height: scaleSize(250),
+    marginBottom: scaleSize(-4),
+    marginLeft: scaleSize(8),
   },
-
   title: {
     fontFamily: 'RobotoBold',
-    fontSize: width * 0.07,
+    fontSize: scaleFont(26),
     fontWeight: 'bold',
-    marginBottom: height * 0.03,
+    marginBottom: scaleSize(24),
     textAlign: 'center',
     color: '#fff',
   },
   input: {
-    height: height * 0.06,
+    height: scaleSize(50),
     borderColor: '#ccc',
     borderWidth: 0.5,
-    marginBottom: height * 0.015,
-    paddingHorizontal: width * 0.02,
+    marginBottom: scaleSize(10),
+    paddingHorizontal: scaleSize(12),
     backgroundColor: '#2E2E2E',
-    borderRadius: width * 0.03,
+    borderRadius: scaleSize(12),
     color: '#fff',
-    width: width * 0.8,
-    margin: height * 0.015,
-    padding: height * 0.02,
-    paddingLeft: width * 0.05,
+    width: scaleSize(300),
+    padding: scaleSize(14),
+    paddingLeft: scaleSize(20),
     fontWeight: '200',
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: width * 0.8,
+    width: scaleSize(300),
     borderColor: '#ccc',
     borderWidth: 0.5,
-    borderRadius: width * 0.03,
+    borderRadius: scaleSize(12),
     backgroundColor: '#2E2E2E',
-    paddingHorizontal: width * 0.02,
-    marginBottom: height * 0.015,
+    paddingHorizontal: scaleSize(12),
+    marginBottom: scaleSize(10),
   },
   passwordInput: {
     flex: 1,
-    height: height * 0.06,
+    height: scaleSize(50),
     color: '#fff',
     fontWeight: '200',
-    marginLeft: width * 0.02,
+    marginLeft: scaleSize(8),
   },
   button: {
     backgroundColor: '#fff',
-    padding: height * 0.02,
+    padding: scaleSize(14),
     alignItems: 'center',
-    borderRadius: width * 0.02,
-    width: width * 0.8,
-    margin: height * 0.03,
-    marginBottom: height * 0.015,
+    borderRadius: scaleSize(8),
+    width: scaleSize(300),
+    margin: scaleSize(24),
+    marginBottom: scaleSize(10),
   },
   buttonText: {
     color: '#000',
     fontWeight: 'bold',
-    fontSize: width * 0.04,
+    fontSize: scaleFont(16),
   },
   orContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: height * 0.03,
-    width: width * 0.8,
+    marginVertical: scaleSize(24),
+    width: scaleSize(300),
   },
   line: {
     flex: 1,
-    height: height * 0.002,
+    height: scaleSize(1),
     backgroundColor: '#fff',
   },
   orText: {
-    marginHorizontal: width * 0.02,
+    marginHorizontal: scaleSize(8),
     color: '#fff',
     textAlign: 'center',
     fontWeight: 'bold',
-    fontSize: width * 0.04,
+    fontSize: scaleFont(16),
   },
   googleIcon: {
-    width: width * 0.06,
-    height: width * 0.06,
-    marginRight: width * 0.02,
+    width: scaleSize(24),
+    height: scaleSize(24),
+    marginRight: scaleSize(8),
   },
   googleButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    padding: height * 0.02,
-    borderRadius: width * 0.02,
-    width: width * 0.8,
+    padding: scaleSize(14),
+    borderRadius: scaleSize(8),
+    width: scaleSize(300),
     justifyContent: 'center',
   },
   googleButtonText: {
     color: '#000',
     fontWeight: 'bold',
-    fontSize: width * 0.04,
+    fontSize: scaleFont(16),
     fontFamily: 'InterBold',
   },
   loginLink: {
-    marginTop: height * 0.02,
+    marginTop: scaleSize(10),
     textAlign: 'center',
     color: '#fff',
-    fontSize: width * 0.04,
+    fontSize: scaleFont(16),
     fontFamily: 'InterThin',
   },
   loginLinkText: {
     color: '#FFFFFF',
-    fontSize: width * 0.04,
+    fontSize: scaleFont(16),
     fontFamily: 'InterMedium',
   },
   inputError: {
     borderColor: 'red',
     borderWidth: 1,
     backgroundColor: '#451B1B',
-    color: '#fff'
+    color: '#fff',
   },
   errorText: {
-    marginTop: -height * 0.01,
+    marginTop: scaleSize(-4),
     color: 'red',
-    fontSize: width * 0.035,
-    marginBottom: height * 0.01,
+    fontSize: scaleFont(14),
+    marginBottom: scaleSize(8),
     alignSelf: 'flex-start',
-    paddingLeft: width * 0.05,
+    paddingLeft: scaleSize(20),
+  },
+  resetPasswordButton: {
+    marginTop: scaleSize(8),
+  },
+  resetPasswordButtonText: {
+    color: '#fff',
+    fontSize: scaleFont(14),
+    fontFamily: 'InterMedium',
   },
 });
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 
-const SuccessAlert = ({ visible, onCancel, onConfirm, paymentType, responseStatus = true, isCreated}) => {
+const SuccessAlert = ({ visible, onCancel, onConfirm, paymentType, responseStatus = true, text, title}) => {
     const isSuccess = responseStatus === true;
     const isProcessing = responseStatus === 'processing';
 
@@ -17,11 +17,12 @@ const SuccessAlert = ({ visible, onCancel, onConfirm, paymentType, responseStatu
                 <View style={styles.shadowContainer}>
                     <View style={styles.popup} accessible accessibilityRole="alert">
                         <Text style={styles.title} accessibilityRole="header">
-                            {isSuccess ? 'Order Created Successfully' : 'Confirm Order'}
+                            {isSuccess ? title || 'Order Created Successfully' : 'Confirm Order'}
+                            
                         </Text>
                         {isSuccess ? (
                             <Text style={styles.message} accessibilityLabel="Success Message">
-                                Your order has been created successfully!
+                               {text || 'Your order has been created successfully!'}
                             </Text>
                         ) : (
                             <>

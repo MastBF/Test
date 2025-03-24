@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert, Dimensions } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { RadioButton } from 'react-native-paper';
 import * as Font from 'expo-font';
@@ -8,6 +8,11 @@ import { AntDesign } from '@expo/vector-icons';
 import CustomButton from '../components/CustomButton';
 import { BASE_URL } from '@/utils/requests';
 import axios from 'axios';
+import { PixelRatio } from 'react-native';
+const { width, height } = Dimensions.get('window');
+
+const scaleFont = size => size * PixelRatio.getFontScale();
+const scaleSize = size => (width / 375) * size;
 
 const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
   const [typeId, setTypeId] = useState(null)
@@ -95,7 +100,8 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
         <View style={styles.detailsContainer}>
           <Text style={styles.productTitle}>{data.name}</Text>
           <Text style={styles.productPrice}>{data.price} <Image source={dram2} style={styles.dramImg} /></Text>
-          <Text style={styles.productDescription}>{data.description}</Text>
+          {/* <Text style={styles.productDescription}>{data.description}</Text> */}
+          <Text style={styles.productDescription}>Lorem ipsum dolor sit amet consectetur adipisicing </Text>
           <Text style={styles.optionTitle}>Choose Size</Text>
           <View style={styles.chooseSize}>
             {data.productTypes.map(type => (
@@ -139,7 +145,6 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
 };
 
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -148,59 +153,61 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
-    marginBottom: 100,
+    marginBottom: scaleSize(100),
   },
   imageContainer: {
     position: 'relative',
   },
-
   productImage: {
     width: '100%',
-    height: 300,
+    height: scaleSize(300),
     resizeMode: 'contain',
-    marginTop: 30,
-    marginBottom: 30,
+    marginTop: scaleSize(30),
+    marginBottom: scaleSize(30),
   },
   closeIcon: {
     position: 'absolute',
-    top: 40,
-    left: 10,
-    padding: 10,
+    top: scaleSize(20),
+    left: scaleSize(10),
+    zIndex: 10,
+    padding: scaleSize(8),
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: scaleSize(10),
   },
   detailsContainer: {
-    padding: 20,
+    padding: scaleSize(20),
   },
   dramImg: {
-    width: 15,
-    height: 15,
+    width: scaleSize(15),
+    height: scaleSize(15),
     resizeMode: 'contain',
   },
   dramImgOrange: {
-    width: 12,
-    height: 12,
+    width: scaleSize(12),
+    height: scaleSize(12),
     resizeMode: 'contain',
-    marginLeft: -4,
-    marginTop: 15,
+    marginLeft: scaleSize(-4),
+    marginTop: scaleSize(15),
   },
   warning: {
 
   },
   productTitle: {
     color: '#fff',
-    fontSize: 30,
+    fontSize: scaleFont(30),
     fontFamily: 'LatoBold',
   },
   productPrice: {
     color: '#fff',
-    fontSize: 25,
-    marginBottom: 20,
+    fontSize: scaleFont(25),
+    marginBottom: scaleSize(20),
     fontFamily: 'LatoLight',
   },
   size: {
     color: '#fff',
-    fontSize: 16,
-    marginVertical: 10,
-    fontFamily:'RobotoRegular'
+    fontSize: scaleFont(16),
+    marginVertical: scaleSize(10),
+    fontFamily: 'RobotoRegular',
   },
   priceAdd: {
     color: '#EC6C4F',
@@ -209,22 +216,21 @@ const styles = StyleSheet.create({
   priceAddAmd: {
     display: 'flex',
     flexDirection: 'row',
-
   },
   productDescription: {
     color: '#fff',
-    fontSize: 16,
-    marginBottom: 30,
+    fontSize: scaleFont(16),
+    marginBottom: scaleSize(30),
     fontFamily: 'RobotoThin',
   },
   text: {
     color: '#fff',
-    marginBottom: 20,
+    marginBottom: scaleSize(20),
     fontFamily: 'RobotoThin',
   },
   optionTitle: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: scaleFont(18),
     fontFamily: 'RobotoBold',
   },
   optionTextContainer: {
@@ -233,52 +239,67 @@ const styles = StyleSheet.create({
   },
   borderText: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: scaleFont(12),
     paddingVertical: 0,
-    paddingHorizontal: 4,
+    paddingHorizontal: scaleSize(4),
     fontWeight: 'bold',
-    borderRadius: 4,
+    borderRadius: scaleSize(4),
   },
   borderDiv: {
     backgroundColor: '#EC6C4F',
-    borderRadius: 6,
-    marginLeft: 8,
-    marginBottom: 20,
+    borderRadius: scaleSize(6),
+    marginLeft: scaleSize(8),
+    marginBottom: scaleSize(20),
   },
   chooseSize: {
-    marginBottom: 20,
+    marginBottom: scaleSize(20),
   },
   sizeBlock: {
-    marginVertical:'20px',
+    marginVertical: scaleSize(12),  
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    padding: scaleSize(5),
+    paddingLeft:scaleSize(10),
+    borderRadius: scaleSize(12),  
+    backgroundColor: '#333333',  
+    marginBottom: scaleSize(15), 
+    shadowColor: "#000",  
+    shadowOffset: {
+      width: 0,
+      height: 5,  
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: scaleSize(8),
+    elevation: 5,  
+    transition: 'all 0.3s ease', 
   },
+  
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: scaleSize(20),
   },
   quantityText: {
     color: '#fff',
-    fontSize: 20,
-    marginHorizontal: 20,
+    fontSize: scaleFont(20),
+    marginHorizontal: scaleSize(20),
   },
   orderButton: {
     backgroundColor: '#fff',
-    borderRadius: 30,
-    paddingVertical: 15,
+    borderRadius: scaleSize(30),
+    paddingVertical: scaleSize(15),
   },
   orderButtonText: {
-    fontSize: 18,
+    fontSize: scaleFont(18),
     fontWeight: 'bold',
     color: 'black',
   },
   orderButtonContainer: {
     position: 'absolute',
-    bottom: 20,
+    bottom: scaleSize(20),
     width: '90%',
     alignSelf: 'center',
   },

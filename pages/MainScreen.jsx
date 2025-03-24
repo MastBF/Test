@@ -89,15 +89,21 @@ const CoffeeMusicScreen = ({ navigation }) => {
     const checkState = useCallback(async () => {
         if (!token) return;
         try {
-            const response = await axios.get(`${BASE_URL}/api/v1/Authentication/state`, {
-                headers: { TokenString: token },
-            });
-            setOrderStatus(response.data.orderStatus);
-            setPaymentType(response.data.paymentType);
+          const response = await axios.get(`${BASE_URL}/api/v1/Authentication/state`, {
+            headers: { TokenString: token },
+          });
+      
+          if (response.data.forceToChangePassword) {
+            navigation.navigate('ForceChangePasswordScreen');
+            return; 
+          }
+      
+          setOrderStatus(response.data.orderStatus);
+          setPaymentType(response.data.paymentType);
         } catch (err) {
-            console.error(err);
+          console.error(err);
         }
-    }, [token]);
+      }, [token, navigation]);
 
     const checkPayment = useCallback(async () => {
         if (!token) return;
