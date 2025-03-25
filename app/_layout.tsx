@@ -23,6 +23,7 @@ import ProdInfo from '../components/ProdInfo';
 import CustomMarker from '../components/CustomMarker';
 import Footer from '../components/Panel';
 import CardSelectionScreen from '../components/CardSelectionScreen'
+import testMap from '../components/test'
 // import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 const Stack = createStackNavigator();
@@ -56,7 +57,7 @@ const App: React.FC = () => {
           <Stack.Screen
             name="Main"
             component={Footer}
-            options={{ headerShown: false }}
+            options={{ headerShown: true }}
           />
           <Stack.Screen name="SignupScreen" options={{ headerShown: false }} component={SignupScreen} />
           <Stack.Screen
@@ -65,6 +66,7 @@ const App: React.FC = () => {
             component={ProductScreen}
           />
           <Stack.Screen name="Cart" options={{ headerShown: false }} component={Cart} />
+          <Stack.Screen name="testMap" options={{ headerShown: false }} component={testMap} />
           <Stack.Screen name="CardSelectionScreen" options={{ headerShown: false }} component={CardSelectionScreen} />
           {/* <Stack.Screen
             name="ProfileScreen"

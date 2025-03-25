@@ -19,7 +19,8 @@
       "supportsTablet": true,
       "config": {
         "googleMapsApiKey": "AIzaSyCDWBEASleBbBlbPVHEyO4NuHINBDo41y8"
-      }
+      },
+      "bundleIdentifier": "com.mast.aora"
     },
     "android": {
       "adaptiveIcon": {

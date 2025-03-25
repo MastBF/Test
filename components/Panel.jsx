@@ -5,7 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-// import MainMap from '../pages/MainMap'; // Убедитесь, что путь правильный
+import MainMap from '../pages/MainMap'; 
 import MainScreen from '../pages/MainScreen';
 import ProfileScreen from '../pages/ProfileScreen';
 // import MapScreen from '../pages/MapScreen';
@@ -46,7 +46,7 @@ const Footer = () => {
       }}
     >
 
-      {/* <Tab.Screen
+      <Tab.Screen
         name="MainMap"
         component={MainMap}
         options={{
@@ -63,7 +63,7 @@ const Footer = () => {
           },
           tabBarLabel: 'Map',
         }}
-      /> */}
+      />
 
       <Tab.Screen
         name="Shops"
