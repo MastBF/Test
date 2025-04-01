@@ -17,9 +17,9 @@ export default function ListOfBranches({ navigation, company, shops, onPressComp
     const [fontsLoaded, setFontsLoaded] = useState(false);
     const [token, setToken] = useState(null);
     const [location, setLocation] = useState(null);
-    const [loading, setLoading] = useState(true); // Добавлено состояние загрузки
+    const [loading, setLoading] = useState(true);
     const [fadeAnim] = useState(new Animated.Value(0));
-    
+
     useEffect(() => {
         const initialize = async () => {
             try {
@@ -48,7 +48,7 @@ export default function ListOfBranches({ navigation, company, shops, onPressComp
                 setFontsLoaded(true);
             } catch (error) {
                 console.error("Initialization error:", error);
-            } finally  {
+            } finally {
                 setLoading(false);
                 fadeAnim.setValue(0);
                 Animated.timing(fadeAnim, {
@@ -62,7 +62,7 @@ export default function ListOfBranches({ navigation, company, shops, onPressComp
         initialize();
     }, []);
     useEffect(() => {
-        fadeAnim.setValue(0); // Сбрасываем значение перед началом новой анимации
+        fadeAnim.setValue(0); 
         Animated.timing(fadeAnim, {
             toValue: 1,
             duration: 500,
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5,
     },
     scrollViewContent: {
-        paddingBottom: 20, // Добавьте отступ снизу, чтобы прокрутка могла пройти до конца списка
+        paddingBottom: 20,
     },
     branchBlock: {
         flexDirection: 'row',

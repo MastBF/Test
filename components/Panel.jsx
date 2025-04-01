@@ -1,13 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { AntDesign, Feather } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
-import MainMap from '../pages/MainMap'; 
+import axios from 'axios';
+import MainMap from '../pages/MainMap';
 import MainScreen from '../pages/MainScreen';
 import ProfileScreen from '../pages/ProfileScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // import MapScreen from '../pages/MapScreen';
 
 const Tab = createBottomTabNavigator();
