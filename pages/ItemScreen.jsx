@@ -9,6 +9,7 @@ import CustomButton from '../components/CustomButton';
 import { BASE_URL } from '@/utils/requests';
 import axios from 'axios';
 import { PixelRatio } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 const { width, height } = Dimensions.get('window');
 
 const scaleFont = size => size * PixelRatio.getFontScale();
@@ -81,7 +82,7 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
     );
   }
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
         <View style={styles.imageContainer}>
           <Image
@@ -105,22 +106,22 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
           <Text style={styles.optionTitle}>Choose Size</Text>
           <View style={styles.chooseSize}>
             {data.productTypes.map(type => (
-             <TouchableOpacity key={type.id} style={styles.sizeBlock} onPress={() => {
-              setSelectedType(type);
-              setTypeId(type.id);
-            }}>
-              <Text style={styles.size}>{type.type} {type.price > 1 && <Text style={[styles.priceAdd,{ color: color }]}>+{type.price} AMD</Text>}</Text>
-              <RadioButton.Android
-                value={type.type}
-                status={typeId === type.id ? 'checked' : 'unchecked'}
-                onPress={() => {
-                  setSelectedType(type);
-                  setTypeId(type.id);
-                }}
-                color="#ffffff"
-                uncheckedColor={warning ? '#C51919' : ''}
-              />
-            </TouchableOpacity>
+              <TouchableOpacity key={type.id} style={styles.sizeBlock} onPress={() => {
+                setSelectedType(type);
+                setTypeId(type.id);
+              }}>
+                <Text style={styles.size}>{type.type} {type.price > 1 && <Text style={[styles.priceAdd, { color: color }]}>+{type.price} AMD</Text>}</Text>
+                <RadioButton.Android
+                  value={type.type}
+                  status={typeId === type.id ? 'checked' : 'unchecked'}
+                  onPress={() => {
+                    setSelectedType(type);
+                    setTypeId(type.id);
+                  }}
+                  color="#ffffff"
+                  uncheckedColor={warning ? '#C51919' : ''}
+                />
+              </TouchableOpacity>
             ))}
           </View>
           <View style={styles.quantityContainer}>
@@ -140,7 +141,7 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
         itemPrice={700}
         onPress={onButtonPress}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -150,6 +151,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#1C1C1C',
     justifyContent: 'flex-end',
+    height: '100%',
   },
   scrollContainer: {
     flex: 1,
@@ -255,27 +257,27 @@ const styles = StyleSheet.create({
     marginBottom: scaleSize(20),
   },
   sizeBlock: {
-    marginVertical: scaleSize(12),  
+    marginVertical: scaleSize(12),
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: scaleSize(5),
-    paddingLeft:scaleSize(10),
-    borderRadius: scaleSize(12),  
-    backgroundColor: '#333333',  
-    marginBottom: scaleSize(15), 
-    shadowColor: "#000",  
+    paddingLeft: scaleSize(10),
+    borderRadius: scaleSize(12),
+    backgroundColor: '#333333',
+    marginBottom: scaleSize(15),
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 5,  
+      height: 5,
     },
     shadowOpacity: 0.15,
     shadowRadius: scaleSize(8),
-    elevation: 5,  
-    transition: 'all 0.3s ease', 
+    elevation: 5,
+    transition: 'all 0.3s ease',
   },
-  
+
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',

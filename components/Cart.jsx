@@ -1,54 +1,55 @@
 import { AntDesign, Entypo, FontAwesome5 } from '@expo/vector-icons';
 import { useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, FlatList, StyleSheet, Dimensions, TouchableOpacity, PixelRatio, ActivityIndicator } from 'react-native';
+import { View, Text, Button, FlatList, StyleSheet, Dimensions, TouchableOpacity, PixelRatio, ActivityIndicator, Alert } from 'react-native';
 import { Image } from 'react-native-elements';
 import { Icon } from 'react-native-elements';
 import { ScrollView } from 'react-native-gesture-handler';
 import amdWhite from '../assets/images/amdWhite.png';
 import axios from 'axios';
 import { BASE_URL } from '@/utils/requests';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
-const scale = width / 375; 
+const scale = width / 375;
 const normalize = (size) => Math.round(PixelRatio.roundToNearestPixel(size * scale));
 
 const Cart = () => {
     const route = useRoute();
     const [cartProducts, setCartProducts] = useState(route.params.cartProducts || []);
     const { navigation, companyColor, token, branchId } = route.params;
-    const [buttonPressed, setButtonPressed] = useState(false); 
+    const [buttonPressed, setButtonPressed] = useState(false);
     const [totalQuantity, setTotalQuantity] = useState(0);
     const [totalPrice, setTotalPrice] = useState(0);
-    const [companyInfo, setCompanyInfo] = useState(null); 
+    const [companyInfo, setCompanyInfo] = useState(null);
     const [loadingCompanyInfo, setLoadingCompanyInfo] = useState(true); // Loading state for company info
 
     const handlePressIn = () => {
         setButtonPressed(true); // Set buttonPressed to true when pressed
     };
     const removeItem = (id) => {
-        console.log('Removing item from cart:', id);        
         setCartProducts(prevProducts => prevProducts.filter(product => product.id !== id));
         if (route.params.removeFromCart) {
-          route.params.removeFromCart(id);
+            route.params.removeFromCart(id);
         }
-      };
+    };
     const handlePressOut = () => {
-        setButtonPressed(false); 
+        setButtonPressed(false);
     };
 
     useEffect(() => {
         const fetchCompanyInfo = async () => {
             try {
+                console.log('cartttt', branchId)
                 const response = await axios.get(
                     `${BASE_URL}/api/v1/Branch/user/get-company-basic-info/${branchId}`,
                     { headers: { TokenString: token } }
                 );
-                
+
                 setCompanyInfo(response.data);
             } catch (error) {
                 console.error('Error fetching company info:', error);
-                Alert.alert('Error', 'Failed to load company information');
+                // Alert.alert('Error', 'Failed to load company information');
             } finally {
                 setLoadingCompanyInfo(false);
             }
@@ -83,15 +84,15 @@ const Cart = () => {
     };
 
     return (
-        <View style={styles.container}>
-                    <Icon
-                        name="left"
-                        type="antdesign"
-                        color="#fff"
-                        containerStyle={styles.closeIcon}
-                        size={20}
-                        onPress={() => navigation.goBack()}
-                    />
+        <SafeAreaView style={styles.container}>
+            <Icon
+                name="left"
+                type="antdesign"
+                color="#fff"
+                containerStyle={styles.closeIcon}
+                size={20}
+                onPress={() => navigation.goBack()}
+            />
             <ScrollView style={styles.prodList} contentContainerStyle={[styles.list, { paddingBottom: 80 }]}>
                 <View style={styles.header}>
                     <Text style={styles.title}>Cart</Text>
@@ -186,7 +187,7 @@ const Cart = () => {
                     </View>
                 </TouchableOpacity>
             )}
-        </View>
+        </SafeAreaView>
     );
 };
 

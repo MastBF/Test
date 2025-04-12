@@ -14,6 +14,7 @@ import ItemScreen from './ItemScreen';
 import { useRoute } from '@react-navigation/native';
 import ProdInfo from '@/components/ProdInfo';
 import {  PixelRatio } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 const scale = width / 375; 
@@ -31,7 +32,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
   const [opacityAnim] = useState(new Animated.Value(0));
   const [translateYAnim] = useState(new Animated.Value(height));
   const route = useRoute();
-  const { id, name, logo } = route.params || {};
+  const { id, logo, branchId } = route.params || {};
   const [companyColor, setCompanyColor] = useState(null);
   const [companyImg, setCompanyImg] = useState(null);
   const [cartProducts, setCartProducts] = useState([]);
@@ -42,10 +43,11 @@ const CoffeeMusicScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [itemId, setItemId] = useState()
   const [buttonPressed, setButtonPressed] = useState(false);
+  const [name, setName] = useState()
   const removeFromCart = (id) => {
     setCartProducts(prevCart => prevCart.filter(item => item.id !== id));
   };
-  
+
   const handlePressIn = () => {
     setButtonPressed(true);
   };
@@ -56,7 +58,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/v1/Product/${id}?page=1&pageSize=10`, {
+      const response = await axios.get(`${BASE_URL}/api/v1/Product/${branchId}?page=1&pageSize=10`, {
         headers: {
           'TokenString': token,
         },
@@ -64,6 +66,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
       setCompanyColor(response.data.companyColour)
       setData(response.data.products.data);
       setCompanyImg(response.data.companyUiFileName);
+      setName(response.data.companyName)
     } catch (error) {
       console.error('Error fetching products:', error);
       setErrorMsg('Failed to load products');
@@ -98,7 +101,6 @@ const CoffeeMusicScreen = ({ navigation }) => {
     ]).start();
   };
   const handleCartProducts = (newItem) => {
-    console.log(newItem)
     setCartProducts(prevCart => {
       const existingItemIndex = prevCart.findIndex(item =>
         item.id === newItem.id && item.typeId === newItem.typeId
@@ -148,7 +150,6 @@ const CoffeeMusicScreen = ({ navigation }) => {
   }, []);
   useEffect(() => {
     setCartProdCount(cartProducts.length)
-    console.log(cartProducts)
   }, [cartProducts])
   useEffect(() => {
     if (token) {
@@ -187,7 +188,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
   }, []);
 
   const cartNavigate = () => {
-    navigation.navigate('Cart', { navigation, branchId: id, companyColor, cartProducts, token,  removeFromCart });
+    navigation.navigate('Cart', { navigation, branchId: branchId, companyColor, cartProducts, token,  removeFromCart });
   };
 
 
@@ -210,7 +211,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {isOpen && (
         <Animated.View style={[styles.animatedContainer, { opacity: opacityAnim, transform: [{ translateY: translateYAnim }] }]}>
           <ItemScreen
@@ -309,7 +310,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
         </View>
       </TouchableOpacity>
 
-    </View >
+    </SafeAreaView >
   );
 };
 
@@ -317,7 +318,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1C1C1C',
+    backgroundColor: '#0E0E0E',
   },
   titlePart: {
     flexDirection: 'row',

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import HOC from '../components/HOC';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { BASE_URL } from '@/utils/requests';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -87,50 +87,47 @@ const ProfileScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.profileSection}>
-        <View style={styles.profileIconContainer}>
-          <Icon name="person-circle-outline" size={100} color="#bbb" />
-        </View>
+        <FontAwesome name="user-circle" size={90} color="#FFFFFF" />
         <Text style={styles.username}>{state?.username}</Text>
       </View>
 
-      {/* Раздел Points */}
-      <View style={styles.pointsSection}>
-        <Text style={styles.sectionTitle}>Your Points</Text>
-        <View style={styles.pointsContainer}>
-          <Icon name="star-outline" size={30} color="#FFD700" />
-          <Text style={styles.pointsText}>{state?.balance} Points</Text>
+      <View style={styles.block}>
+        <Text style={styles.blockTitle}>Your Points</Text>
+        <View style={styles.row}>
+          <MaterialIcons name="stars" size={28} color="#F7A300" />
+          <Text style={styles.blockValue}>{state?.balance} pts</Text>
         </View>
       </View>
 
-      {/* Раздел Saved Payment Methods */}
-      <View style={styles.paymentSection}>
-        <Text style={styles.sectionTitle}>Saved Payment Methods</Text>
+      <View style={styles.block}>
+        <Text style={styles.blockTitle}>Saved Cards</Text>
+
         {card && card.length > 0 ? (
-          <TouchableOpacity style={styles.paymentCard} onPress={toggleCard}>
-            <Icon name="card-outline" size={25} color="#fff" />
-            <Text style={styles.cardText}>Card ending with {card[0].cardNumberFirstDigits}</Text>
-            {card.length > 1 && <AntDesign name={isOpen ? "up" : "down"} size={16} color="white" style={styles.iconEnd} />}
+          <TouchableOpacity style={styles.card} onPress={toggleCard}>
+            <MaterialIcons name="payment" size={24} color="#FFFFFF" />
+            <Text style={styles.cardText}>
+              Card ending with {card[0].cardNumberFirstDigits}
+            </Text>
+            {card.length > 1 && (
+              <AntDesign
+                name={isOpen ? 'up' : 'down'}
+                size={16}
+                color="#888"
+                style={{ marginLeft: 'auto' }}
+              />
+            )}
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity style={styles.paymentCard}>
-            <Icon name="card-outline" size={25} color="#fff" />
-            <Text style={styles.cardText}>No active cards</Text>
-          </TouchableOpacity>
+          <Text style={styles.noCards}>No cards saved</Text>
         )}
 
-        {/* Анимированный контейнер для списка карт */}
-        <Animated.View style={[styles.cardListContainer, { height: animation }]}>
-          {isOpen && card && card.length > 1 && (
-            <ScrollView>
-              {card.map((item, index) => (
-                <TouchableOpacity key={index}>
-                  <Text key={index} style={styles.cardItem}>
-                    Card ending with {item.cardNumberFirstDigits}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          )}
+        <Animated.View style={[styles.cardList, { height: animation }]}>
+          {isOpen &&
+            card?.slice(1).map((item, index) => (
+              <Text key={index} style={styles.cardItem}>
+                Card ending with {item.cardNumberFirstDigits}
+              </Text>
+            ))}
         </Animated.View>
       </View>
     </View>
@@ -140,86 +137,79 @@ const ProfileScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1E1E1E',
+    backgroundColor: '#0B0B0B',
     padding: 20,
   },
   profileSection: {
     alignItems: 'center',
-    marginTop: 50,
-  },
-  profileIconContainer: {
-    backgroundColor: '#333',
-    borderRadius: 50,
-    padding: 10,
-    marginBottom: 20,
+    marginTop: 40,
+    marginBottom: 30,
   },
   username: {
-    color: '#fff',
-    fontSize: 25,
-    fontWeight: 'bold',
-    marginTop: 10,
+    color: '#FFFFFF',
+    fontSize: 22,
+    fontWeight: '600',
+    marginTop: 12,
   },
-  pointsSection: {
-    marginTop: 40,
-    borderColor: '#2E2E2E',
-    borderBottomWidth: 1,
-    borderTopWidth: 1,
-    paddingVertical: 20,
+  block: {
+    marginBottom: 30,
+    backgroundColor: '#1A1A1A',
+    borderRadius: 14,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#F7A300',
+  
+    shadowColor: '#F7A300',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+  
+    elevation: 8,
   },
-  pointsContainer: {
+  blockTitle: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    marginBottom: 12,
+    fontWeight: '600',
+  },
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#333',
-    borderRadius: 10,
-    marginTop: 10,
   },
-  pointsText: {
-    color: '#FFD700',
+  blockValue: {
+    color: '#FFFFFF',
     fontSize: 18,
     marginLeft: 10,
   },
-  paymentSection: {
-    marginTop: 20,
-    borderColor: '#2E2E2E',
-    borderBottomWidth: 1,
-    borderTopWidth: 1,
-    paddingVertical: 20,
-  },
-  sectionTitle: {
-    color: 'white',
-    marginBottom: 10,
-    fontSize: 16,
-    fontWeight: '300',
-  },
-  paymentCard: {
-    backgroundColor: '#333',
-    padding: 15,
-    borderRadius: 10,
+  card: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    padding: 15,
+    backgroundColor: '#2A2A2A',
+    borderRadius: 10,
+    marginTop: 10,
   },
   cardText: {
-    color: '#fff',
+    color: '#FFFFFF',
     marginLeft: 10,
     fontSize: 16,
-    flex: 1,
   },
-  iconEnd: {
-    marginLeft: 'auto',
-  },
-  cardListContainer: {
+  cardList: {
     overflow: 'hidden',
+    marginTop: 10,
   },
   cardItem: {
-    color: '#fff',
-    fontSize: 16,
-    padding: 10,
-    marginBottom: 5,
-    borderRadius: 15,
+    color: '#CCCCCC',
+    fontSize: 15,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
-    borderColor: '#2E2E2E',
+    borderBottomColor: '#333',
+  },
+  noCards: {
+    color: '#AAAAAA',
+    fontSize: 14,
+    marginTop: 10,
   },
 });
 

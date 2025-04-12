@@ -11,19 +11,19 @@ import Panel from '../components/Panel';
 import LoginScreen from '../pages/Auth/LoginScreen';
 import ForgotPasswordScreen from '../components/ForgotPasswordScreen';
 import ForceChangePasswordScreen from '../components/ForceChangePasswordScreen';
-import MapScreen from '../components/MapScreen';
+// import MapScreen from '../components/MapScreen';
 import AddPaymentCardScreen from '../pages/AddPaymentCardScreen ';
 import PaymentScreen from '../pages/PaymentScreen';
-import BranchesOnMap from '../pages/BranchesOnMap';
+// import BranchesOnMap from '../pages/BranchesOnMap';
 import MarkerCustom from '../pages/MarkerCustom';
-// import MainMap from '../pages/MainMap';
+import MainMap from '../pages/MainMap';
 import AlertScreen from '../components/AlertScreen';
 import Cart from '../components/Cart';
 import ProdInfo from '../components/ProdInfo';
 import CustomMarker from '../components/CustomMarker';
 import Footer from '../components/Panel';
 import CardSelectionScreen from '../components/CardSelectionScreen'
-import testMap from '../components/test'
+// import testMap from '../components/test'
 // import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 const Stack = createStackNavigator();
@@ -32,6 +32,7 @@ const Stack = createStackNavigator();
 const App: React.FC = () => {
 
   return (
+    
     <GestureHandlerRootView style={{ flex: 1 }}>
 
       <NavigationIndependentTree >
@@ -40,7 +41,7 @@ const App: React.FC = () => {
           <Stack.Screen
             name="LoginScreen"
             component={LoginScreen}
-            options={{ headerShown: false }}
+            options={{ headerShown: false,gestureEnabled: false}}
           />
 
           <Stack.Screen
@@ -48,11 +49,10 @@ const App: React.FC = () => {
             component={ForgotPasswordScreen}
             options={{ headerShown: false }}
           />
-
           <Stack.Screen
             name="ForceChangePasswordScreen"
             component={ForceChangePasswordScreen}
-            options={{ headerShown: false }}
+            options={{ headerShown: false, gestureEnabled: false  }}
           />
           <Stack.Screen
             name="Main"
@@ -66,7 +66,7 @@ const App: React.FC = () => {
             component={ProductScreen}
           />
           <Stack.Screen name="Cart" options={{ headerShown: false }} component={Cart} />
-          <Stack.Screen name="testMap" options={{ headerShown: false }} component={testMap} />
+          {/* <Stack.Screen name="testMap" options={{ headerShown: false }} component={testMap} /> */}
           <Stack.Screen name="CardSelectionScreen" options={{ headerShown: false }} component={CardSelectionScreen} />
           {/* <Stack.Screen
             name="ProfileScreen"

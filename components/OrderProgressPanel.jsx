@@ -62,12 +62,19 @@ const OrderStatusPanel = ({ step, onPress}) => {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#333333',
+        backgroundColor: '#1a1a1a',
         padding: 16,
         borderRadius: 20,
         alignItems: 'center',
         width: '95%',
-        marginBottom:20
+        marginBottom:20,
+        borderWidth: 1,
+        borderColor:'#F7A300',
+        shadowColor: '#F7A300',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 7
     },
     statusText: {
         color: '#fff',

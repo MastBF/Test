@@ -15,12 +15,13 @@ import * as Font from 'expo-font';
 import { BASE_URL } from '../../utils/requests';
 import ErrorAlert from '@/components/ErrorAlert';
 import { PixelRatio } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 const scaleFont = size => size * PixelRatio.getFontScale();
 const scaleSize = size => (width / 375) * size;
 
-const SignupScreen= ({ navigation }) => {
+const SignupScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -125,117 +126,122 @@ const SignupScreen= ({ navigation }) => {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <ErrorAlert visible={errorAlert} onCancel={() => setErrorAlert(false)} description={errorDescription} title={'Sign up faild'}/>
-      <View style={styles.container}>
-        <Image
-          source={require('../../assets/images/trueLogo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-        <Text style={styles.title}>Sign up</Text>
-        <TextInput
-          style={[
-            styles.input,
-            usernameError ? styles.inputError : null
-          ]}
-          placeholder="Username"
-          value={username}
-          onChangeText={setUsername}
-          autoCapitalize="none"
-          cursorColor={'#fff'}
-          selectionColor={'#fff'}
-          placeholderTextColor={'#aaa'}
-        />
-        {usernameError && <Text style={styles.errorText}>{usernameError}</Text>}
+    <SafeAreaView>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ErrorAlert visible={errorAlert} onCancel={() => setErrorAlert(false)} description={errorDescription} title={'Sign up faild'} />
+        <View style={styles.container}>
+          <View style={styles.imageContainer}>
+            <Image
+              source={require('../../assets/images/trueLogo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
+          <View style={styles.inputPart}>
+            <Text style={styles.title}>Sign up</Text>
+            <TextInput
+              style={[
+                styles.input,
+                usernameError ? styles.inputError : null
+              ]}
+              placeholder="Username"
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+              cursorColor={'#fff'}
+              selectionColor={'#fff'}
+              placeholderTextColor={'#aaa'}
+            />
+            {usernameError && <Text style={styles.errorText}>{usernameError}</Text>}
 
-        <TextInput
-          style={[
-            styles.input,
-            emailError ? styles.inputError : null
-          ]}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          cursorColor={'#fff'}
-          selectionColor={'#fff'}
-          placeholderTextColor={'#aaa'}
-        />
-        {emailError && <Text style={styles.errorText}>{emailError}</Text>}
+            <TextInput
+              style={[
+                styles.input,
+                emailError ? styles.inputError : null
+              ]}
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              cursorColor={'#fff'}
+              selectionColor={'#fff'}
+              placeholderTextColor={'#aaa'}
+            />
+            {emailError && <Text style={styles.errorText}>{emailError}</Text>}
+            <TextInput
+              style={[
+                styles.input,
+                passwordError ? styles.inputError : null
+              ]}
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              cursorColor={'#fff'}
+              selectionColor={'#fff'}
+              placeholderTextColor={'#aaa'}
+            />
+            {passwordError && <Text style={styles.errorText}>{passwordError}</Text>}
 
-        <TextInput
-          style={[
-            styles.input,
-            passwordError ? styles.inputError : null
-          ]}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          cursorColor={'#fff'}
-          selectionColor={'#fff'}
-          placeholderTextColor={'#aaa'}
-        />
-        {passwordError && <Text style={styles.errorText}>{passwordError}</Text>}
+            <TextInput
+              style={[
+                styles.input,
+                confirmPasswordError ? styles.inputError : null
+              ]}
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+              cursorColor={'#fff'}
+              selectionColor={'#fff'}
+              placeholderTextColor={'#aaa'}
+            />
+            {confirmPasswordError && (
+              <Text style={styles.errorText}>{confirmPasswordError}</Text>
+            )}
 
-        <TextInput
-          style={[
-            styles.input,
-            confirmPasswordError ? styles.inputError : null
-          ]}
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
-          cursorColor={'#fff'}
-          selectionColor={'#fff'}
-          placeholderTextColor={'#aaa'}
-        />
-        {confirmPasswordError && (
-          <Text style={styles.errorText}>{confirmPasswordError}</Text>
-        )}
-
-        <TouchableOpacity
-          style={[styles.button, loading && { opacity: 0.5 }]} // Изменяем прозрачность при отключенной кнопке
-          onPress={handleSignup}
-          disabled={loading} // Делаем кнопку неактивной
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color="#000" /> // Значок загрузки вместо текста
-          ) : (
-            <Text style={styles.buttonText}>Get Started</Text>
-          )}
-        </TouchableOpacity>
-        <View style={styles.orContainer}>
-          <View style={styles.line} />
-          <Text style={styles.orText}>Or With</Text>
-          <View style={styles.line} />
+            <TouchableOpacity
+              style={[styles.button, loading && { opacity: 0.5 }]} // Изменяем прозрачность при отключенной кнопке
+              onPress={handleSignup}
+              disabled={loading} // Делаем кнопку неактивной
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#000" /> // Значок загрузки вместо текста
+              ) : (
+                <Text style={styles.buttonText}>Get Started</Text>
+              )}
+            </TouchableOpacity>
+            <View style={styles.orContainer}>
+              <View style={styles.line} />
+              <Text style={styles.orText}>Or With</Text>
+              <View style={styles.line} />
+            </View>
+            <TouchableOpacity style={styles.googleButton}>
+              <Image
+                source={require('../../assets/images/googleLogo.png')}
+                style={styles.googleIcon}
+              />
+              <Text style={styles.googleButtonText}>Signup with Google</Text>
+            </TouchableOpacity>
+            <Text
+              style={styles.loginLink}
+              onPress={() => navigation.navigate('LoginScreen')}
+            >
+              Already have an account?{' '}
+              <Text style={styles.loginLinkText}>Log In</Text>
+            </Text>
+          </View>
         </View>
-        <TouchableOpacity style={styles.googleButton}>
-          <Image
-            source={require('../../assets/images/googleLogo.png')}
-            style={styles.googleIcon}
-          />
-          <Text style={styles.googleButtonText}>Signup with Google</Text>
-        </TouchableOpacity>
-        <Text
-          style={styles.loginLink}
-          onPress={() => navigation.navigate('LoginScreen')}
-        >
-          Already have an account?{' '}
-          <Text style={styles.loginLinkText}>Log In</Text>
-        </Text>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    backgroundColor: '#1e1e1e',
+    backgroundColor: '#0C0C0C',
   },
   container: {
     flex: 1,
@@ -250,11 +256,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#1e1e1e',
   },
   logo: {
-    width: scaleSize(260),
-    height: scaleSize(240),
-    marginBottom: scaleSize(-36),
-    marginTop: scaleSize(-40),
-    marginLeft: scaleSize(8),
+    width: scaleSize(200),
+    height: scaleSize(200),
+    // marginBottom: scaleSize(-36),
+    // marginTop: scaleSize(-40),
+    // marginLeft: scaleSize(8),
   },
   title: {
     fontFamily: 'RobotoRegular',
@@ -266,7 +272,7 @@ const styles = StyleSheet.create({
   },
   input: {
     height: scaleSize(50),
-    borderColor: '#ccc',
+    borderColor: '#F7A300',
     borderWidth: 0.5,
     marginBottom: scaleSize(10),
     paddingHorizontal: scaleSize(12),
@@ -277,6 +283,26 @@ const styles = StyleSheet.create({
     padding: scaleSize(14),
     paddingLeft: scaleSize(20),
     fontWeight: '200',
+    shadowColor: '#F7A300',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 8
+  },
+  imageContainer: {
+    position: 'absolute',
+    // top: 20,
+    backgroundColor: '#000',
+    borderRadius: 3000,
+    borderWidth: 1,
+    borderColor: '#F7A300',
+    shadowColor: '#F7A300',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 30,
+    position: 'absulute',
+    paddingLeft: 5
   },
   button: {
     backgroundColor: '#fff',
@@ -291,6 +317,10 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: 'bold',
     fontSize: scaleFont(16),
+  },
+  inputPart: {
+    alignItems: 'center',
+    marginTop: height - height / 1.01
   },
   orContainer: {
     flexDirection: 'row',

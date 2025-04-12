@@ -89,21 +89,21 @@ const CoffeeMusicScreen = ({ navigation }) => {
     const checkState = useCallback(async () => {
         if (!token) return;
         try {
-          const response = await axios.get(`${BASE_URL}/api/v1/Authentication/state`, {
-            headers: { TokenString: token },
-          });
-      
-          if (response.data.forceToChangePassword) {
-            navigation.navigate('ForceChangePasswordScreen');
-            return; 
-          }
-      
-          setOrderStatus(response.data.orderStatus);
-          setPaymentType(response.data.paymentType);
+            const response = await axios.get(`${BASE_URL}/api/v1/Authentication/state`, {
+                headers: { TokenString: token },
+            });
+
+            if (response.data.forceToChangePassword) {
+                navigation.navigate('ForceChangePasswordScreen');
+                return;
+            }
+
+            setOrderStatus(response.data.orderStatus);
+            setPaymentType(response.data.paymentType);
         } catch (err) {
-          console.error(err);
+            console.error(err);
         }
-      }, [token, navigation]);
+    }, [token, navigation]);
 
     const checkPayment = useCallback(async () => {
         if (!token) return;
@@ -193,7 +193,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
     const renderShopItem = useCallback(({ item }) => (
         <TouchableOpacity
             style={styles.shopItem}
-            onPress={() => navigation.navigate('ProductScreen', { id: item.id, logo: item.logoFileName, name: item.name })}
+            onPress={() => navigation.navigate('MainMap', { branchId: item.id, isUpdate:true })}
         >
             <Image source={{ uri: item.uiFileName }} style={styles.shopImage} />
             <View style={styles.shopText}>
@@ -212,7 +212,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
     }
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <DeleteOrderScreen
                 visible={alertVisible}
                 onConfirm={onOrderDelete}
@@ -220,18 +220,18 @@ const CoffeeMusicScreen = ({ navigation }) => {
                 paymentType={paymentType}
                 responseStatus={responseStatus}
             />
-            <MapTest   />
             <View style={styles.header}>
                 <Feather name="user" size={RFPercentage(2.5)} color="white" onPress={() => navigation.navigate('ProfileScreen')} />
                 <View style={styles.logoBlock}>
                     <Text style={styles.logoText}>Take & Go</Text>
-                    <Image
-                        source={require('../assets/images/trueLogo.png')}
-                        style={styles.logo}
-                        resizeMode="contain"
-                    />
+                    <View style={styles.imageBlock}>
+                        <Image
+                            source={require('../assets/images/trueLogo.png')}
+                            style={styles.logo}
+                            resizeMode="contain"
+                        />
+                    </View>
                 </View>
-                {/* <FontAwesome5 name="coins" size={RFPercentage(2.5)} color="white" /> */}
                 <Feather
                     name='log-out'
                     color='white'
@@ -260,14 +260,14 @@ const CoffeeMusicScreen = ({ navigation }) => {
                 }
                 ListEmptyComponent={<Text style={styles.noShopsText}>No shops found</Text>}
             />
-        </View>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#1C1C1C',
+        backgroundColor: '#0C0C0C',
         alignItems: 'center',
         paddingBottom: 60,
     },
@@ -304,6 +304,13 @@ const styles = StyleSheet.create({
         height: height * 0.25,
         borderRadius: width * 0.05,
         width: '100%',
+        borderWidth: 1,
+        borderColor: '#F7A300',
+        shadowColor: '#F7A300',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 5
     },
     shopText: {
         flexDirection: 'row',
@@ -340,9 +347,21 @@ const styles = StyleSheet.create({
         fontFamily: 'InterBold',
         marginRight: 8,
     },
+    imageBlock: {
+        backgroundColor: '#000',
+        borderRadius: 50,
+        borderWidth: 1,
+        borderColor: '#F7A300',
+        shadowColor: '#F7A300',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 30,
+        paddingLeft: 1
+    },
     logo: {
-        width: 40,
-        height: 40,
+        width: 30,
+        height: 30,
     },
 });
 

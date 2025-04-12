@@ -1,6 +1,6 @@
 import { AntDesign, FontAwesome, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ActivityIndicator, Animated, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ActivityIndicator, Animated, ScrollView, useWindowDimensions } from 'react-native';
 import amdWhite from '../assets/images/amdWhite.png';
 import amdWhiteBold from '../assets/images/amdWhiteBold.png';
 import * as Font from 'expo-font';
@@ -67,7 +67,7 @@ export default function PaymentScreen({ navigation, route }) {
                 return true
             }
         } catch (err) {
-            console.error(err.status)
+            console.error(err)
         }
     }
 
@@ -107,6 +107,7 @@ export default function PaymentScreen({ navigation, route }) {
                 productTypeId: item.typeId,
                 quantity: item.quantity
             }));
+            console.log('Paymentttttt', id)
 
             if (paymentType === 2) {
                 const response = await axios.post(
@@ -221,6 +222,14 @@ export default function PaymentScreen({ navigation, route }) {
             console.error(err)
         }
     }
+    useEffect(() => {
+        if (token) {
+            getCard()
+        }
+    }, [token])
+    useEffect(() => {
+        console.log('ashdinahsd', cards)
+    }, [cards])
 
     if (!fontsLoaded) {
         return (
@@ -229,7 +238,6 @@ export default function PaymentScreen({ navigation, route }) {
             </View>
         );
     }
-
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
@@ -258,56 +266,56 @@ export default function PaymentScreen({ navigation, route }) {
 
                     <ScrollView>
                         {
-                        cards.count > 0
-                        ?
-                        methods.map((item, index) => (
-                            <TouchableOpacity
-                                style={[styles.otherCards, paymentType === item.id && styles.selectedField]}
-                                key={index}
-                                onPress={() => {
-                                    if (item.type === 'card') {
-                                        ChooseCreditCard();
-                                    } else if (item.type === 'coin') {
-                                        onCoinPress();
-                                    } else if (item.type === 'add') {
-                                        onAddCard();
-                                    }
-                                }}
-                            >
-                                {item.type === 'card' &&
-                                    <FontAwesome name='cc-visa' size={20} color='#fff' style={styles.visaIcon} />
-                                }
-                                {item.type === 'coin' &&
-                                    <FontAwesome5 name='coins' size={20} color='#fff' style={styles.visaIcon} />
-                                }
-                                {item.type === 'add' &&
-                                    <Ionicons name='add-circle' size={20} color='#fff' style={styles.visaIcon} />
-                                }
-                                <Text key={index} style={[styles.animatedText]}>
-                                    {item.title}
-                                </Text>
-                            </TouchableOpacity>
-                    
-                        ))
-                    :
-                    methods.map((item, index) => (
-                        <TouchableOpacity
-                            style={[styles.otherCards, paymentType === item.id && styles.selectedField]}
-                            key={index}
-                            onPress={() => {
-                                onAddCard();
-                            }}
-                        >
-                                {item.type === 'add' &&
-                                    <Ionicons name='add-circle' size={20} color='#fff' style={styles.visaIcon} />
-                                }
-                            {item.type === 'add' && <Text key={index} style={[styles.animatedText]}>
-                                {item.title}
-                            </Text>}
-                        </TouchableOpacity>
-                
-                    ))
-                }
+                            cards.length > 0
+                                ?
+                                methods.map((item, index) => (
+                                    <TouchableOpacity
+                                        style={[styles.otherCards, paymentType === item.id && styles.selectedField]}
+                                        key={index}
+                                        onPress={() => {
+                                            if (item.type === 'card') {
+                                                ChooseCreditCard();
+                                            } else if (item.type === 'coin') {
+                                                onCoinPress();
+                                            } else if (item.type === 'add') {
+                                                onAddCard();
+                                            }
+                                        }}
+                                    >
+                                        {item.type === 'card' &&
+                                            <FontAwesome name='cc-visa' size={20} color='#fff' style={styles.visaIcon} />
+                                        }
+                                        {item.type === 'coin' &&
+                                            <FontAwesome5 name='coins' size={20} color='#fff' style={styles.visaIcon} />
+                                        }
+                                        {item.type === 'add' &&
+                                            <Ionicons name='add-circle' size={20} color='#fff' style={styles.visaIcon} />
+                                        }
+                                        <Text key={index} style={[styles.animatedText]}>
+                                            {item.title}
+                                        </Text>
+                                    </TouchableOpacity>
+
+                                ))
+                                :
+                                methods.map((item, index) => (
+                                    <TouchableOpacity
+                                        style={[styles.otherCards, paymentType === item.id && styles.selectedField]}
+                                        key={index}
+                                        onPress={() => {
+                                            onAddCard();
+                                        }}
+                                    >
+                                        {item.type === 'add' &&
+                                            <Ionicons name='add-circle' size={20} color='#fff' style={styles.visaIcon} />
+                                        }
+                                        {item.type === 'add' && <Text key={index} style={[styles.animatedText]}>
+                                            {item.title}
+                                        </Text>}
+                                    </TouchableOpacity>
+
+                                ))
+                        }
                     </ScrollView>
                     {/* <ScrollView>
                         {methods.map((item, index) => (

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { 
-  View, Text, TextInput, TouchableOpacity, StyleSheet, 
-  Alert, ActivityIndicator, Dimensions, PixelRatio, SafeAreaView 
+import {
+  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  Alert, ActivityIndicator, Dimensions, PixelRatio, SafeAreaView
 } from 'react-native';
 import axios from 'axios';
 import { BASE_URL } from '../utils/requests';
@@ -56,13 +56,13 @@ const ForgotPasswordScreen = ({ navigation }) => {
         title="Check your email"
       />
       <ErrorAlert visible={errorVisible} errorMessage={errorMessage} onCancel={onCancel} />
-
-      <Image
-        source={require('../assets/images/trueLogo.png')}
-        style={styles.logo}
-        resizeMode="contain"
-      />
-
+      <View style={styles.imageBlock}>
+        <Image
+          source={require('../assets/images/trueLogo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      </View>
       <Text style={styles.title}>Forgot Password</Text>
       <Text style={styles.subtitle}>
         Enter your email to receive a verification code.
@@ -98,7 +98,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1C1C1C', 
+    backgroundColor: '#0C0C0C',
     paddingHorizontal: scaleSize(20),
     justifyContent: 'center',
     alignItems: 'center',
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: scaleFont(16),
     marginBottom: scaleSize(16),
-    borderColor: '#444',
+    borderColor: '#F7A300',
     borderWidth: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -155,18 +155,33 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: 4, 
+    elevation: 4,
     marginTop: scaleSize(10),
+  },
+  imageBlock: {
+    position: 'absolute',
+    alignSelf: 'center',
+    top: 25,
+    backgroundColor: '#000',
+    borderRadius: 3000,
+    borderWidth: 1,
+    borderColor: '#F7A300',
+    shadowColor: '#F7A300',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 30,
+    paddingLeft: 5
   },
   buttonText: {
     fontSize: scaleFont(16),
-    fontFamily: 'Inter_600SemiBold', 
+    fontFamily: 'Inter_600SemiBold',
     color: '#FFFFFF',
     fontWeight: '600',
     letterSpacing: 0.5,
   },
   logo: {
-    width: width * 0.6,
+    width: width * 0.56,
     height: height * 0.25,
     marginBottom: scaleSize(10),
     borderRadius: scaleSize(16),
