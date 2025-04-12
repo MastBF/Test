@@ -6,8 +6,7 @@ import { AntDesign, Entypo, Feather, FontAwesome5 } from '@expo/vector-icons';
 import HOC from '../components/HOC';
 import * as Font from 'expo-font';
 import amdWhite from '../assets/images/amdWhite.png';
-import { BASE_URL } from '@/utils/requests';
-import axios from 'axios';
+import { api } from '@/utils/requests'; // Import the configured api instance
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Icon } from 'react-native-elements';
 import ItemScreen from './ItemScreen';
@@ -58,11 +57,8 @@ const CoffeeMusicScreen = ({ navigation }) => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/v1/Product/${branchId}?page=1&pageSize=10`, {
-        headers: {
-          'TokenString': token,
-        },
-      });
+      // Use the api instance; BASE_URL and Auth header are handled by interceptors
+      const response = await api.get(`/api/v1/Product/${branchId}?page=1&pageSize=10`);
       setCompanyColor(response.data.companyColour)
       setData(response.data.products.data);
       setCompanyImg(response.data.companyUiFileName);
@@ -136,7 +132,8 @@ const CoffeeMusicScreen = ({ navigation }) => {
   useEffect(() => {
     const getToken = async () => {
       try {
-        const storedToken = await AsyncStorage.getItem('token');
+        // Assuming the token key is 'userToken' as used in the interceptor
+        const storedToken = await AsyncStorage.getItem('userToken');
         if (storedToken) {
           setToken(storedToken);
         } else {

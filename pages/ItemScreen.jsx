@@ -6,8 +6,7 @@ import * as Font from 'expo-font';
 import dram2 from '../assets/images/amdWhite.png';
 import { AntDesign } from '@expo/vector-icons';
 import CustomButton from '../components/CustomButton';
-import { BASE_URL } from '@/utils/requests';
-import axios from 'axios';
+// Removed unused imports: BASE_URL, axios
 import { PixelRatio } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 const { width, height } = Dimensions.get('window');

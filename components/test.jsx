@@ -5,9 +5,8 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-na
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import ListOfCompanies from '../components/ListOfCompanies';
 import { Icon } from 'react-native-elements';
-import axios from 'axios';
-import { BASE_URL } from '@/utils/requests';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { api } from '@/utils/requests'; // Import the configured api instance
 import * as Location from 'expo-location';
 import BranchInfo from '../components/BranchInfo';
 
@@ -34,7 +33,8 @@ function MapScreen({ navigation }) {
     useEffect(() => {
         const getToken = async () => {
             try {
-                const storedToken = await AsyncStorage.getItem('token');
+                // Use 'userToken' key consistent with interceptor
+                const storedToken = await AsyncStorage.getItem('userToken');
                 if (storedToken) {
                     setToken(storedToken);
                 } else {
@@ -121,9 +121,8 @@ function MapScreen({ navigation }) {
         }
         try {
             const { latitude, longitude } = location.coords;
-            const response = await axios.get(`${BASE_URL}/api/v1/Branch/all-branches/${latitude}/${longitude}`, {
-                headers: { TokenString: token },
-            });
+            // Use api instance, BASE_URL and Auth header handled by interceptor
+            const response = await api.get(`/api/v1/Branch/all-branches/${latitude}/${longitude}`);
             setCompanyBranches(response.data);
         } catch (error) {
             console.error('Error fetching branches:', error);
@@ -141,11 +140,8 @@ function MapScreen({ navigation }) {
         }
         try {
             const { latitude, longitude } = location.coords;
-            const response = await axios.get(`${BASE_URL}/api/v1/Company/nearest/${longitude}/${latitude}`, {
-                headers: {
-                    TokenString: token,
-                },
-            });
+            // Use api instance, BASE_URL and Auth header handled by interceptor
+            const response = await api.get(`/api/v1/Company/nearest/${longitude}/${latitude}`);
             if (Array.isArray(response.data)) {
                 setShops(response.data);
                 setShowBranches(false);
@@ -170,9 +166,8 @@ function MapScreen({ navigation }) {
             const { latitude, longitude } = location.coords;
             console.log(latitude, longitude, id)
 
-            const response = await axios.get(`${BASE_URL}/api/v1/Branch/all-branches/${id}/${latitude}/${longitude}`, {
-                headers: { TokenString: token },
-            });
+            // Use api instance, BASE_URL and Auth header handled by interceptor
+            const response = await api.get(`/api/v1/Branch/all-branches/${id}/${latitude}/${longitude}`);
             // setBranches(response.data);
             setCompanyImage(response.data[0].companyLogoFileName);
         } catch (error) {

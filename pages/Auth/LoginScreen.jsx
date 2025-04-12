@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Dimensions, Alert, Image, ActivityIndicator } from 'react-native';
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Font from 'expo-font';
-import { BASE_URL } from '../../utils/requests';
+import { api } from '../../utils/requests'; // Import the configured api instance
 import { AntDesign } from '@expo/vector-icons';
 import ErrorAlert from '@/components/ErrorAlert';
 import { PixelRatio } from 'react-native';
@@ -49,12 +48,14 @@ const LoginScreen = ({ navigation }) => {
     setIsDisabled(true);
 
     try {
-      const response = await axios.post(`${BASE_URL}/api/v1/Authentication/login`, {
+      // Use api instance, BASE_URL handled by interceptor
+      const response = await api.post('/api/v1/Authentication/login', {
         email,
         password,
       });
 
-      await AsyncStorage.setItem('token', response.data.token);
+      // Use 'userToken' key consistent with interceptor
+      await AsyncStorage.setItem('userToken', response.data.token);
       await AsyncStorage.setItem('refreshToken', response.data.refreshToken);
 
       setLoading(false);
@@ -106,14 +107,16 @@ const LoginScreen = ({ navigation }) => {
         return null;
       }
       console.log(token, 'ref', refreshToken)
-      const response = await axios.get(`${BASE_URL}/api/v1/Authentication/refresh-token`, {
+      // Use api instance, BASE_URL handled by interceptor. Keep custom headers for this specific endpoint.
+      const response = await api.get('/api/v1/Authentication/refresh-token', {
         headers: {
           refreshTokenString: refreshToken,
-          tokenString: token
+          tokenString: token // Assuming backend needs the expired token here too
         }
       });
       if (response.data.tokenSignature) {
-        await AsyncStorage.setItem('token', response.data.tokenSignature);
+        // Use 'userToken' key consistent with interceptor
+        await AsyncStorage.setItem('userToken', response.data.tokenSignature);
       }
       if (response.data.refreshToken) {
         await AsyncStorage.setItem('refreshToken', response.data.refreshToken);
@@ -121,7 +124,8 @@ const LoginScreen = ({ navigation }) => {
 
       return response.data.tokenSignature;
     } catch (error) {
-      await AsyncStorage.removeItem('token');
+      // Use 'userToken' key consistent with interceptor
+      await AsyncStorage.removeItem('userToken');
       await AsyncStorage.removeItem('refreshToken');
       console.error(error)
     }
@@ -129,11 +133,8 @@ const LoginScreen = ({ navigation }) => {
 
   const checkIfTokenExpired = async (token) => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/v1/Authentication/state`, {
-        headers: {
-          Authorization: token,
-        },
-      });
+      // Use api instance, BASE_URL and Authorization header handled by interceptor
+      const response = await api.get('/api/v1/Authentication/state');
       if (response) return false
     } catch (err) {
       if (err.status === 401) {
@@ -143,7 +144,8 @@ const LoginScreen = ({ navigation }) => {
   };
 
   const makeAuthenticatedRequest = async () => {
-    let accessToken = await AsyncStorage.getItem('token');
+    // Use 'userToken' key consistent with interceptor
+    let accessToken = await AsyncStorage.getItem('userToken');
     let isTokenInvalid
     if (accessToken) {
       isTokenInvalid = await checkIfTokenExpired(accessToken);

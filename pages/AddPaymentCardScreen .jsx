@@ -3,9 +3,8 @@ import { View, Text, TextInput, StyleSheet, ActivityIndicator, Dimensions, Touch
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Font from 'expo-font';
-import axios from 'axios'; // Ensure axios is imported
 // import HOC from '../components/HOC';
-import { BASE_URL } from '@/utils/requests';
+import { api } from '@/utils/requests'; // Import the configured api instance
 
 const { width, height } = Dimensions.get('window');
 
@@ -82,16 +81,16 @@ const AddPaymentCardScreen = ({ navigation, route }) => {
         try {
             // Alert.alert('Month', month);
             // Alert.alert('Year', year);
-            const response = await axios.post(`${BASE_URL}/api/v1/Order/card`, {
+            // Use api instance, BASE_URL and Auth header handled by interceptor
+            const response = await api.post('/api/v1/Order/card', {
                 cardHolderName: name,
-                pan: cardNumber.replace(/\s+/g, ''),
+                pan: cardNumber.replace(/\s+/g, ''), // Keep PAN formatting
                 mm: month,
                 yyyy: year,
                 cvc: cvc,
             },
                 {
-                    headers: {
-                        'TokenString': token,
+                    headers: { // Keep other necessary headers
                         'Content-Type': 'application/json'
                     }
                 }

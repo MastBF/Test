@@ -6,8 +6,7 @@ import { Image } from 'react-native-elements';
 import { Icon } from 'react-native-elements';
 import { ScrollView } from 'react-native-gesture-handler';
 import amdWhite from '../assets/images/amdWhite.png';
-import axios from 'axios';
-import { BASE_URL } from '@/utils/requests';
+import { api } from '@/utils/requests'; // Import the configured api instance
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
@@ -41,9 +40,10 @@ const Cart = () => {
         const fetchCompanyInfo = async () => {
             try {
                 console.log('cartttt', branchId)
-                const response = await axios.get(
-                    `${BASE_URL}/api/v1/Branch/user/get-company-basic-info/${branchId}`,
-                    { headers: { TokenString: token } }
+                // Use api instance, BASE_URL and Auth header handled by interceptor
+                const response = await api.get(
+                    `/api/v1/Branch/user/get-company-basic-info/${branchId}`
+                    // Headers are handled by the interceptor
                 );
 
                 setCompanyInfo(response.data);

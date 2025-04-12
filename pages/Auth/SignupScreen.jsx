@@ -10,9 +10,8 @@ import {
   Dimensions,
   ScrollView,
 } from 'react-native';
-import axios from 'axios';
 import * as Font from 'expo-font';
-import { BASE_URL } from '../../utils/requests';
+import { api } from '../../utils/requests'; // Import the configured api instance
 import ErrorAlert from '@/components/ErrorAlert';
 import { PixelRatio } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -57,8 +56,9 @@ const SignupScreen = ({ navigation }) => {
         email,
         password,
       };
-      const response = await axios.post(
-        `${BASE_URL}/api/v1/Authentication/sign-up-user`,
+      // Use api instance, BASE_URL handled by interceptor
+      const response = await api.post(
+        '/api/v1/Authentication/sign-up-user',
         obj
       );
       alert('User signed up successfully');

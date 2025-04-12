@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Dimensions } from 'react-native';
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BASE_URL } from '../utils/requests';
+import { api } from '../utils/requests'; // Import the configured api instance
 import { Icon, Image } from 'react-native-elements';
 
 const { width, height } = Dimensions.get('window');
@@ -25,13 +24,15 @@ const ForceChangePasswordScreen = ({ navigation }) => {
 
     setLoading(true);
     try {
-      const token = await AsyncStorage.getItem('token');
+      // Use 'userToken' key consistent with interceptor
+      const token = await AsyncStorage.getItem('userToken');
       console.log(token);
 
-      var response = await axios.patch(
-        `${BASE_URL}/api/v1/Authentication/change-own-password-forced`,
-        { password: newPassword },
-        { headers: { TokenString: token } }
+      // Use api instance, BASE_URL and Auth header handled by interceptor
+      var response = await api.patch(
+        '/api/v1/Authentication/change-own-password-forced',
+        { password: newPassword }
+        // Headers are handled by the interceptor
       );
 
       console.log(response);

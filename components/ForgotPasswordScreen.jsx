@@ -3,8 +3,7 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   Alert, ActivityIndicator, Dimensions, PixelRatio, SafeAreaView
 } from 'react-native';
-import axios from 'axios';
-import { BASE_URL } from '../utils/requests';
+import { api } from '../utils/requests'; // Import the configured api instance
 import { Icon, Image } from 'react-native-elements';
 import SuccessAlert from '@/components/SuccessAlert';
 import ErrorAlert from './ErrorAlert';
@@ -29,7 +28,8 @@ const ForgotPasswordScreen = ({ navigation }) => {
 
     setLoading(true);
     try {
-      await axios.get(`${BASE_URL}/api/v1/Authentication/forget-password/send-email?email=${email}`);
+      // Use api instance, BASE_URL handled by interceptor
+      await api.get(`/api/v1/Authentication/forget-password/send-email?email=${email}`);
       setVisible(true);
     } catch (error) {
       setErrorMessage(error.response?.data?.message || 'Failed to send verification code.');

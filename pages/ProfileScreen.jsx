@@ -3,8 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native
 import Icon from 'react-native-vector-icons/Ionicons';
 import HOC from '../components/HOC';
 import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
-import { BASE_URL } from '@/utils/requests';
-import axios from 'axios';
+import { api } from '@/utils/requests'; // Import the configured api instance
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -17,11 +16,8 @@ const ProfileScreen = ({ navigation }) => {
 
   const getState = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/v1/Authentication/state`, {
-        headers: {
-          'TokenString': token,
-        },
-      });
+      // Use the api instance; BASE_URL and Auth header are handled by interceptors
+      const response = await api.get('/api/v1/Authentication/state');
       setState(response.data);
     } catch (error) {
       console.error('Error getting state:', error);
@@ -37,7 +33,8 @@ const ProfileScreen = ({ navigation }) => {
   useEffect(() => {
     const getToken = async () => {
       try {
-        const storedToken = await AsyncStorage.getItem('token');
+        // Assuming the token key is 'userToken' as used in the interceptor
+        const storedToken = await AsyncStorage.getItem('userToken');
         if (storedToken) {
           setToken(storedToken);
         } else {
@@ -53,14 +50,8 @@ const ProfileScreen = ({ navigation }) => {
 
   const getCard = async () => {
     try {
-      const response = await axios.get(
-        `${BASE_URL}/api/v1/Order/card`,
-        {
-          headers: {
-            'TokenString': token,
-          }
-        }
-      );
+      // Use the api instance; BASE_URL and Auth header are handled by interceptors
+      const response = await api.get('/api/v1/Order/card');
       setCard(response.data);
     } catch (error) {
       console.error('Error getting card:', error);

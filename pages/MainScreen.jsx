@@ -4,10 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Font from 'expo-font';
 import Feather from '@expo/vector-icons/Feather';
 import { FontAwesome5 } from '@expo/vector-icons';
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
-import { BASE_URL } from '../utils/requests';
+import { api } from '../utils/requests'; // Import the configured api instance
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import OrderStatusPanel from '../components/OrderProgressPanel';
 import DeleteOrderScreen from '../components/DeleteOrderScreen';
@@ -41,7 +40,8 @@ const CoffeeMusicScreen = ({ navigation }) => {
 
     const getToken = useCallback(async () => {
         try {
-            const storedToken = await AsyncStorage.getItem('token');
+            // Use 'userToken' key consistent with interceptor
+            const storedToken = await AsyncStorage.getItem('userToken');
             if (storedToken) {
                 setToken(storedToken);
             }
@@ -52,7 +52,8 @@ const CoffeeMusicScreen = ({ navigation }) => {
 
     const handleLogout = useCallback(async () => {
         try {
-            await AsyncStorage.removeItem('token');
+            // Use 'userToken' key consistent with interceptor
+            await AsyncStorage.removeItem('userToken');
             await AsyncStorage.removeItem('refreshToken')
             setToken(null);
             navigation.reset({
@@ -89,9 +90,8 @@ const CoffeeMusicScreen = ({ navigation }) => {
     const checkState = useCallback(async () => {
         if (!token) return;
         try {
-            const response = await axios.get(`${BASE_URL}/api/v1/Authentication/state`, {
-                headers: { TokenString: token },
-            });
+            // Use api instance, headers handled by interceptor
+            const response = await api.get('/api/v1/Authentication/state');
 
             if (response.data.forceToChangePassword) {
                 navigation.navigate('ForceChangePasswordScreen');
@@ -108,13 +108,11 @@ const CoffeeMusicScreen = ({ navigation }) => {
     const checkPayment = useCallback(async () => {
         if (!token) return;
         try {
-            const response = await axios.patch(`${BASE_URL}/api/v1/Order/check-payment`, {
-                headers: { tokenString: token }
-            });
+            // Use api instance, headers handled by interceptor
+            const response = await api.patch('/api/v1/Order/check-payment');
             if (response.data === false) {
-                await axios.delete(`${BASE_URL}/api/v1/Order/cancel-order-user`, {
-                    headers: { tokenString: token },
-                });
+                // Use api instance, headers handled by interceptor
+                await api.delete('/api/v1/Order/cancel-order-user');
             }
         } catch (err) {
             setOrderStatus(null);
@@ -147,9 +145,8 @@ const CoffeeMusicScreen = ({ navigation }) => {
         try {
             setLoadingShops(true);
             const { latitude, longitude } = location.coords;
-            const response = await axios.get(`${BASE_URL}/api/v1/Company/nearest/${longitude}/${latitude}`, {
-                headers: { TokenString: token },
-            });
+            // Use api instance, headers handled by interceptor
+            const response = await api.get(`/api/v1/Company/nearest/${longitude}/${latitude}`);
             if (Array.isArray(response.data)) {
                 setShops(response.data);
             }
@@ -162,9 +159,8 @@ const CoffeeMusicScreen = ({ navigation }) => {
 
     const onOrderDelete = useCallback(async () => {
         try {
-            const response = await axios.delete(`${BASE_URL}/api/v1/Order/cancel-order-user`, {
-                headers: { tokenString: token },
-            });
+            // Use api instance, headers handled by interceptor
+            const response = await api.delete('/api/v1/Order/cancel-order-user');
             if (response.status === 200) {
                 setResponseStatus(true);
                 setTimeout(() => {

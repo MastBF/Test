@@ -4,7 +4,7 @@ import { AntDesign, Feather } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
+// Removed unused import: axios
 import MainMap from '../pages/MainMap';
 import MainScreen from '../pages/MainScreen';
 import ProfileScreen from '../pages/ProfileScreen';

@@ -4,8 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, Activity
 import amdWhite from '../assets/images/amdWhite.png';
 import amdWhiteBold from '../assets/images/amdWhiteBold.png';
 import * as Font from 'expo-font';
-import { BASE_URL } from '@/utils/requests';
-import axios from 'axios';
+import { api } from '@/utils/requests'; // Import the configured api instance
 import AlertScreen from '@/components/AlertScreen';
 import { WebView } from 'react-native-webview';
 import { Linking } from "react-native";
@@ -51,18 +50,12 @@ export default function PaymentScreen({ navigation, route }) {
     };
     const checkPayment = async () => {
         try {
-            const response = await axios.patch(`${BASE_URL}/api/v1/Order/check-payment`, {}, {
-                headers: {
-                    tokenString: token
-                }
-            })
+            // Use api instance, headers handled by interceptor
+            const response = await api.patch('/api/v1/Order/check-payment', {});
             console.log('resp', response.data)
             if (!response.data) {
-                await axios.delete(`${BASE_URL}/api/v1/Order/cancel-order-user`, {
-                    headers: {
-                        tokenString: token,
-                    }
-                });
+                // Use api instance, headers handled by interceptor
+                await api.delete('/api/v1/Order/cancel-order-user');
             } else {
                 return true
             }
@@ -110,13 +103,13 @@ export default function PaymentScreen({ navigation, route }) {
             console.log('Paymentttttt', id)
 
             if (paymentType === 2) {
-                const response = await axios.post(
-                    `${BASE_URL}/api/v1/Order/${id}?paymentType=${paymentType}`,
+                // Use api instance, headers handled by interceptor
+                const response = await api.post(
+                    `/api/v1/Order/${id}?paymentType=${paymentType}`,
                     orderItems,
                     {
-                        headers: {
+                        headers: { // Keep other necessary headers
                             'accept': '*/*',
-                            'TokenString': `${token}`,
                             'Content-Type': 'application/json',
                         },
                     }
@@ -128,26 +121,26 @@ export default function PaymentScreen({ navigation, route }) {
                 }
 
             } else if (paymentType === 0) {
-                const response = await axios.post(
-                    `${BASE_URL}/api/v1/Order/${id}?cardId=${creditId}&paymentType=${paymentType}`,
+                // Use api instance, headers handled by interceptor
+                const response = await api.post(
+                    `/api/v1/Order/${id}?cardId=${creditId}&paymentType=${paymentType}`,
                     orderItems,
                     {
-                        headers: {
+                        headers: { // Keep other necessary headers
                             'accept': '*/*',
-                            'TokenString': `${token}`,
                             'Content-Type': 'application/json',
                         },
                     }
                 );
                 if (response.status === 204) setSuccessAlert(true)
             } else if (paymentType === 1) {
-                const response = await axios.post(
-                    `${BASE_URL}/api/v1/Order/${id}?paymentType=${paymentType}`,
+                // Use api instance, headers handled by interceptor
+                const response = await api.post(
+                    `/api/v1/Order/${id}?paymentType=${paymentType}`,
                     orderItems,
                     {
-                        headers: {
+                        headers: { // Keep other necessary headers
                             'accept': '*/*',
-                            'TokenString': `${token}`,
                             'Content-Type': 'application/json',
                         },
                     }
@@ -213,10 +206,9 @@ export default function PaymentScreen({ navigation, route }) {
     }, []);
     const getCard = async () => {
         try {
-            const response = await axios.get(`${BASE_URL}/api/v1/Order/card`, {
-                headers: { TokenString: token },
-            })
-            setCards(response.data)
+            // Use api instance, headers handled by interceptor
+            const response = await api.get('/api/v1/Order/card');
+            setCards(response.data);
 
         } catch (err) {
             console.error(err)

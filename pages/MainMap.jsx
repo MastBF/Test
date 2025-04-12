@@ -11,9 +11,8 @@ import Animated, {
     runOnJS
 } from 'react-native-reanimated';
 import { FlatList, PanGestureHandler } from 'react-native-gesture-handler';
-import axios from 'axios';
-import { BASE_URL } from '@/utils/requests';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { api } from '@/utils/requests'; // Import the configured api instance
 import * as Location from 'expo-location';
 import BranchInfo from '../components/BranchInfo';
 import { AntDesign, Entypo, EvilIcons, Feather, FontAwesome5, Ionicons } from '@expo/vector-icons';
@@ -286,11 +285,10 @@ function MapScreen({ navigation, route }) {
             // e.persist();
             setIsPressed(true);
             setLoadingBranches(true);
-            const response = await axios.get(
-                `https://gazansolution-production.up.railway.app/api/v1/Branch/all-branches/${companyId}/${location.coords.latitude}/${location.coords.longitude}`,
-                {
-                    headers: { 'TokenString': token }
-                }
+            // Use api instance, BASE_URL and Auth header handled by interceptor
+            const response = await api.get(
+                `/api/v1/Branch/all-branches/${companyId}/${location.coords.latitude}/${location.coords.longitude}`
+                // Headers handled by interceptor
             );
             setBranches(response.data);
             setBranchInfo(response.data);
@@ -310,7 +308,8 @@ function MapScreen({ navigation, route }) {
     useEffect(() => {
         const getToken = async () => {
             try {
-                const storedToken = await AsyncStorage.getItem('token');
+                // Use 'userToken' key consistent with interceptor
+                const storedToken = await AsyncStorage.getItem('userToken');
                 if (storedToken) {
                     setToken(storedToken);
                 }
@@ -324,11 +323,9 @@ function MapScreen({ navigation, route }) {
     const fetchNearestCompany = async () => {
         try {
             setLoadingCompanies(true);
-            const response = await axios.get('https://gazansolution-production.up.railway.app/api/v1/Company/nearest/44.5722867/40.1896911', {
-                headers: {
-                    'TokenString': token
-                }
-            });
+            // Use api instance, BASE_URL and Auth header handled by interceptor
+            // Note: Using hardcoded coordinates from original code
+            const response = await api.get('/api/v1/Company/nearest/44.5722867/40.1896911');
             setNearestCompanies(response.data);
         } catch (error) {
             console.error("Error fetching nearest company:", error);
@@ -368,9 +365,8 @@ function MapScreen({ navigation, route }) {
     const fetchBranches = async () => {
         if (!region || !token) return;
         try {
-            const response = await axios.get(`${BASE_URL}/api/v1/Branch/all-branches/${region.latitude}/${region.longitude}`, {
-                headers: { 'TokenString': token }
-            });
+            // Use api instance, BASE_URL and Auth header handled by interceptor
+            const response = await api.get(`/api/v1/Branch/all-branches/${region.latitude}/${region.longitude}`);
             setBranches(response.data);
         } catch (err) {
             console.error('Err:', err);
