@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import HOC from '../components/HOC';
@@ -6,12 +6,14 @@ import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { api } from '@/utils/requests'; // Import the configured api instance
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
+import { AuthContext } from '@/context/AuthProvider';
 
 const ProfileScreen = ({ navigation }) => {
   const [card, setCard] = useState(null);
-  const [token, setToken] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [state, setState] = useState(null);
+  const { token } = useContext(AuthContext);
+
   const animation = useRef(new Animated.Value(0)).current;
 
   const getState = async () => {
@@ -29,24 +31,6 @@ const ProfileScreen = ({ navigation }) => {
       getState();
     }
   }, [token]);
-
-  useEffect(() => {
-    const getToken = async () => {
-      try {
-        // Assuming the token key is 'userToken' as used in the interceptor
-        const storedToken = await AsyncStorage.getItem('userToken');
-        if (storedToken) {
-          setToken(storedToken);
-        } else {
-          console.error("Token not found in AsyncStorage");
-        }
-      } catch (error) {
-        console.error("Error getting token from AsyncStorage:", error);
-      }
-    };
-
-    getToken();
-  }, []);
 
   const getCard = async () => {
     try {
@@ -149,12 +133,12 @@ const styles = StyleSheet.create({
     padding: 20,
     borderWidth: 1,
     borderColor: '#F7A300',
-  
+
     shadowColor: '#F7A300',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 6,
-  
+
     elevation: 8,
   },
   blockTitle: {

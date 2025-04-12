@@ -23,78 +23,54 @@ import ProdInfo from '../components/ProdInfo';
 import CustomMarker from '../components/CustomMarker';
 import Footer from '../components/Panel';
 import CardSelectionScreen from '../components/CardSelectionScreen'
+import { AuthProvider } from '../context/AuthProvider';
+
 // import testMap from '../components/test'
 // import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 const Stack = createStackNavigator();
-// const Tab = createBottomTabNavigator();
 
 const App: React.FC = () => {
 
   return (
-    
+
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthProvider>
+        <NavigationIndependentTree >
+          <Stack.Navigator initialRouteName="LoginScreen">
+            <Stack.Screen
+              name="LoginScreen"
+              component={LoginScreen}
+              options={{ headerShown: false, gestureEnabled: false }}
+            />
 
-      <NavigationIndependentTree >
-
-        <Stack.Navigator initialRouteName="LoginScreen">
-          <Stack.Screen
-            name="LoginScreen"
-            component={LoginScreen}
-            options={{ headerShown: false,gestureEnabled: false}}
-          />
-
-          <Stack.Screen
-            name="ForgotPasswordScreen"
-            component={ForgotPasswordScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="ForceChangePasswordScreen"
-            component={ForceChangePasswordScreen}
-            options={{ headerShown: false, gestureEnabled: false  }}
-          />
-          <Stack.Screen
-            name="Main"
-            component={Footer}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen name="SignupScreen" options={{ headerShown: false }} component={SignupScreen} />
-          <Stack.Screen
-            name="ProductScreen"
-            options={{ headerShown: false, ...TransitionPresets.DefaultTransition }}
-            component={ProductScreen}
-          />
-          <Stack.Screen name="Cart" options={{ headerShown: false }} component={Cart} />
-          {/* <Stack.Screen name="testMap" options={{ headerShown: false }} component={testMap} /> */}
-          <Stack.Screen name="CardSelectionScreen" options={{ headerShown: false }} component={CardSelectionScreen} />
-          {/* <Stack.Screen
-            name="ProfileScreen"
-            options={{ headerShown: false, ...TransitionPresets.SlideFromRightIOS }}
-            component={ProfileScreen}
-          /> */}
-          {/* <Stack.Screen name="Main" options={{ headerShown: false }} component={MainScreen} /> */}
-        <Stack.Screen name="PaymentScreen" options={{ headerShown: false }} component={PaymentScreen} />
-        </Stack.Navigator>
-        {/* <Tab.Navigator initialRouteName="SignupScreen" screenOptions={{ headerShown: false }}
-        > */}
-        {/* <Stack.Screen name="AlertScreen" options={{ headerShown: false }} component={AlertScreen} /> */}
-        {/* <Stack.Screen name="CustomMarker" options={{ headerShown: false }} component={CustomMarker} /> */}
-        {/* <Stack.Screen name="LoginScreen" options={{ headerShown: false }} component={LoginScreen} /> */}
-        {/* <Stack.Screen name="ProdInfo" options={{ headerShown: false }} component={ProdInfo} /> */}
-        {/* <Stack.Screen name="MarkerCustom" options={{ headerShown: false }} component={MarkerCustom} /> */}
-        {/* <Tab.Screen name="MainMap" options={{ headerShown: false }} component={MainMap} /> */}
-        {/* <Stack.Screen name="BranchesOnMap" options={{ headerShown: false }} component={BranchesOnMap} /> */}
-        {/* <Stack.Screen name="MapScreen" options={{ headerShown: false }} component={MapScreen} /> */}
-        {/* <Stack.Screen
-          name="ItemScreen"
-          options={{ headerShown: false, ...TransitionPresets.FadeFromBottomAndroid }}
-          component={ItemScreen}
-        /> */}
-
-        {/* <Footer /> */}
-        {/* </Tab.Navigator> */}
-      </NavigationIndependentTree>
+            <Stack.Screen
+              name="ForgotPasswordScreen"
+              component={ForgotPasswordScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="ForceChangePasswordScreen"
+              component={ForceChangePasswordScreen}
+              options={{ headerShown: false, gestureEnabled: false }}
+            />
+            <Stack.Screen
+              name="Main"
+              component={Footer}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="SignupScreen" options={{ headerShown: false }} component={SignupScreen} />
+            <Stack.Screen
+              name="ProductScreen"
+              options={{ headerShown: false, ...TransitionPresets.DefaultTransition }}
+              component={ProductScreen}
+            />
+            <Stack.Screen name="Cart" options={{ headerShown: false }} component={Cart} />
+            <Stack.Screen name="CardSelectionScreen" options={{ headerShown: false }} component={CardSelectionScreen} />
+            <Stack.Screen name="PaymentScreen" options={{ headerShown: false }} component={PaymentScreen} />
+          </Stack.Navigator>
+        </NavigationIndependentTree>
+      </AuthProvider>
     </GestureHandlerRootView>
   );
 };

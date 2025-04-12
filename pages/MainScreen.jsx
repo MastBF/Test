@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions, RefreshControl, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Font from 'expo-font';
@@ -12,11 +12,11 @@ import OrderStatusPanel from '../components/OrderProgressPanel';
 import DeleteOrderScreen from '../components/DeleteOrderScreen';
 import SuccessAlert from '../components/SuccessAlert';
 import MapTest from '../components/test'
+import { AuthContext } from '@/context/AuthProvider';
 const { width, height } = Dimensions.get('window');
 
 const CoffeeMusicScreen = ({ navigation }) => {
     const [fontsLoaded, setFontsLoaded] = useState(false);
-    const [token, setToken] = useState(null);
     const [location, setLocation] = useState(null);
     const [shops, setShops] = useState([]);
     const [alertVisible, setAlertVisible] = useState(false);
@@ -26,6 +26,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
     const [refreshing, setRefreshing] = useState(false);
     const [paymentType, setPaymentType] = useState(null);
     const [responseStatus, setResponseStatus] = useState(null);
+    const { token } = useContext(AuthContext);
 
     const loadFonts = useCallback(async () => {
         await Font.loadAsync({
@@ -38,24 +39,11 @@ const CoffeeMusicScreen = ({ navigation }) => {
         setFontsLoaded(true);
     }, []);
 
-    const getToken = useCallback(async () => {
-        try {
-            // Use 'userToken' key consistent with interceptor
-            const storedToken = await AsyncStorage.getItem('userToken');
-            if (storedToken) {
-                setToken(storedToken);
-            }
-        } catch (error) {
-            console.error("Error getting token from AsyncStorage:", error);
-        }
-    }, []);
-
     const handleLogout = useCallback(async () => {
         try {
             // Use 'userToken' key consistent with interceptor
             await AsyncStorage.removeItem('userToken');
             await AsyncStorage.removeItem('refreshToken')
-            setToken(null);
             navigation.reset({
                 index: 0,
                 routes: [{ name: 'LoginScreen' }],
@@ -81,11 +69,11 @@ const CoffeeMusicScreen = ({ navigation }) => {
 
     useEffect(() => {
         const initialize = async () => {
-            await Promise.all([loadFonts(), getToken(), getLocation()]);
+            await Promise.all([loadFonts(), getLocation()]);
             setIsLoaded(true);
         };
         initialize();
-    }, [loadFonts, getToken, getLocation]);
+    }, [loadFonts, getLocation]);
 
     const checkState = useCallback(async () => {
         if (!token) return;

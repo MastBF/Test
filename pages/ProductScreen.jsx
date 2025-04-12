@@ -12,11 +12,12 @@ import { Icon } from 'react-native-elements';
 import ItemScreen from './ItemScreen';
 import { useRoute } from '@react-navigation/native';
 import ProdInfo from '@/components/ProdInfo';
-import {  PixelRatio } from 'react-native';
+import { PixelRatio } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AuthContext } from '@/context/AuthProvider';
 
 const { width, height } = Dimensions.get('window');
-const scale = width / 375; 
+const scale = width / 375;
 const normalize = (size) => {
   const newSize = size * scale;
   return Math.round(PixelRatio.roundToNearestPixel(newSize));
@@ -26,7 +27,6 @@ const CoffeeMusicScreen = ({ navigation }) => {
   const [data, setData] = useState([]);
   const [errorMsg, setErrorMsg] = useState(null);
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  const [token, setToken] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [opacityAnim] = useState(new Animated.Value(0));
   const [translateYAnim] = useState(new Animated.Value(height));
@@ -43,6 +43,8 @@ const CoffeeMusicScreen = ({ navigation }) => {
   const [itemId, setItemId] = useState()
   const [buttonPressed, setButtonPressed] = useState(false);
   const [name, setName] = useState()
+  const { token } = useContext(AuthContext);
+
   const removeFromCart = (id) => {
     setCartProducts(prevCart => prevCart.filter(item => item.id !== id));
   };
@@ -50,7 +52,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
   const handlePressIn = () => {
     setButtonPressed(true);
   };
-  
+
   const handlePressOut = () => {
     setButtonPressed(false);
   };
@@ -130,22 +132,6 @@ const CoffeeMusicScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    const getToken = async () => {
-      try {
-        // Assuming the token key is 'userToken' as used in the interceptor
-        const storedToken = await AsyncStorage.getItem('userToken');
-        if (storedToken) {
-          setToken(storedToken);
-        } else {
-          console.error("Token not found in AsyncStorage");
-        }
-      } catch (error) {
-        console.error("Error fetching token from AsyncStorage:", error);
-      }
-    };
-    getToken();
-  }, []);
-  useEffect(() => {
     setCartProdCount(cartProducts.length)
   }, [cartProducts])
   useEffect(() => {
@@ -185,7 +171,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
   }, []);
 
   const cartNavigate = () => {
-    navigation.navigate('Cart', { navigation, branchId: branchId, companyColor, cartProducts, token,  removeFromCart });
+    navigation.navigate('Cart', { navigation, branchId: branchId, companyColor, cartProducts, token, removeFromCart });
   };
 
 
@@ -397,7 +383,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: normalize(8),
     marginRight: normalize(6),
-    },
+  },
   closeIcon: {
     position: 'absolute',
     top: normalize(20),
@@ -481,7 +467,7 @@ const styles = StyleSheet.create({
   orderButtonText: {
     fontSize: normalize(22),
     fontWeight: 'bold',
-    color: '#000', 
+    color: '#000',
     textAlign: 'center',
     fontFamily: 'LatoBold',
   },

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { Alert, Linking, TouchableOpacity, View, Platform, StyleSheet, SafeAreaView, Dimensions, Text, FlatListComponent } from 'react-native';
 import MapView, { Marker, Callout, PROVIDER_GOOGLE } from 'react-native-maps';
 import Animated, {
@@ -20,6 +20,7 @@ import { Image } from 'react-native-elements';
 import { MaterialIcons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ActivityIndicator } from 'react-native-paper';
+import { AuthContext } from '@/context/AuthProvider';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAX_TRANSLATE_Y = -SCREEN_HEIGHT * 0.7;
@@ -31,7 +32,6 @@ function MapScreen({ navigation, route }) {
     const [location, setLocation] = useState(null);
     const [region, setRegion] = useState(null);
     const [branches, setBranches] = useState([]);
-    const [token, setToken] = useState(null);
     const [selectedBranch, setSelectedBranch] = useState(null);
     const [nearestCompanies, setNearestCompanies] = useState([]);
     const [isPressed, setIsPressed] = useState()
@@ -43,6 +43,7 @@ function MapScreen({ navigation, route }) {
     const { branchId, isUpdate } = route.params || {};
     const [isMarkerPressed, setIsMarkerPressed] = useState(false)
     const [speceficBranchInfo, setSpeceficBranchInfo] = useState(null)
+    const { token } = useContext(AuthContext);
     const darkTheme = [
 
         {
@@ -305,27 +306,14 @@ function MapScreen({ navigation, route }) {
         setSpeceficBranchInfo(branchInfo)
         scrollTo(MAX_TRANSLATE_Y)
     };
-    useEffect(() => {
-        const getToken = async () => {
-            try {
-                // Use 'userToken' key consistent with interceptor
-                const storedToken = await AsyncStorage.getItem('userToken');
-                if (storedToken) {
-                    setToken(storedToken);
-                }
-            } catch (error) {
-                console.error("Error getting token from AsyncStorage:", error);
-            }
-        };
-        getToken();
-    }, []);
+
 
     const fetchNearestCompany = async () => {
         try {
             setLoadingCompanies(true);
             // Use api instance, BASE_URL and Auth header handled by interceptor
             // Note: Using hardcoded coordinates from original code
-            const response = await api.get('/api/v1/Company/nearest/44.5722867/40.1896911');
+            const response = await api.get(`/api/v1/Company/nearest/${region.longitude}/${region.latitude}`);
             setNearestCompanies(response.data);
         } catch (error) {
             console.error("Error fetching nearest company:", error);
@@ -398,9 +386,7 @@ function MapScreen({ navigation, route }) {
             handleCompanyPress(branchId)
         }
     }, [branchId, isUpdate])
-    useEffect(() => {
-        console.log(isPressed)
-    }, [isPressed])
+
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <View style={styles.container}>
