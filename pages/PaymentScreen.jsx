@@ -195,8 +195,20 @@ export default function PaymentScreen({ navigation, route }) {
         });
     }
     const onErrorOrder = () => {
-        setErrorAlert(false);
-        setAlertMessage(''); // Clear the message when alert is dismissed
+        // Check if the error message indicates an existing active order
+        if (alertMessage === "You already have an active order. Please complete or cancel it first.") {
+            setErrorAlert(false); // Close alert first
+            setAlertMessage(''); // Clear message
+            // Redirect to Main screen
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'Main' }],
+            });
+        } else {
+            // For other errors, just close the alert
+            setErrorAlert(false);
+            setAlertMessage('');
+        }
     }
 
     const onSelectCard = (card) => {
