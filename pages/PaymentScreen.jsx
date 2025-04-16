@@ -22,7 +22,8 @@ export default function PaymentScreen({ navigation, route }) {
     const [error, setError] = useState('')
     const [isVisible, setIsVisible] = useState(false);
     const [paymentType, setPaymentType] = useState(null)
-    const [message, setMessage] = useState('')
+    const [message, setMessage] = useState(''); // Keep this if used elsewhere, or remove if only alertMessage is needed
+    const [alertMessage, setAlertMessage] = useState(''); // State for the alert message
     const [showWebView, setShowWebView] = useState(false);
     const [navigateMain, setNavigateMain] = useState(false)
     const [title, setTitle] = useState()
@@ -150,10 +151,24 @@ export default function PaymentScreen({ navigation, route }) {
             }
 
         } catch (error) {
-            setErrorAlert(true)
-            setCards([])
-            setOpenModal(true);
-            console.error(error)
+            console.error('Error posting order:', error.response || error);
+            let specificMessage = 'An unexpected error occurred while placing your order.'; // Default message
+            if (error.response) {
+                // Check for the specific "active order" error
+                if (error.response.status === 400 && error.response.data?.message === "You have a current order") {
+                    specificMessage = "You already have an active order. Please complete or cancel it first.";
+                } else {
+                    // Use API message or generic message for other errors
+                    specificMessage = error.response.data?.message || error.message || specificMessage;
+                }
+            } else {
+                // Network error or other issue without a response
+                specificMessage = error.message || specificMessage;
+            }
+            setAlertMessage(specificMessage); // Set the specific or generic message
+            setErrorAlert(true); // Show the error alert
+            // setCards([]) // Keep or remove based on whether card list should clear on error
+            // setOpenModal(true); // Keep or remove based on whether another modal should open
         }
     };
     const handleNavigationStateChange = async (navState) => {
@@ -172,11 +187,16 @@ export default function PaymentScreen({ navigation, route }) {
         }
     };
     const onSuccessOrder = () => {
-        if (navigateMain) navigation.navigate('Main')
-        setSuccessAlert(false)
+        setSuccessAlert(false); // Close the alert first
+        // Reset navigation stack to the Main route (which includes the Footer/Panel)
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'Main' }], // Use 'Main' as the route name based on _layout.tsx
+        });
     }
     const onErrorOrder = () => {
-        setErrorAlert(false)
+        setErrorAlert(false);
+        setAlertMessage(''); // Clear the message when alert is dismissed
     }
 
     const onSelectCard = (card) => {
@@ -237,7 +257,7 @@ export default function PaymentScreen({ navigation, route }) {
                 <Text style={styles.headerText}>Payment For The Order</Text>
             </View>
             <SuccessAlert visible={successAlert} onCancel={onSuccessOrder} />
-            <ErrorAlert visible={errorAlert} onCancel={onErrorOrder} />
+            <ErrorAlert visible={errorAlert} errorMessage={alertMessage} onCancel={onErrorOrder} />
             <CardSelectionPopup visible={isSelect} onCancel={() => setIsSelect(false)} cards={cards} onSelectCard={onSelectCard} />
             {/* Payment Method Section */}
             <View style={styles.paymentSection}>
@@ -387,7 +407,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#5D5D5D',
         borderRadius: 10,
         padding: 5,
-        borderRadius: 10,
     },
     orderSection: {
         paddingHorizontal: 20,
