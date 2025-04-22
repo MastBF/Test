@@ -109,7 +109,9 @@ const CoffeeMusicScreen = ({ navigation }) => {
     }, [token]);
 
     useEffect(() => {
+        console.log('asjncisbacibibibbu', token, location)
         if (token && location) {
+            console.log('asinddddddddddddddddddddddddddddddddddd')
             fetchShops();
             checkState();
             if (paymentType === 2) {
@@ -127,7 +129,6 @@ const CoffeeMusicScreen = ({ navigation }) => {
 
         return () => clearInterval(interval);
     }, [token, checkState]);
-
     const fetchShops = useCallback(async () => {
         if (!token || !location) return;
         try {
@@ -177,7 +178,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
     const renderShopItem = useCallback(({ item }) => (
         <TouchableOpacity
             style={styles.shopItem}
-            onPress={() => navigation.navigate('MainMap', { branchId: item.id, isUpdate:true })}
+            onPress={() => navigation.navigate('MainMap', { branchId: item.id, isUpdate: true })}
         >
             <Image source={{ uri: item.uiFileName }} style={styles.shopImage} />
             <View style={styles.shopText}>

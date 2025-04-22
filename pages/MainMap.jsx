@@ -283,17 +283,14 @@ function MapScreen({ navigation, route }) {
         if (!location || !token) return;
 
         try {
-            // e.persist();
             setIsPressed(true);
             setLoadingBranches(true);
-            // Use api instance, BASE_URL and Auth header handled by interceptor
             const response = await api.get(
                 `/api/v1/Branch/all-branches/${companyId}/${location.coords.latitude}/${location.coords.longitude}`
-                // Headers handled by interceptor
             );
             setBranches(response.data);
             setBranchInfo(response.data);
-            openSheet();
+            // openSheet();
         } catch (error) {
             console.error("Error fetching company branches:", error);
         } finally {
@@ -388,7 +385,7 @@ function MapScreen({ navigation, route }) {
     }, [branchId, isUpdate])
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#0C0C0C' }}>
             <View style={styles.container}>
                 <MapView
                     style={styles.map}
@@ -514,7 +511,7 @@ const styles = StyleSheet.create({
         width: '102%',
         alignSelf: 'center',
         backgroundColor: '#0C0C0C',
-        top: SCREEN_HEIGHT - 120,
+        top: Platform.OS === 'ios' ? SCREEN_HEIGHT - 170 : SCREEN_HEIGHT - 120,
         borderTopLeftRadius: 25,
         borderTopRightRadius: 25,
         paddingHorizontal: 15,
