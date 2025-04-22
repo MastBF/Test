@@ -8,7 +8,7 @@ import { AntDesign } from '@expo/vector-icons';
 import CustomButton from '../components/CustomButton';
 // Removed unused imports: BASE_URL, axios
 import { PixelRatio } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native';
 const { width, height } = Dimensions.get('window');
 
 const scaleFont = size => size * PixelRatio.getFontScale();
@@ -82,7 +82,9 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
   }
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollContainer}>
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={{
+        minHeight: Dimensions.get('window').height,
+      }}>
         <View style={styles.imageContainer}>
           <Image
             source={{ uri: data.fileName }}
@@ -150,7 +152,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#1C1C1C',
     justifyContent: 'flex-end',
-    height: '100%',
   },
   scrollContainer: {
     flex: 1,

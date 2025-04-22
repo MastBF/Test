@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState, useContext } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, Dimensions, ActivityIndicator, Animated, Easing, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, ScrollView, Dimensions, ActivityIndicator, Animated, Easing, StyleSheet, Platform } from 'react-native';
 import * as Location from 'expo-location';
 import ErrorMessage from '../components/ErrorMessage';
 import { AntDesign, Entypo, Feather, FontAwesome5 } from '@expo/vector-icons';
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
   },
   closeIcon: {
     position: 'absolute',
-    top: normalize(20),
+    top: Platform.OS === 'ios' ? normalize(50) : normalize(20),
     left: normalize(10),
     zIndex: 10,
     padding: normalize(8),

@@ -1,7 +1,7 @@
 import { AntDesign, Entypo, FontAwesome5 } from '@expo/vector-icons';
 import { useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, FlatList, StyleSheet, Dimensions, TouchableOpacity, PixelRatio, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, Button, FlatList, StyleSheet, Dimensions, TouchableOpacity, PixelRatio, ActivityIndicator, Alert, Platform } from 'react-native';
 import { Image } from 'react-native-elements';
 import { Icon } from 'react-native-elements';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
     },
     closeIcon: {
         position: 'absolute',
-        top: normalize(20),
+        top: Platform.OS === 'ios' ? normalize(40) : normalize(20),
         left: normalize(10),
         zIndex: 10,
         padding: normalize(8),

@@ -1,11 +1,7 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import HOC from '../components/HOC';
 import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
-import { api } from '@/utils/requests'; // Import the configured api instance
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ScrollView } from 'react-native-gesture-handler';
+import { api } from '@/utils/requests';
 import { AuthContext } from '@/context/AuthProvider';
 
 const ProfileScreen = ({ navigation }) => {
@@ -13,12 +9,17 @@ const ProfileScreen = ({ navigation }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [state, setState] = useState(null);
   const { token } = useContext(AuthContext);
-
+  // const cards = [
+  //   { cardNumberFirstDigits: '1234' },
+  //   { cardNumberFirstDigits: '5678' },
+  //   { cardNumberFirstDigits: '9012' },
+  //   { cardNumberFirstDigits: '3456' },
+  // ];
+  
   const animation = useRef(new Animated.Value(0)).current;
 
   const getState = async () => {
     try {
-      // Use the api instance; BASE_URL and Auth header are handled by interceptors
       const response = await api.get('/api/v1/Authentication/state');
       setState(response.data);
     } catch (error) {
@@ -34,7 +35,6 @@ const ProfileScreen = ({ navigation }) => {
 
   const getCard = async () => {
     try {
-      // Use the api instance; BASE_URL and Auth header are handled by interceptors
       const response = await api.get('/api/v1/Order/card');
       setCard(response.data);
     } catch (error) {
@@ -95,15 +95,16 @@ const ProfileScreen = ({ navigation }) => {
         ) : (
           <Text style={styles.noCards}>No cards saved</Text>
         )}
-
-        <Animated.View style={[styles.cardList, { height: animation }]}>
-          {isOpen &&
-            card?.slice(1).map((item, index) => (
-              <Text key={index} style={styles.cardItem}>
-                Card ending with {item.cardNumberFirstDigits}
-              </Text>
-            ))}
-        </Animated.View>
+        {card && card.length > 1 &&
+          <Animated.View style={[styles.cardList, { height: animation }]}>
+            {isOpen &&
+              card?.slice(1).map((item, index) => (
+                <Text key={index} style={styles.cardItem}>
+                  Card ending with {item.cardNumberFirstDigits}
+                </Text>
+              ))}
+          </Animated.View>
+        }
       </View>
     </View>
   );
