@@ -9,7 +9,7 @@ import MainMap from '../pages/MainMap';
 import MainScreen from '../pages/MainScreen';
 import ProfileScreen from '../pages/ProfileScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import MapScreen from '../pages/MapScreen';
+import QRScanScreen from './QRScanScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -37,7 +37,8 @@ const Footer = () => {
           borderRightColor: '#fff',
           width: '105%',
           overflow: 'hidden',
-          transform: [{ translateX: '-2.5%' }]
+          transform: [{ translateX: '-2.5%' }],
+          paddingTop: 10,
         },
         headerShown: false,
         tabBarActiveTintColor: '#fff',
@@ -67,6 +68,25 @@ const Footer = () => {
       />
 
       <Tab.Screen
+        name="QRScan"
+        component={QRScanScreen}
+        options={{
+          tabBarIcon: ({ color, size, focused }) => {
+            const scale = focused ? 1.08 : 1;
+            const animatedStyle = {
+              transform: [{ scale: scale }],
+            };
+            return (
+              <Animated.View style={animatedStyle}>
+                <AntDesign name="qrcode" size={23} color={color} />
+              </Animated.View>
+            );
+          },
+          tabBarLabel: 'Scan',
+        }}
+      />
+
+      <Tab.Screen
         name="Shops"
         component={MainScreen}
         options={{
@@ -86,25 +106,6 @@ const Footer = () => {
       />
 
 
-
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          tabBarIcon: ({ color, size, focused }) => {
-            const scale = focused ? 1.08 : 1;
-            const animatedStyle = {
-              transform: [{ scale: scale }],
-            };
-            return (
-              <Animated.View style={animatedStyle}>
-                <AntDesign name="user" size={23} color={color} />
-              </Animated.View>
-            );
-          },
-          tabBarLabel: 'Profile',
-        }}
-      />
     </Tab.Navigator>
   );
 };
