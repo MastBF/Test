@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { BASE_URL } from '../utils/requests'; 
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function QRScanScreen() {
   const [scanned, setScanned] = useState(false);
@@ -26,7 +27,7 @@ export default function QRScanScreen() {
 
   const handleBarcodeScanned = ({ data }) => {
     setScanned(true);
-    
+    console.log('aisuhdisauhdisajd',data)
     // Extract branch ID from URL
     if (data.startsWith(BASE_URL)) {
       console.log('valid qr', data);
@@ -36,7 +37,7 @@ export default function QRScanScreen() {
       console.log('branch id', branchId);
 
       navigation.navigate('ProductScreen', {
-        id: 2, name: 'companyName',
+        branchId: branchId,
       });
     } else {
       console.log('Invalid QR', data);
@@ -93,7 +94,6 @@ export default function QRScanScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingBottom: 70,
   },
   camera: {
     flex: 1,
@@ -124,7 +124,6 @@ const styles = StyleSheet.create({
     height: '100%',
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.6)',
-    borderRadius: 16,
     backgroundColor: 'transparent',
   },
   scanAnimatedLine: {

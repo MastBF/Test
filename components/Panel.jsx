@@ -68,6 +68,25 @@ const Footer = () => {
       />
 
       <Tab.Screen
+        name="Shops"
+        component={MainScreen}
+        options={{
+          tabBarIcon: ({ color, size, focused }) => {
+            const scale = focused ? 1.08 : 1;
+            const animatedStyle = {
+              transform: [{ scale: scale }],
+            };
+            return (
+              <Animated.View style={animatedStyle}>
+                <Feather name="shopping-bag" size={23} color={color} />
+              </Animated.View>
+            );
+          },
+          tabBarLabel: 'Shops',
+        }}
+      />
+
+      <Tab.Screen
         name="QRScan"
         component={QRScanScreen}
         options={{
@@ -86,24 +105,6 @@ const Footer = () => {
         }}
       />
 
-      <Tab.Screen
-        name="Shops"
-        component={MainScreen}
-        options={{
-          tabBarIcon: ({ color, size, focused }) => {
-            const scale = focused ? 1.08 : 1;
-            const animatedStyle = {
-              transform: [{ scale: scale }],
-            };
-            return (
-              <Animated.View style={animatedStyle}>
-                <Feather name="shopping-bag" size={23} color={color} />
-              </Animated.View>
-            );
-          },
-          tabBarLabel: 'Shops',
-        }}
-      />
 
 
     </Tab.Navigator>

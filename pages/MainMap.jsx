@@ -279,7 +279,7 @@ function MapScreen({ navigation, route }) {
             }
         },
     });
-    const handleCompanyPress = async (companyId, e) => {
+    const handleCompanyPress = async (companyId) => {
         if (!location || !token) return;
 
         try {
@@ -290,7 +290,6 @@ function MapScreen({ navigation, route }) {
             );
             setBranches(response.data);
             setBranchInfo(response.data);
-            // openSheet();
         } catch (error) {
             console.error("Error fetching company branches:", error);
         } finally {
@@ -328,6 +327,7 @@ function MapScreen({ navigation, route }) {
     useEffect(() => {
         (async () => {
             try {
+            
                 let { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== 'granted') {
                     console.error('Permission to access location was denied');
@@ -376,18 +376,22 @@ function MapScreen({ navigation, route }) {
         };
     });
     useEffect(() => {
-        if (branchId) {
+        if (branchId && token && location) {
             setIsMarkerPressed(false)
             setIsPressed(true)
             scrollTo(MAX_TRANSLATE_Y)
             handleCompanyPress(branchId)
         }
-    }, [branchId, isUpdate])
 
+    }, [branchId, isUpdate, token, location]);
+    useEffect(() => {
+        console.log('dassssssssssssdsa',branches)
+    },[branches])
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#0C0C0C' }}>
             <View style={styles.container}>
                 <MapView
+
                     style={styles.map}
                     region={region}
                     showsUserLocation={true}
@@ -409,9 +413,10 @@ function MapScreen({ navigation, route }) {
                         <View style={styles.header}>
                             <View style={styles.dragHandle} />
                             {(isPressed || isMarkerPressed) && (
-                                <TouchableOpacity style={styles.backButton} onPress={() => {
+                                <TouchableOpacity style={styles.backButton} onPress={async () => {
                                     setIsPressed(false)
                                     setIsMarkerPressed(false)
+                                    await fetchBranches();
                                 }}>
                                     <Ionicons name='arrow-back-circle-outline' size={35} color='#F7A300' />
                                 </TouchableOpacity>

@@ -31,7 +31,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
   const [opacityAnim] = useState(new Animated.Value(0));
   const [translateYAnim] = useState(new Animated.Value(height));
   const route = useRoute();
-  const { id, logo, branchId } = route.params || {};
+  const { branchId } = route.params || {};
   const [companyColor, setCompanyColor] = useState(null);
   const [companyImg, setCompanyImg] = useState(null);
   const [cartProducts, setCartProducts] = useState([]);

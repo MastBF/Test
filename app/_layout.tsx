@@ -43,6 +43,11 @@ const App: React.FC = () => {
               component={LoginScreen}
               options={{ headerShown: false, gestureEnabled: false }}
             />
+            <Stack.Screen
+              name="ProfileScreen"
+              component={ProfileScreen}
+              options={{ headerShown: false, gestureEnabled: false }}
+            />
 
             <Stack.Screen
               name="ForgotPasswordScreen"

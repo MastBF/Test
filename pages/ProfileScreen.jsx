@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native
 import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { api } from '@/utils/requests';
 import { AuthContext } from '@/context/AuthProvider';
+import { Icon } from 'react-native-elements';
 
 const ProfileScreen = ({ navigation }) => {
   const [card, setCard] = useState(null);
@@ -15,7 +16,7 @@ const ProfileScreen = ({ navigation }) => {
   //   { cardNumberFirstDigits: '9012' },
   //   { cardNumberFirstDigits: '3456' },
   // ];
-  
+
   const animation = useRef(new Animated.Value(0)).current;
 
   const getState = async () => {
@@ -61,6 +62,9 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Icon name="left" type="antdesign" color="#fff" size={20} />
+      </TouchableOpacity>
       <View style={styles.profileSection}>
         <FontAwesome name="user-circle" size={90} color="#FFFFFF" />
         <Text style={styles.username}>{state?.username}</Text>
@@ -141,6 +145,15 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
 
     elevation: 8,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 20,
+    left: 10,
+    zIndex: 10,
+    padding: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 10,
   },
   blockTitle: {
     color: '#FFFFFF',

@@ -38,30 +38,29 @@ const ActiveOrderDetailsModal = ({ visible, onClose, orderDetails, onDelete, isD
 
             <Text style={styles.branchAddress}>Branch: {orderDetails.branchAddress}</Text>
             <Text style={styles.status}>Status: {getOrderStatusString(orderDetails.status)}</Text>
-            <View style={styles.itemsList}> 
+            <View style={styles.itemsList}>
               {orderDetails.items && orderDetails.items.length > 0 ? (
-              <FlatList
-              data={orderDetails.items}
-              keyExtractor={(item, index) => index.toString()}
-              style={{ maxHeight: 250 }}
-              contentContainerStyle={styles.itemsContainer}
-              renderItem={({ item }) => (
-                <View style={styles.itemRow}>
-                  <Image source={{ uri: item.productImageUrl }} style={styles.itemImage} />
-                  <View style={styles.itemDetails}>
-                    <Text style={styles.itemName}>{item.productName}</Text>
-                    <Text style={styles.itemType}>{item.productType}</Text>
-                    <Text style={styles.itemQuantity}>Qty: {item.quantity}</Text>
-                  </View>
-                </View>
-              )}
-            />
+                <FlatList
+                  data={orderDetails.items}
+                  keyExtractor={(item, index) => index.toString()}
+                  style={{ maxHeight: 250 }}
+                  contentContainerStyle={styles.itemsContainer}
+                  renderItem={({ item }) => (
+                    <View style={styles.itemRow}>
+                      <Image source={{ uri: item.productImageUrl }} style={styles.itemImage} />
+                      <View style={styles.itemDetails}>
+                        <Text style={styles.itemName}>{item.productName}</Text>
+                        <Text style={styles.itemType}>{item.productType}</Text>
+                        <Text style={styles.itemQuantity}>Qty: {item.quantity}</Text>
+                      </View>
+                    </View>
+                  )}
+                />
               ) : (
                 <Text style={styles.emptyText}>No items found.</Text>
               )}
             </View>
-
-            <View style={styles.buttonContainer}>
+            <View style={styles.buttonContainer}> 
               <TouchableOpacity style={[styles.actionButton, styles.closeActionButton]} onPress={onClose}>
                 <Text style={styles.actionButtonText}>Close</Text>
               </TouchableOpacity>
@@ -79,6 +78,7 @@ const ActiveOrderDetailsModal = ({ visible, onClose, orderDetails, onDelete, isD
                 </TouchableOpacity>
               )}
             </View>
+
           </View>
         </View>
       </View>
@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1C1C1C', // Dark background
     alignItems: 'center',
     borderWidth: 1,
+    minHeight:530,
     borderColor: '#444', // Subtle border
   },
   closeButton: {
