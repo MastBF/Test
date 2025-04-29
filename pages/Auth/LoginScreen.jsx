@@ -246,13 +246,6 @@ const LoginScreen = ({ navigation }) => {
             <Text style={styles.orText}>Or With</Text>
             <View style={styles.line} />
           </View>
-          <TouchableOpacity style={styles.googleButton}>
-            <Image
-              source={require('../../assets/images/googleLogo.png')}
-              style={styles.googleIcon}
-            />
-            <Text style={styles.googleButtonText}>Login with Google</Text>
-          </TouchableOpacity>
           <Text
             style={styles.loginLink}
             onPress={() => navigation.navigate('SignupScreen')}
@@ -386,26 +379,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: scaleFont(16),
-  },
-  googleIcon: {
-    width: scaleSize(24),
-    height: scaleSize(24),
-    marginRight: scaleSize(8),
-  },
-  googleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: scaleSize(14),
-    borderRadius: scaleSize(8),
-    width: scaleSize(300),
-    justifyContent: 'center',
-  },
-  googleButtonText: {
-    color: '#000',
-    fontWeight: 'bold',
-    fontSize: scaleFont(16),
-    fontFamily: 'InterBold',
   },
   loginLink: {
     marginTop: scaleSize(10),
