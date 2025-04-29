@@ -358,7 +358,7 @@ export default function PaymentScreen({ navigation, route }) {
                 <Text style={styles.summeryTitle}>Summary Information</Text>
                 <View style={styles.summaryRow} >
                     <Text style={styles.summaryText}>Products</Text>
-                    <Text style={styles.summaryPrice}>{totalPrice - 10} <Image source={amdWhite} style={styles.amdIconOrder} /></Text>
+                    <Text style={styles.summaryPrice}>{totalPrice} <Image source={amdWhite} style={styles.amdIconOrder} /></Text>
                 </View>
                 <View style={[styles.summaryRow, styles.serviceFeeMargin]}>
                     <Text style={styles.summaryText}>Service Fee</Text>
