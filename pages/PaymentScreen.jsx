@@ -356,13 +356,17 @@ export default function PaymentScreen({ navigation, route }) {
 
             <View style={[styles.summarySection, { borderTopColor: color }]}>
                 <Text style={styles.summeryTitle}>Summary Information</Text>
-                <View style={[styles.summaryRow, styles.bottomMargin]} >
+                <View style={styles.summaryRow} >
                     <Text style={styles.summaryText}>Products</Text>
                     <Text style={styles.summaryPrice}>{totalPrice} <Image source={amdWhite} style={styles.amdIconOrder} /></Text>
                 </View>
+                <View style={[styles.summaryRow, styles.serviceFeeMargin]}>
+                    <Text style={styles.summaryText}>Service Fee</Text>
+                    <Text style={styles.summaryPrice}>10 <Image source={amdWhite} style={styles.amdIconOrder} /></Text>
+                </View>
                 <View style={styles.summaryRow}>
                     <Text style={[styles.summaryText, styles.boldTextOrder]}>Total</Text>
-                    <Text style={[styles.summaryPrice, styles.boldTextOrder]}>{totalPrice} <Image source={amdWhiteBold} style={styles.amdIconOrder} /></Text>
+                    <Text style={[styles.summaryPrice, styles.boldTextOrder]}>{totalPrice + 10} <Image source={amdWhiteBold} style={styles.amdIconOrder} /></Text>
                 </View>
             </View>
 
@@ -602,16 +606,16 @@ const styles = StyleSheet.create({
         paddingTop: 20,
         marginTop: 20,
         width: '100%',
-        height: '35%',
         paddingHorizontal: 20,
+        paddingBottom: 100, // Add padding to make space for the button
     },
     summaryRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginBottom: 10,
     },
-    bottomMargin: {
-        marginBottom: 60,
+    serviceFeeMargin: {
+        marginBottom: 20, // Add margin below Service Fee
     },
     summaryText: {
         color: 'white',
