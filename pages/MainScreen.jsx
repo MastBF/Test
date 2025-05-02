@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions, RefreshControl, FlatList } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions, RefreshControl, FlatList, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Font from 'expo-font';
 import Feather from '@expo/vector-icons/Feather';
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#0C0C0C',
         alignItems: 'center',
-        paddingBottom: 60,
+        paddingBottom: Platform.OS === 'android' ? 60 : 0,
     },
     loadingContainer: {
         flex: 1,

@@ -298,6 +298,7 @@ function MapScreen({ navigation, route }) {
     };
 
     const handleMarkerPress = (branchInfo) => {
+        console.log('a;osdij')
         setIsMarkerPressed(true)
         setSpeceficBranchInfo(branchInfo)
         scrollTo(MAX_TRANSLATE_Y)
