@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityInd
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../utils/requests'; // Import the configured api instance
 import { Icon, Image } from 'react-native-elements';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
@@ -48,7 +49,7 @@ const ForceChangePasswordScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor:'#0E0E0E' }}>
       <View style={styles.container}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Icon name="left" type="antdesign" color="#fff" size={20} />
@@ -93,14 +94,13 @@ const ForceChangePasswordScreen = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#0E0E0E',
-    padding: 20,
+    paddingHorizontal: 20,
   },
   title: {
     fontSize: 26,
@@ -109,19 +109,22 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     textAlign: 'center',
     letterSpacing: 0.5,
+    width: '100%',
   },
   subtitle: {
     fontSize: 16,
     fontFamily: 'Inter_400Regular',
     color: '#B0B0B0',
-    marginBottom: 20,
+    marginBottom: 30,
     textAlign: 'center',
     letterSpacing: 0.2,
+    width: '100%',
+    paddingHorizontal: 20,
   },
   backButton: {
     position: 'absolute',
-    top: 20,
-    left: 10,
+    top: 0,
+    left: 20,
     zIndex: 10,
     padding: 8,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -129,6 +132,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '90%',
+    maxWidth: 400,
     height: 50,
     backgroundColor: '#2E2E2E',
     borderRadius: 12,
@@ -145,6 +149,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width: '90%',
+    maxWidth: 400,
     backgroundColor: '#4CAF50',
     paddingVertical: 14,
     borderRadius: 9,
@@ -165,15 +170,15 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   logo: {
-    width: width * 0.58,
-    height: height * 0.3,
-    marginBottom: -height * 0.01,
-    marginLeft: width * 0.02,
+    width: 200,
+    height: 200,
+
+    // marginBottom: 20,
   },
   imageBlock: {
     position: 'absolute',
+    top: height * 0.05,
     alignSelf: 'center',
-    top: 25,
     backgroundColor: '#000',
     borderRadius: 3000,
     borderWidth: 1,
@@ -183,6 +188,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 30,
+    padding: 10,
   },
 });
 

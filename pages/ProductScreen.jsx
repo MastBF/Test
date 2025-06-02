@@ -196,7 +196,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       {isOpen && (
-        <Animated.View style={[styles.animatedContainer, { opacity: opacityAnim, transform: [{ translateY: translateYAnim }] }]}>
+        <Animated.View style={[styles.animatedContainer, { opacity: opacityAnim, transform: [{ translateY: 5 }] }]}>
           <ItemScreen
             hideItemScreen={hideItemScreen}
             color={companyColor}

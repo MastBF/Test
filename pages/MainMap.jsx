@@ -8,7 +8,8 @@ import Animated, {
     useAnimatedGestureHandler,
     interpolate,
     Extrapolate,
-    runOnJS
+    runOnJS,
+    useAnimatedReaction
 } from 'react-native-reanimated';
 import { FlatList, PanGestureHandler } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -298,10 +299,13 @@ function MapScreen({ navigation, route }) {
     };
 
     const handleMarkerPress = (branchInfo) => {
-        console.log('a;osdij')
+        console.log('111')
         setIsMarkerPressed(true)
+        console.log('222')
         setSpeceficBranchInfo(branchInfo)
+        console.log('333')
         scrollTo(MAX_TRANSLATE_Y)
+        console.log('444')
     };
 
 
@@ -384,10 +388,9 @@ function MapScreen({ navigation, route }) {
             handleCompanyPress(branchId)
         }
 
-    }, [branchId, isUpdate, token, location]);
-    useEffect(() => {
-        console.log('dassssssssssssdsa',branches)
-    },[branches])
+    }, [branchId, isUpdate, token, location])
+
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#0C0C0C' }}>
             <View style={styles.container}>

@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
     },
     closeIcon: {
         position: 'absolute',
-        top: Platform.OS === 'ios' ? normalize(40) : normalize(20),
+        top:  normalize(40),
         left: normalize(10),
         zIndex: 10,
         padding: normalize(8),

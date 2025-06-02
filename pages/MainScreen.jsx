@@ -10,8 +10,6 @@ import { api } from '../utils/requests'; // Import the configured api instance
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import OrderStatusPanel from '../components/OrderProgressPanel';
 import DeleteOrderScreen from '../components/DeleteOrderScreen';
-import SuccessAlert from '../components/SuccessAlert';
-import MapTest from '../components/test'
 import { AuthContext } from '@/context/AuthProvider';
 const { width, height } = Dimensions.get('window');
 
@@ -26,8 +24,8 @@ const CoffeeMusicScreen = ({ navigation }) => {
     const [refreshing, setRefreshing] = useState(false);
     const [paymentType, setPaymentType] = useState(null);
     const [responseStatus, setResponseStatus] = useState(null);
-    const { token } = useContext(AuthContext);
-
+    const { token, loading } = useContext(AuthContext);
+    console.log('loaaad', loading)
     const loadFonts = useCallback(async () => {
         await Font.loadAsync({
             RobotoRegular: require('../assets/fonts/Roboto-Regular.ttf'),
@@ -188,7 +186,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
         </TouchableOpacity>
     ), [navigation]);
 
-    if (!isLoaded || loadingShops) {
+    if (!isLoaded || loadingShops || loading) {
         return (
             <SafeAreaView style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#fff" />
@@ -254,7 +252,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#0C0C0C',
         alignItems: 'center',
-        paddingBottom: Platform.OS === 'android' ? 60 : 0,
+        paddingBottom: Platform.OS === 'android' ? 30 : 30,
     },
     loadingContainer: {
         flex: 1,

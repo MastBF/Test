@@ -126,8 +126,9 @@ const SignupScreen = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+    
+    <SafeAreaView style={styles.scrollContainer}>
+      <ScrollView style={styles.scroll}>
         <ErrorAlert visible={errorAlert} onCancel={() => setErrorAlert(false)} description={errorDescription} title={'Sign up faild'} />
         <View style={styles.container}>
           <View style={styles.imageContainer}>

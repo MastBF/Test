@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Dimensions, Alert, Image, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Font from 'expo-font';
@@ -9,7 +9,7 @@ import { PixelRatio } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { CommonActions } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import { AuthContext } from '@/context/AuthProvider'; 
 const { width, height } = Dimensions.get('window');
 
 const scaleFont = size => size * PixelRatio.getFontScale();
@@ -25,6 +25,7 @@ const LoginScreen = ({ navigation }) => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [errorAlert, setErrorAlert] = useState(false)
+  const { login } = useContext(AuthContext);
   useEffect(() => {
     const loadFonts = async () => {
       await Font.loadAsync({
@@ -53,7 +54,7 @@ const LoginScreen = ({ navigation }) => {
         email,
         password,
       });
-
+      await login(response.data.token); 
       // Use 'userToken' key consistent with interceptor
       await AsyncStorage.setItem('userToken', response.data.token);
       await AsyncStorage.setItem('refreshToken', response.data.refreshToken);

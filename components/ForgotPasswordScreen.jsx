@@ -105,8 +105,8 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: scaleSize(20),
-    left: scaleSize(10),
+    top: scaleSize(40),
+    left: scaleSize(20),
     zIndex: 10,
     padding: scaleSize(8),
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -119,49 +119,45 @@ const styles = StyleSheet.create({
     marginBottom: scaleSize(8),
     textAlign: 'center',
     letterSpacing: 0.5,
+    width: '100%', // Ensure full width for proper centering
   },
   subtitle: {
     fontSize: scaleFont(16),
     fontFamily: 'Inter_400Regular',
     color: '#B0B0B0',
-    marginBottom: scaleSize(20),
+    marginBottom: scaleSize(30),
     textAlign: 'center',
     letterSpacing: 0.2,
+    width: '90%', // Limit width for better readability
+    lineHeight: scaleFont(22), // Better line spacing
   },
   input: {
     width: '90%',
     height: scaleSize(50),
+    minHeight: 50, // Minimum height to ensure touch area
     backgroundColor: '#2E2E2E',
     borderRadius: scaleSize(12),
     paddingHorizontal: scaleSize(16),
     color: '#FFFFFF',
     fontSize: scaleFont(16),
-    marginBottom: scaleSize(16),
+    marginBottom: scaleSize(20),
     borderColor: '#F7A300',
     borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
   },
   button: {
     width: '90%',
+    minHeight: 50, // Minimum height to ensure touch area
     backgroundColor: '#4CAF50',
     paddingVertical: scaleSize(14),
     borderRadius: scaleSize(9),
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#4CAF50',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
     marginTop: scaleSize(10),
   },
   imageBlock: {
     position: 'absolute',
+    top: height * 0.09, // Relative positioning based on screen height
     alignSelf: 'center',
-    top: 25,
     backgroundColor: '#000',
     borderRadius: 3000,
     borderWidth: 1,
@@ -171,7 +167,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 30,
-    paddingLeft: 5
+    padding: scaleSize(10),
   },
   buttonText: {
     fontSize: scaleFont(16),
@@ -181,11 +177,11 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   logo: {
-    width: width * 0.56,
-    height: height * 0.25,
-    marginBottom: scaleSize(10),
+    width:200, // Relative to screen width
+    height:200, // Relative to screen height
+    maxWidth: 250, // Maximum size limit
+    maxHeight: 250, // Maximum size limit
     borderRadius: scaleSize(16),
   },
 });
-
 export default ForgotPasswordScreen;

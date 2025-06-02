@@ -16,7 +16,7 @@ import AddPaymentCardScreen from '../pages/AddPaymentCardScreen ';
 import PaymentScreen from '../pages/PaymentScreen';
 // import BranchesOnMap from '../pages/BranchesOnMap';
 import MarkerCustom from '../pages/MarkerCustom';
-import MainMap from '../pages/MainMap';
+// import MainMap from '../pages/MainMap';
 import AlertScreen from '../components/AlertScreen';
 import Cart from '../components/Cart';
 import ProdInfo from '../components/ProdInfo';
