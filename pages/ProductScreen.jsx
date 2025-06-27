@@ -13,7 +13,8 @@ import ItemScreen from './ItemScreen';
 import { useRoute } from '@react-navigation/native';
 import ProdInfo from '@/components/ProdInfo';
 import { PixelRatio } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { AuthContext } from '@/context/AuthProvider';
 
 const { width, height } = Dimensions.get('window');
@@ -23,7 +24,10 @@ const normalize = (size) => {
   return Math.round(PixelRatio.roundToNearestPixel(newSize));
 };
 
+
+
 const CoffeeMusicScreen = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const [data, setData] = useState([]);
   const [errorMsg, setErrorMsg] = useState(null);
   const [fontsLoaded, setFontsLoaded] = useState(false);
@@ -216,7 +220,11 @@ const CoffeeMusicScreen = ({ navigation }) => {
         name="left"
         type="antdesign"
         color="#fff"
-        containerStyle={styles.closeIcon}
+        containerStyle={[
+          styles.closeIcon,
+          { top: insets.top }
+        ]}
+
         onPress={() => {
           setCartProducts([])
           navigation.goBack()
@@ -283,7 +291,10 @@ const CoffeeMusicScreen = ({ navigation }) => {
       </ScrollView>
 
       <TouchableOpacity
-        style={[styles.orderButton, buttonPressed && styles.orderButtonActive]}
+        style={[styles.orderButton,
+        buttonPressed && styles.orderButtonActive,
+        { marginBottom: insets.bottom + 10 }
+        ]}
         onPress={cartNavigate}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
@@ -334,7 +345,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    bottom:0,
+    bottom: 0,
     backgroundColor: '#fff',
     zIndex: 100,
   },
@@ -381,7 +392,6 @@ const styles = StyleSheet.create({
   },
   closeIcon: {
     position: 'absolute',
-    top: Platform.OS === 'ios' ? normalize(50) : normalize(20),
     left: normalize(10),
     zIndex: 10,
     padding: normalize(8),
@@ -410,7 +420,7 @@ const styles = StyleSheet.create({
     borderColor: '#fff', // Gold border to make it more appealing
     alignSelf: 'center',
     position: 'absolute',
-    bottom: 20,
+    bottom: 10,
     width: '80%', // Adjust the width to make it more balanced
     justifyContent: 'center',
     alignItems: 'center',

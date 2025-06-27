@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 
-const CustomButton = ({ quantity, size, itemPrice, onPress }) => {
+const CustomButton = ({insets, quantity, size, itemPrice, onPress }) => {
   // if (!quantity || !size || !itemPrice) {
   //   return null;
   // }
@@ -9,7 +9,7 @@ const CustomButton = ({ quantity, size, itemPrice, onPress }) => {
 
 
   return (
-    <TouchableOpacity style={styles.orderButton} onPress={() => onPress(price)}>
+    <TouchableOpacity style={[styles.orderButton, {bottom: insets.bottom + 10}]} onPress={() => onPress(price)}>
       <View style={styles.content}>
         <Text style={styles.orderButtonText}>Add to Cart</Text>
         {/* <Image source={require('../assets/images/amdBlack.png')} style={styles.icon} /> */}
@@ -27,7 +27,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     position: 'absolute',
     alignItems: 'center',
-    bottom: 20,
   },
   content: {
     flexDirection: 'row',

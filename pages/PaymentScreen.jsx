@@ -1,6 +1,7 @@
 import { AntDesign, FontAwesome, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ActivityIndicator, Animated, ScrollView, useWindowDimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Animated, ScrollView, useWindowDimensions } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import amdWhite from '../assets/images/amdWhite.png';
 import amdWhiteBold from '../assets/images/amdWhiteBold.png';
 import * as Font from 'expo-font';
@@ -32,6 +33,7 @@ export default function PaymentScreen({ navigation, route }) {
         { title: 'Payment by points', type: 'coin', id: 1, },
         { title: 'Add card and pay', type: 'add', id: 2, },
     ])
+    const insets = useSafeAreaInsets();
     const [creditCardId, setCreditCardId] = useState(null);
     const [paymentUrl, setPaymentUrl] = useState('');
     const [selectedCard, setSelectedCard] = useState({ cardNumber: 'Choose Credit Card' });
@@ -263,7 +265,7 @@ export default function PaymentScreen({ navigation, route }) {
         );
     }
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
             <View style={styles.header}>
                 <AntDesign name="left" size={20} color="#fff" style={styles.icon} onPress={onButtonPress} />
                 <Text style={styles.headerText}>Payment For The Order</Text>
@@ -355,13 +357,13 @@ export default function PaymentScreen({ navigation, route }) {
             </View>
 
             <View style={[styles.summarySection, { borderTopColor: color }]}>
-                <Text style={styles.summeryTitle}>Summary Information</Text>
+                <Text style={[styles.summeryTitle, { fontFamily: 'RobotoBold' }]}>Summary Information</Text>
                 <View style={styles.summaryRow} >
-                    <Text style={styles.summaryText}>Products</Text>
+                    <Text style={[styles.summaryText, styles.summeryProd]}>Products</Text>
                     <Text style={styles.summaryPrice}>{totalPrice} <Image source={amdWhite} style={styles.amdIconOrder} /></Text>
                 </View>
                 <View style={[styles.summaryRow, styles.serviceFeeMargin]}>
-                    <Text style={styles.summaryText}>Service Fee</Text>
+                    <Text style={[styles.summaryText, styles.summeryFee]}>Service Fee</Text>
                     <Text style={styles.summaryPrice}>10 <Image source={amdWhite} style={styles.amdIconOrder} /></Text>
                 </View>
                 <View style={styles.summaryRow}>
@@ -370,7 +372,7 @@ export default function PaymentScreen({ navigation, route }) {
                 </View>
             </View>
 
-            <TouchableOpacity style={styles.confirmButton} onPress={postOrder}>
+            <TouchableOpacity style={[styles.confirmButton, {bottom: insets.bottom + 5}]} onPress={postOrder}>
                 <Text style={styles.confirmButtonText}>Confirm Order</Text>
             </TouchableOpacity>
             {showWebView && (
@@ -394,7 +396,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#1c1c1c',
-        paddingTop: 30,
     },
     loadingContainer: {
         flex: 1,
@@ -409,7 +410,6 @@ const styles = StyleSheet.create({
         height: 20,
         marginBottom: 20,
         // paddingHorizontal: 20,
-
     },
     webViewContainer: {
         position: 'absolute',
@@ -429,7 +429,6 @@ const styles = StyleSheet.create({
     },
     icon: {
         position: 'absolute',
-        // top: 20,
         left: 10,
         zIndex: 10,
         padding: 8,
@@ -612,7 +611,7 @@ const styles = StyleSheet.create({
     summaryRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 10,
+        marginBottom: 5,
     },
     serviceFeeMargin: {
         marginBottom: 20, // Add margin below Service Fee
@@ -651,13 +650,11 @@ const styles = StyleSheet.create({
         fontFamily: 'RobotoBold',
     },
     confirmButton: {
-        marginTop: 20,
         backgroundColor: '#f5f5f5',
         borderRadius: 25,
         paddingVertical: 15,
         alignItems: 'center',
         position: 'absolute',
-        bottom: 20,
         width: '90%',
         alignSelf: 'center',
     },
@@ -666,4 +663,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
+    summeryProd: {
+        fontFamily: 'RobotoThin',
+        fontSize: 18
+    },
+    summeryFee: {
+        fontFamily: 'RobotoThin',
+        fontSize: 18
+    }
 });

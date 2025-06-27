@@ -26,7 +26,7 @@ import { AuthContext } from '@/context/AuthProvider';
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAX_TRANSLATE_Y = -SCREEN_HEIGHT * 0.7;
 const MIN_TRANSLATE_Y = -SCREEN_HEIGHT * 0.3;
-const CLOSED_POSITION = 0;
+const CLOSED_POSITION = 70;
 const { width, height } = Dimensions.get('window');
 
 function MapScreen({ navigation, route }) {
@@ -232,9 +232,7 @@ function MapScreen({ navigation, route }) {
             ]
         }
     ];
-    useEffect(() => { console.log(isUpdate) }, [isUpdate])
     const scrollTo = useCallback((destination) => {
-        'worklet';
         translateY.value = withSpring(destination, { damping: 50 });
     }, []);
 
@@ -262,21 +260,27 @@ function MapScreen({ navigation, route }) {
 
             if (Math.abs(velocity) > 800) {
                 if (velocity > 0) {
-                    runOnJS(closeSheet)();
+                    translateY.value = withSpring(CLOSED_POSITION, { damping: 50 });
+                    if (selectedBranch) {
+                        runOnJS(setSelectedBranch)(null);
+                    }
                 } else {
-                    scrollTo(MAX_TRANSLATE_Y);
+                    translateY.value = withSpring(MAX_TRANSLATE_Y, { damping: 50 });
                 }
                 return;
             }
 
             if (translateY.value > -SCREEN_HEIGHT * 0.5) {
                 if (translateY.value > -SCREEN_HEIGHT * 0.2) {
-                    runOnJS(closeSheet)();
+                    translateY.value = withSpring(CLOSED_POSITION, { damping: 50 });
+                    if (selectedBranch) {
+                        runOnJS(setSelectedBranch)(null);
+                    }
                 } else {
-                    runOnJS(openSheet)();
+                    translateY.value = withSpring(MIN_TRANSLATE_Y, { damping: 50 });
                 }
             } else {
-                scrollTo(MAX_TRANSLATE_Y);
+                translateY.value = withSpring(MAX_TRANSLATE_Y, { damping: 50 });
             }
         },
     });
@@ -299,14 +303,17 @@ function MapScreen({ navigation, route }) {
     };
 
     const handleMarkerPress = (branchInfo) => {
-        console.log('111')
-        setIsMarkerPressed(true)
-        console.log('222')
-        setSpeceficBranchInfo(branchInfo)
-        console.log('333')
-        scrollTo(MAX_TRANSLATE_Y)
-        console.log('444')
+        setIsMarkerPressed(true);
+        setSpeceficBranchInfo(branchInfo);
+        if (Platform.OS === 'ios') {
+            setTimeout(() => {
+                scrollTo(MAX_TRANSLATE_Y);
+            }, 50);
+        } else {
+            scrollTo(MAX_TRANSLATE_Y);
+        }
     };
+
 
 
     const fetchNearestCompany = async () => {
@@ -332,7 +339,7 @@ function MapScreen({ navigation, route }) {
     useEffect(() => {
         (async () => {
             try {
-            
+
                 let { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== 'granted') {
                     console.error('Permission to access location was denied');
@@ -378,6 +385,7 @@ function MapScreen({ navigation, route }) {
             borderRadius,
             transform: [{ translateY: translateY.value }],
             height: SCREEN_HEIGHT,
+            ...(Platform.OS === 'ios' ? { zIndex: 10 } : {})
         };
     });
     useEffect(() => {
@@ -392,10 +400,10 @@ function MapScreen({ navigation, route }) {
 
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#0C0C0C' }}>
+        <View style={{ flex: 1, backgroundColor: '#0C0C0C' }}>
             <View style={styles.container}>
                 <MapView
-
+                    provider={PROVIDER_GOOGLE}
                     style={styles.map}
                     region={region}
                     showsUserLocation={true}
@@ -417,13 +425,34 @@ function MapScreen({ navigation, route }) {
                         <View style={styles.header}>
                             <View style={styles.dragHandle} />
                             {(isPressed || isMarkerPressed) && (
-                                <TouchableOpacity style={styles.backButton} onPress={async () => {
-                                    setIsPressed(false)
-                                    setIsMarkerPressed(false)
-                                    await fetchBranches();
-                                }}>
-                                    <Ionicons name='arrow-back-circle-outline' size={35} color='#F7A300' />
+                                <TouchableOpacity
+                                    style={styles.backButton}
+                                    onPress={async () => {
+                                        setIsPressed(false);
+                                        setIsMarkerPressed(false);
+                                        try {
+                                            await fetchBranches();
+                                        } catch (error) {
+                                            console.error("Error fetching branches:", error);
+                                        }
+                                    }}
+                                >
+                                    <Feather
+                                        name="chevron-left"
+                                        size={26}
+                                        color="#F7A300"
+                                        style={{
+                                            padding: 4,
+                                            backgroundColor: '#1A1A1A',
+                                            borderRadius: 10,
+                                            borderWidth: 1,
+                                            borderColor: '#2E2E2E'
+                                        }}
+                                    />
+
+
                                 </TouchableOpacity>
+
                             )}
                         </View>
 
@@ -439,7 +468,28 @@ function MapScreen({ navigation, route }) {
                                         <Text style={styles.branchPhone}>Phone: {speceficBranchInfo.phone || 'Not specified'}</Text>
                                     </View>
                                 </TouchableOpacity>
-                            </View> : (!isPressed ? (
+
+                                <TouchableOpacity
+                                    style={styles.openInMapsButton}
+                                    onPress={() => {
+                                        const url = Platform.select({
+                                            ios: `maps://?q=${encodeURIComponent(speceficBranchInfo.address)}`,
+                                            android: `geo:0,0?q=${encodeURIComponent(speceficBranchInfo.address)}`
+                                        });
+                                        Linking.openURL(url).catch(err => console.error("Couldn't load page", err));
+                                    }}
+                                    activeOpacity={0.7}
+                                >
+                                    <View style={styles.mapIconContainer}>
+                                        <MaterialCommunityIcons name="map-outline" size={20} color="#F7A300" />
+                                    </View>
+                                    <Text style={styles.openInMapsText}>Open in Maps</Text>
+                                    <View style={styles.arrowIcon}>
+                                        <Feather name="arrow-up-right" size={18} color="#F7A300" />
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                            : (!isPressed ? (
                                 loadingCompanies ? (
                                     <ActivityIndicator size="large" color="#F7A300" style={{ marginTop: 20 }} />
                                 ) : (
@@ -492,7 +542,7 @@ function MapScreen({ navigation, route }) {
                     </Animated.View>
                 </PanGestureHandler>
             </View>
-        </SafeAreaView>
+        </View>
     );
 }
 
@@ -665,6 +715,31 @@ const styles = StyleSheet.create({
     branchPhone: {
         fontSize: 14,
         color: '#ccc',
+    },
+    openInMapsButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: '#1a1a1a',
+        borderRadius: 12,
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        marginTop: 12,
+        borderWidth: 1,
+        borderColor: '#2a2a2a',
+        // Тень для эффекта глубины
+        shadowColor: '#F7A300',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    openInMapsText: {
+        color: '#F7A300',
+        fontSize: 15,
+        fontWeight: '600',
+        marginHorizontal: 10,
+        flex: 1,
     },
 
 });

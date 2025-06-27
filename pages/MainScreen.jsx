@@ -25,7 +25,6 @@ const CoffeeMusicScreen = ({ navigation }) => {
     const [paymentType, setPaymentType] = useState(null);
     const [responseStatus, setResponseStatus] = useState(null);
     const { token, loading } = useContext(AuthContext);
-    console.log('loaaad', loading)
     const loadFonts = useCallback(async () => {
         await Font.loadAsync({
             RobotoRegular: require('../assets/fonts/Roboto-Regular.ttf'),
@@ -107,9 +106,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
     }, [token]);
 
     useEffect(() => {
-        console.log('asjncisbacibibibbu', token, location)
         if (token && location) {
-            console.log('asinddddddddddddddddddddddddddddddddddd')
             fetchShops();
             checkState();
             if (paymentType === 2) {

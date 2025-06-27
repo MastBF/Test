@@ -78,7 +78,7 @@ export default function QRScanScreen() {
           <View style={[styles.overlaySection, styles.sideOverlay]} />
           <View style={styles.scanContainer}>
             <View style={styles.scanFrame} />
-            <View style={styles.scanAnimatedLine} />
+            {/* <View style={styles.scanAnimatedLine} /> */}
             <Text style={styles.scanText}>Align QR code within frame</Text>
           </View>
           <View style={[styles.overlaySection, styles.sideOverlay]} />
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.6)',
+    borderColor: '#F7A300',
     backgroundColor: 'transparent',
   },
   scanAnimatedLine: {

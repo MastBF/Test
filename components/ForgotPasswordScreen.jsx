@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  Alert, ActivityIndicator, Dimensions, PixelRatio, SafeAreaView
+  Alert, ActivityIndicator, Dimensions, PixelRatio
 } from 'react-native';
 import { api } from '../utils/requests'; // Import the configured api instance
 import { Icon, Image } from 'react-native-elements';
 import SuccessAlert from '@/components/SuccessAlert';
 import ErrorAlert from './ErrorAlert';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 

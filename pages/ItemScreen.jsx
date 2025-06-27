@@ -8,7 +8,8 @@ import { AntDesign } from '@expo/vector-icons';
 import CustomButton from '../components/CustomButton';
 // Removed unused imports: BASE_URL, axios
 import { PixelRatio } from 'react-native';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const { width, height } = Dimensions.get('window');
 
 const scaleFont = size => size * PixelRatio.getFontScale();
@@ -22,6 +23,7 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [warning, setWarning] = useState(false)
+  const insets = useSafeAreaInsets();
   const increaseQuantity = () => {
     setQuantity(prev => prev + 1);
   };
@@ -95,7 +97,7 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
             name="down"
             type="antdesign"
             color="#fff"
-            containerStyle={styles.closeIcon}
+            containerStyle={[styles.closeIcon, ]}
             onPress={hideItemScreen}
           />
         </View>
@@ -137,6 +139,7 @@ const ItemScreen = ({ hideItemScreen, color, handleCartProducts, data }) => {
         </View>
       </ScrollView>
       <CustomButton
+        insets={insets}
         quantity={quantity}
         size={size}
         itemPrice={700}
