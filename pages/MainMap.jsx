@@ -22,6 +22,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ActivityIndicator } from 'react-native-paper';
 import { AuthContext } from '@/context/AuthProvider';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAX_TRANSLATE_Y = -SCREEN_HEIGHT * 0.7;
@@ -359,6 +360,7 @@ function MapScreen({ navigation, route }) {
         })();
     }, []);
 
+
     const fetchBranches = async () => {
         if (!region || !token) return;
         try {
@@ -388,15 +390,16 @@ function MapScreen({ navigation, route }) {
             ...(Platform.OS === 'ios' ? { zIndex: 10 } : {})
         };
     });
-    useEffect(() => {
-        if (branchId && token && location) {
-            setIsMarkerPressed(false)
-            setIsPressed(true)
-            scrollTo(MAX_TRANSLATE_Y)
-            handleCompanyPress(branchId)
-        }
-
-    }, [branchId, isUpdate, token, location])
+    useFocusEffect(
+        useCallback(() => {
+            if (branchId && token && location) {
+                setIsMarkerPressed(false);
+                setIsPressed(true);
+                scrollTo(MAX_TRANSLATE_Y);
+                handleCompanyPress(branchId);
+            }
+        }, [branchId, isUpdate, token, location])
+    );
 
 
     return (
@@ -472,9 +475,10 @@ function MapScreen({ navigation, route }) {
                                 <TouchableOpacity
                                     style={styles.openInMapsButton}
                                     onPress={() => {
+                                        const { latitude, longitude } = speceficBranchInfo;
                                         const url = Platform.select({
-                                            ios: `maps://?q=${encodeURIComponent(speceficBranchInfo.address)}`,
-                                            android: `geo:0,0?q=${encodeURIComponent(speceficBranchInfo.address)}`
+                                            ios: `maps://?ll=${latitude},${longitude}`,
+                                            android: `geo:${latitude},${longitude}?q=${latitude},${longitude}`
                                         });
                                         Linking.openURL(url).catch(err => console.error("Couldn't load page", err));
                                     }}
@@ -488,6 +492,7 @@ function MapScreen({ navigation, route }) {
                                         <Feather name="arrow-up-right" size={18} color="#F7A300" />
                                     </View>
                                 </TouchableOpacity>
+
                             </View>
                             : (!isPressed ? (
                                 loadingCompanies ? (
