@@ -17,7 +17,7 @@ import { api } from '@/utils/requests'; // Import the configured api instance
 import * as Location from 'expo-location';
 import BranchInfo from '../components/BranchInfo';
 import { AntDesign, Entypo, EvilIcons, Feather, FontAwesome5, Ionicons } from '@expo/vector-icons';
-import { Image } from 'react-native-elements';
+import { Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ActivityIndicator } from 'react-native-paper';

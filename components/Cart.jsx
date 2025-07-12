@@ -2,7 +2,7 @@ import { AntDesign, Entypo, FontAwesome5 } from '@expo/vector-icons';
 import { useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, FlatList, StyleSheet, Dimensions, TouchableOpacity, PixelRatio, ActivityIndicator, Alert, Platform } from 'react-native';
-import { Image } from 'react-native-elements';
+import { Image } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { ScrollView } from 'react-native-gesture-handler';
 import amdWhite from '../assets/images/amdWhite.png';
