@@ -1,60 +1,50 @@
 {
   "expo": {
-    "name": "Take&Go",
-    "slug": "aora",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/images/trueLogo_with_black_background_and_rounded_corners.png",
-    "scheme": "takeandgo",
-    "deeplink": {
-      "host": "main"
+    "androidStatusBar": {
+      "hidden": true
     },
-    "userInterfaceStyle": "dark",
-    "splash": {
-      "image": "./assets/images/trueLogo.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "ios": {
-      "supportsTablet": true,
-      "config": {
-        "googleMapsApiKey": "AIzaSyCDWBEASleBbBlbPVHEyO4NuHINBDo41y8"
-      },
-      "bundleIdentifier": "com.mast.aora"
-    },
+    "plugins": [
+      "expo-router",
+      "expo-web-browser",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": true
+        }
+      ]
+    ],
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyCDWBEASleBbBlbPVHEyO4NuHINBDo41y8"
         }
       },
-      "package": "com.mast.aora"
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "FOREGROUND_SERVICE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "package": "com.mast.takeandgo"
     },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
-    "plugins": [
-      "expo-router",
-      "expo-font",
-      "expo-secure-store"
-    ],
-    "experiments": {
-      "typedRoutes": true
-    },
-    "extra": {
-      "router": {
-        "origin": false
+    "ios": {
+      "config": {
+        "googleMapsApiKey": "AIzaSyCDWBEASleBbBlbPVHEyO4NuHINBDo41y8"
       },
-      "eas": {
-        "projectId": "e5264aea-963d-495a-a9cf-ca40a336884d"
+      "infoPlist": {
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "The app requires access to your location to show you nearby coffee shops.",
+        "NSLocationWhenInUseUsageDescription": "The app requires access to your location to show you nearby coffee shops.",
+        "UIBackgroundModes": [
+          "location"
+        ]
       }
     },
-    "owner": "mast"
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "0fedac2b-9104-4a9c-8190-df221d6aee9f"
+      }
+    }
   }
 }

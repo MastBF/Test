@@ -7,7 +7,6 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import { api } from '../utils/requests'; // Import the configured api instance
-import { RFPercentage } from 'react-native-responsive-fontsize';
 import OrderStatusPanel from '../components/OrderProgressPanel';
 import DeleteOrderScreen from '../components/DeleteOrderScreen';
 import { AuthContext } from '@/context/AuthProvider';
@@ -201,7 +200,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
                 responseStatus={responseStatus}
             />
             <View style={styles.header}>
-                <Feather name="user" size={RFPercentage(2.5)} color="white" onPress={() => navigation.navigate('ProfileScreen')} />
+                <Feather name="user" size={20} color="white" onPress={() => navigation.navigate('ProfileScreen')} />
                 <View style={styles.logoBlock}>
                     <Text style={styles.logoText}>Take & Go</Text>
                     <View style={styles.imageBlock}>
@@ -215,7 +214,7 @@ const CoffeeMusicScreen = ({ navigation }) => {
                 <Feather
                     name='log-out'
                     color='white'
-                    size={RFPercentage(2.5)}
+                    size={20}
                     onPress={handleLogout}
                 />
             </View>
@@ -302,18 +301,18 @@ const styles = StyleSheet.create({
     },
     shopName: {
         color: '#fff',
-        fontSize: RFPercentage(2.5),
+        fontSize: 20,
         fontWeight: 'bold',
         fontFamily: 'InterBold',
     },
     shopDistance: {
         color: '#fff',
         fontFamily: 'InterThin',
-        fontSize: RFPercentage(2),
+        fontSize: 17,
     },
     noShopsText: {
         color: '#fff',
-        fontSize: RFPercentage(2.5),
+        fontSize: 20,
         fontFamily: 'InterThin',
         marginTop: height * 0.02,
     },
@@ -323,7 +322,7 @@ const styles = StyleSheet.create({
     },
     logoText: {
         color: '#fff',
-        fontSize: RFPercentage(3),
+        fontSize: 25,
         fontFamily: 'InterBold',
         marginRight: 8,
     },

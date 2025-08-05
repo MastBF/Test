@@ -24,6 +24,7 @@ import CustomMarker from '../components/CustomMarker';
 import Footer from '../components/Panel';
 import CardSelectionScreen from '../components/CardSelectionScreen'
 import { AuthProvider } from '../context/AuthProvider';
+import { StatusBar } from 'react-native';
 
 // import testMap from '../components/test'
 // import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -35,6 +36,7 @@ const App: React.FC = () => {
   return (
 
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <StatusBar hidden />
       <AuthProvider>
         <NavigationIndependentTree >
           <Stack.Navigator initialRouteName="LoginScreen">

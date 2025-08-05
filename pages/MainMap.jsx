@@ -575,7 +575,7 @@ const styles = StyleSheet.create({
         width: '102%',
         alignSelf: 'center',
         backgroundColor: '#0C0C0C',
-        top: Platform.OS === 'ios' ? SCREEN_HEIGHT - 170 : SCREEN_HEIGHT - 120,
+        top: Platform.OS === 'ios' ? SCREEN_HEIGHT - 200 : SCREEN_HEIGHT - 200,
         borderTopLeftRadius: 25,
         borderTopRightRadius: 25,
         paddingHorizontal: 15,
